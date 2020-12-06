@@ -135,7 +135,9 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         """
         if isinstance(item, str):
             if "\n" in item:
-                item = map(tuple, item.splitlines())
+                item = np.array(tuple(map(tuple, item.splitlines())))
+                if item.shape != self[key].shape:
+                    item = item.T  # Attempt to fit the text by making it vertical.
             elif len(item) > 1:
                 item = tuple(item)
 
