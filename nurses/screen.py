@@ -1,7 +1,6 @@
 import curses
 import numpy as np
-import window
-
+import widget
 
 class Singleton(type):
     instance = None
@@ -16,14 +15,25 @@ class Screen(metaclass=Singleton):  # TODO: Maybe this needs a better name as it
     """
     def __init__(self, screen: "a curses screen"):
         self.screen = screen
+        curses.curs_set(0)
+        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
+        curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
         self.widgets = []
 
     def refresh(self):
         for widget in self.widgets:
             widget.refresh()
 
-    def new_widget(self, ul: "upper-left coordinate: (y, x)", height, width):
-        self.widgets.append(Widget.Widget(self, ul, height, width))
+    def new_widget(self, ul: "upper-left coordinate: (y, x)"=None, height=None, width=None):
+        if ul is None:
+            ul = 0, 0
+        if height is None:
+            height = curses.LINES
+        if width is None:
+            width = curses.COLS
+
+        self.widgets.append(widget.Widget(self, ul, height, width))
         return self.widgets[-1]
 
     def pull_to_front(self, widget):
@@ -37,3 +47,6 @@ class Screen(metaclass=Singleton):  # TODO: Maybe this needs a better name as it
 
     def add_widget(self, widget):
         self.widgets.append(widget)
+
+def run():
+    return curses.wrapper(Screen)
