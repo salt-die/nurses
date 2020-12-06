@@ -55,6 +55,9 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         if h <= 0 or w <= 0:
             return  # Widget is off screen or otherwise not-displayable.
 
+        # It may be more performant to create a new curses window, write to it and refresh it than writing to the main screen.
+        # More performant if it prevents numpy from refreshing all the characters on the screen instead of just the ones we may have changed.
+        # This is simple enough to add.
         bounds = slice(wid_t, wid_t + h), slice(wid_l, wid_l + w)
         it = np.nditer((self.transparency[bounds], self.buffer[bounds], self.colors[bounds]), ["multi_index"])
 
