@@ -31,15 +31,13 @@ class ScreenManager(metaclass=Singleton):
         for widget in self.widgets:
             widget.refresh()
 
-    def new_widget(self, ul: "upper-left coordinate: (y, x)"=None, height=None, width=None):
-        if ul is None:
-            ul = 0, 0
+    def new_widget(self, top=0, left=0, height=None, width=None):
         if height is None:
             height = curses.LINES
         if width is None:
             width = curses.COLS
 
-        self.widgets.append(Widget(self, ul, height, width))
+        self.widgets.append(Widget(self, top, left, height, width))
         return self.widgets[-1]
 
     def pull_to_front(self, widget):
@@ -62,6 +60,9 @@ class ScreenManager(metaclass=Singleton):
 
     def __exit__(self, type, value, traceback):
         self.close()
+
+    def view(self, top, left, height, width):
+        return curses.newwin(height, width + 1, top, left)
 
     def close(self):
         curses.nocbreak()

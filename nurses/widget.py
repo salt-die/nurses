@@ -6,10 +6,9 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
     """Widget class contains a buffer that can be pushed to the screen by calling `refresh`.  __getitem__ and __setitem__ call the respective
        buffer functions directly, so one can slice and write to a Widget as if it was a numpy array.
         ::args::
-            screen:                  nurses screen that manages widgets, not to be confused with curses screen
-            ul:                      upper-left coordinate of widget. Note that the top-left corner of the screen is (0, 0).
-                                     Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and
-                                     increasing as you move down and x being horizontal and increasing as you move right.
+            sm:                      nurses screen manager
+            top:                     upper coordinate of widget relative to screen
+            left:                    left coordinate of widget relative to screen
             height:                  height of the widget
             width:                   width of the widget
             color_pair (optional):   a curses color_pair.  Default color of this widget.
@@ -20,10 +19,14 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
 
         ::Note::
             If some part of the widget moves out-of-bounds of the screen only the part that overlaps the screen will be drawn.
+
+            Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
+            and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
     """
-    def __init__(self, screen, ul, height, width, color_pair=None, **kwargs):
-        self.screen = screen
-        self.ul = ul
+    def __init__(self, sm, top, left, height, width, color_pair=None, **kwargs):
+        self.sm = sm
+        self.top = top
+        self.left = left
         self.height = height
         self.width = width
 
@@ -31,7 +34,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
 
         if (colors := kwargs.get("colors")) is None:
             if color_pair is None:
-                color_pair = curses.color_pair(1)  # TODO: Maybe grab screen.screen's default color instead
+                color_pair = sm.color(1)
             self.colors = np.full((height, width), color_pair)
         else:
             self.colors = colors
@@ -44,13 +47,30 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         self.tempwin = None
 
     @property
+    def top(self):
+        return self._top
+
+    @top.setter
+    def top(self, val):
+        self._top = val
+        self.has_moved = True
+
+    @property
+    def left(self):
+        return self._left
+
+    @left.setter
+    def left(self, val):
+        self._left = val
+        self.has_moved = True
+
+    @property
     def ul(self):
-        return self._ul
+        return self.top, self.left
 
     @ul.setter
     def ul(self, val):
-        self._ul = val
-        self.has_moved = True
+        self.top, self.left = val
 
     @property
     def height(self):
@@ -71,10 +91,10 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         self.has_resized = True
 
     def refresh(self):
-        scr_hgt, scr_wth = self.screen.screen.getmaxyx()
+        scr_hgt, scr_wth = self.sm.screen.getmaxyx()
         scr_wth -= 1
         height, width = self.height, self.width
-        y, x = self.ul
+        y, x = self.top, self.left
 
         scr_t = max(0, y)
         scr_l = max(0, x)
