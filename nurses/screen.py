@@ -1,24 +1,28 @@
 import curses
-import numpy as np
 import widget
 
 class Singleton(type):
     instance = None
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls):
         if type(cls).instance is None:
-            type(cls).instance = super().__call__(*args, **kwargs)
+            type(cls).instance = super().__call__()
         return type(cls).instance
 
-
-class Screen(metaclass=Singleton):  # TODO: Maybe this needs a better name as it conflicts with curses screen
+class ScreenManager(metaclass=Singleton):
     """Screen maintains widget order and contains convenience method for creating new widgets.
     """
-    def __init__(self, screen: "a curses screen"):
-        self.screen = screen
+    def __init__(self):
+        self.screen = curses.initscr()
+        self.screen.keypad(True)
+        curses.cbreak()
+        curses.noecho()
         curses.curs_set(0)
+
+        curses.start_color()
         curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
         curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
+
         self.widgets = []
 
     def refresh(self):
@@ -48,5 +52,15 @@ class Screen(metaclass=Singleton):  # TODO: Maybe this needs a better name as it
     def add_widget(self, widget):
         self.widgets.append(widget)
 
-def run():
-    return curses.wrapper(Screen)
+    def color(self, n):
+        return curses.color_pair(n)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        curses.nocbreak()
+        self.screen.keypad(False)
+        curses.echo()
+        curses.flushinp()
+        curses.endwin()
