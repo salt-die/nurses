@@ -1,5 +1,5 @@
 import time
-from screen import ScreenManager
+from nurses import ScreenManager
 
 with ScreenManager() as sm:
     my_widget = sm.new_widget((5, 5), 15, 3)

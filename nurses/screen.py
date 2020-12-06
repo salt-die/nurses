@@ -1,5 +1,6 @@
 import curses
-import widget
+from .widget import Widget
+
 
 class Singleton(type):
     instance = None
@@ -7,6 +8,7 @@ class Singleton(type):
         if type(cls).instance is None:
             type(cls).instance = super().__call__()
         return type(cls).instance
+
 
 class ScreenManager(metaclass=Singleton):
     """Screen maintains widget order and contains convenience method for creating new widgets.
@@ -37,7 +39,7 @@ class ScreenManager(metaclass=Singleton):
         if width is None:
             width = curses.COLS
 
-        self.widgets.append(widget.Widget(self, ul, height, width))
+        self.widgets.append(Widget(self, ul, height, width))
         return self.widgets[-1]
 
     def pull_to_front(self, widget):
@@ -59,6 +61,9 @@ class ScreenManager(metaclass=Singleton):
         return self
 
     def __exit__(self, type, value, traceback):
+        self.close()
+
+    def close(self):
         curses.nocbreak()
         self.screen.keypad(False)
         curses.echo()
