@@ -112,8 +112,8 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         if self.has_moved or self.has_resized:
             self.has_moved = self.has_resized = False
             if tempwin is not None:
-                tempwin.erase()
-                tempwin.refresh()
+                tempwin.erase()  # TODO: This needs to be bit more sophisticated, if another widget has already written to this area
+                tempwin.refresh()  # then we don't need to erase it.
             self.tempwin = tempwin = curses.newwin(h, w + 1, scr_t, scr_l)
         tempwin.erase()
 
