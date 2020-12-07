@@ -137,7 +137,8 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
             if "\n" in item:
                 item = np.array(tuple(map(tuple, item.splitlines())))
                 if item.shape != self[key].shape:
-                    item = item.T  # Attempt to fit the text by making it vertical.
+                    # Attempt to fit the text by making it vertical.
+                    item = item.T
             elif len(item) > 1:
                 item = tuple(item)
 
@@ -166,7 +167,5 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         self[-1, -1] = lr
 
         if color is not None:
-            self.colors[0] = color
-            self.colors[-1] = color
-            self.colors[:, 0] = color
-            self.colors[:, -1] = color
+            c = self.colors
+            c[0] = c[-1] = c[:, 0] = c[:, -1] = color
