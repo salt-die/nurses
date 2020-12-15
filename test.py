@@ -62,4 +62,4 @@ resize_test()
 roll_test()
 scroll_test()
 
-sm.close()
+sm.close()  # Alternatively, using ScreenManager as a context manager will call this method automatically.
