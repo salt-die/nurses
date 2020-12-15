@@ -20,32 +20,37 @@ class ScreenManager(metaclass=Singleton):
         curses.noecho()
         curses.curs_set(0)
 
-        curses.start_color()
+        curses.start_color()  # TODO: Add proper color management
         curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
         curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
 
         self.widgets = []
 
-    @property
-    def W(self):
-        return self.screen.getmaxyx[1] - 1
-
-    @property
-    def H(self):
-        return self.screen.getmaxyx[0]
+    def erase(self):
+        """Erase the screen."""
+        self.screen.erase()
 
     def refresh(self):
+        screen = self.screen
+        screen.erase()
+
+        h, w = screen.getmaxyx()
         for widget in self.widgets:
-            widget.refresh()
+            y, x = widget.top, widget.left
+            src_t = max(0, -y)
+            src_l = max(0, -x)
+            des_t = max(0, y)
+            des_l = max(0, x)
+            des_h = min(h - 1, des_t + widget.height)
+            des_w = min(w - 1, des_l + widget.width)
 
-    def new_widget(self, top=0, left=0, height=None, width=None):
-        if height is None:
-            height = curses.LINES
-        if width is None:
-            width = curses.COLS
+            widget.window.overlay(screen, src_t, src_l, des_t, des_l, des_h, des_w)
 
-        self.widgets.append(Widget(top, left, height, width))
+        screen.refresh()
+
+    def new_widget(self, *args, **kwargs):
+        self.widgets.append(Widget(*args, **kwargs))
         return self.widgets[-1]
 
     def pull_to_front(self, widget):
@@ -69,8 +74,6 @@ class ScreenManager(metaclass=Singleton):
     def __exit__(self, type, value, traceback):
         self.close()
 
-    def view(self, top, left, height, width):
-        return curses.newwin(height, width + 1, top, left)
 
     def close(self):
         curses.nocbreak()
