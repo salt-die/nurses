@@ -6,4 +6,4 @@ numpy arrays and typical GUI widgets.
 
 # test.py:
 
-(Output of test.py)[test.gif]
+![output of test.py](test.gif)
