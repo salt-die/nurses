@@ -5,24 +5,27 @@ import numpy as np
 
 
 class Widget:  # TODO:  Widget will inherit from EventListener as soon as we have one.
-    """Widget class contains a buffer that can be pushed to the screen by calling `refresh`.  __getitem__ and __setitem__ call the respective
-       buffer functions directly, so one can slice and write to a Widget as if it was a numpy array.
-        ::args::
-            top:                     upper coordinate of widget relative to screen
-            left:                    left coordinate of widget relative to screen
-            height:                  height of the widget
-            width:                   width of the widget
-            default_color (optional):   a curses color_pair.  Default color of this widget.
+    """A widget contains a buffer that can be pushed to the widget's window by calling `refresh`
+    or more simply by just using the widget's __setitem__.
 
-        ::kwargs::
-            transparency (optional): a boolean mask that indicates which cells in the buffer to write
-            colors (optional):       an array of curses.color_pairs that indicate what color each cell in the buffer should be
+    __getitem__ and __setitem__ call the respective buffer functions directly, so one can slice
+    and write to a Widget as if it was a numpy array.
+      ::args::
+        top:                        upper coordinate of widget relative to screen
+        left:                       left coordinate of widget relative to screen
+        height:                     height of the widget
+        width:                      width of the widget
+        default_color (optional):   a curses color_pair.  Default color of this widget.
 
-        ::Note::
-            If some part of the widget moves out-of-bounds of the screen only the part that overlaps the screen will be drawn.
+      ::kwargs::
+        transparency (optional):    a boolean mask that indicates which characters to write to widget's window
+        colors (optional):          an array of curses.color_pairs that indicates the color of each character
 
-            Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
-            and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
+      ::Note::
+        If some part of the widget moves out-of-bounds of the screen only the part that overlaps the screen will be drawn.
+
+        Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
+        and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
     """
     def __init__(self, top, left, height, width, default_color=None, **kwargs):
         self.top = top
@@ -95,7 +98,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         return self.buffer[key]
 
     def __setitem__(self, key, item):
-        """Mirrors np.array __setitem__ except in cases where item is a string.
+        """buffer.__setitem__ except in cases where item is a string.
         If item is a string of length > 1: coerce string into a tuple or tuple of tuples.
         This convenience will allow one to update text on a widget more directly:
             my_widget[2:4, :13] = "Hello, World!\nI'm a widget!"
