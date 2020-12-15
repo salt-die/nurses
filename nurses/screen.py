@@ -27,6 +27,14 @@ class ScreenManager(metaclass=Singleton):
 
         self.widgets = []
 
+    @property
+    def W(self):
+        return self.screen.getmaxyx[1] - 1
+
+    @property
+    def H(self):
+        return self.screen.getmaxyx[0]
+
     def refresh(self):
         for widget in self.widgets:
             widget.refresh()
@@ -37,7 +45,7 @@ class ScreenManager(metaclass=Singleton):
         if width is None:
             width = curses.COLS
 
-        self.widgets.append(Widget(self, top, left, height, width))
+        self.widgets.append(Widget(top, left, height, width))
         return self.widgets[-1]
 
     def pull_to_front(self, widget):

@@ -1,4 +1,6 @@
 import curses
+
+from . import screen as scr
 import numpy as np
 
 
@@ -6,7 +8,6 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
     """Widget class contains a buffer that can be pushed to the screen by calling `refresh`.  __getitem__ and __setitem__ call the respective
        buffer functions directly, so one can slice and write to a Widget as if it was a numpy array.
         ::args::
-            sm:                      nurses screen manager
             top:                     upper coordinate of widget relative to screen
             left:                    left coordinate of widget relative to screen
             height:                  height of the widget
@@ -23,8 +24,8 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
             Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
             and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
     """
-    def __init__(self, sm, top, left, height, width, color_pair=None, **kwargs):
-        self.sm = sm
+    def __init__(self, top, left, height, width, color_pair=None, **kwargs):
+        self.sm = scr.ScreenManager()
         self.top = top
         self.left = left
         self.height = height
@@ -34,7 +35,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
 
         if (colors := kwargs.get("colors")) is None:
             if color_pair is None:
-                color_pair = sm.color(1)
+                color_pair = self.sm.color(1)
             self.colors = np.full((height, width), color_pair)
         else:
             self.colors = colors
@@ -44,7 +45,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         else:
             self.transparency = transparency
 
-        self.tempwin = None
+        self.window = None
 
     @property
     def top(self):
@@ -90,39 +91,44 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         self._width = val
         self.has_resized = True
 
-    def refresh(self):
+    @property
+    def bounds(self):
         scr_hgt, scr_wth = self.sm.screen.getmaxyx()
-        scr_wth -= 1
         height, width = self.height, self.width
         y, x = self.top, self.left
 
         scr_t = max(0, y)
         scr_l = max(0, x)
-        wid_t = max(0, -y)
-        wid_l = max(0, -x)
+        win_t = max(0, -y)
+        win_l = max(0, -x)
         h = min(scr_hgt - scr_t, y + height)
-        w = min(scr_wth - scr_l, x + width)
+        w = min(scr_wth - scr_l - 1, x + width)
+
+        return scr_t, scr_l, win_t, win_l, h, w
+
+    def refresh(self):
+        scr_t, scr_l, win_t, win_l, h, w = self.bounds
 
         if h <= 0 or w <= 0:
             return  # Widget is off screen or otherwise not-displayable.
 
-        bounds = slice(wid_t, wid_t + h), slice(wid_l, wid_l + w)
+        bounds = slice(win_t, win_t + h), slice(win_l, win_l + w)
 
-        tempwin = self.tempwin
+        window = self.window
         if self.has_moved or self.has_resized:
             self.has_moved = self.has_resized = False
-            if tempwin is not None:
-                tempwin.erase()  # TODO: This needs to be bit more sophisticated, if another widget has already written to this area
-                tempwin.refresh()  # then we don't need to erase it.
-            self.tempwin = tempwin = curses.newwin(h, w + 1, scr_t, scr_l)
-        tempwin.erase()
+            if window is not None:
+                window.erase()    # TODO: This needs to be bit more sophisticated:
+                window.refresh()  # If another widget has already written to this area, then we don't need to erase it.
+            self.window = window = curses.newwin(h, w + 1, scr_t, scr_l)
+        window.erase()
 
         it = np.nditer((self.transparency[bounds], self.buffer[bounds], self.colors[bounds]), ["multi_index"])
         for trans, pix, color in it:
             if trans: continue
             y, x = it.multi_index
-            tempwin.addstr(y, x, str(pix), color)
-        tempwin.refresh()
+            window.addstr(y, x, str(pix), color)
+        window.refresh()
 
     def __getitem__(self, key):
         return self.buffer[key]
