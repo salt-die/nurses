@@ -11,7 +11,7 @@ class Singleton(type):
 
 
 class ScreenManager(metaclass=Singleton):
-    """Screen maintains widget order and contains convenience method for creating new widgets.
+    """ScreenManager manages widgets and handles drawing to screen.
     """
     def __init__(self):
         self.screen = curses.initscr()
