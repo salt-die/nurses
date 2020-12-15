@@ -27,7 +27,7 @@ def move_test():
         widget.colors[1:3, 5:-5] = sm.color(3)
         widget.border(choice(("light", "heavy", "double", "curved")), sm.color(2))
 
-    for i in delayed(range(30)):
+    for _ in delayed(range(30)):
         for widget in sm.widgets:
             widget.left += round(random())
             widget.top += round(random())
