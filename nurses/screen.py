@@ -65,15 +65,11 @@ class ScreenManager(metaclass=Singleton):
     def add_widget(self, widget):
         self.widgets.append(widget)
 
-    def color(self, n):
-        return curses.color_pair(n)
-
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
         self.close()
-
 
     def close(self):
         curses.nocbreak()
