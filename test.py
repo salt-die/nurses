@@ -45,7 +45,6 @@ def roll_test():
     wid = sm.new_widget(10, 30, 1, 11)
     wid[:] = "Rolling! :)"
     for _ in delayed(range(30)):
-        sm.refresh()
         wid.roll(vertical=False)
 
 @reset_sm_after
