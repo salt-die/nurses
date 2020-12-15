@@ -1,6 +1,6 @@
 import curses
 
-from . import screen as scr
+from . import screen_manager as sm
 import numpy as np
 
 
@@ -30,7 +30,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         self._height = height
         self._width = width
 
-        self.default_color = scr.ScreenManager().color(1) if default_color is None else default_color
+        self.default_color = sm.ScreenManager().color(1) if default_color is None else default_color
 
         self.buffer = np.full((height, width), " ")
 
@@ -102,7 +102,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         """
         if isinstance(item, str):
             if "\n" in item:
-                item = np.array(tuple(map(tuple, item.splitlines())))
+                item = np.array(tuple(map(tuple, item.rstrip().splitlines())))
                 if item.shape != self[key].shape:
                     # Attempt to fit the text by making it vertical.
                     item = item.T
