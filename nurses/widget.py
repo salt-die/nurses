@@ -157,7 +157,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         styles = {
             "light": "┌┐│─└┘",
             "heavy": "┏┓┃━┗┛",
-            "double": "╔╗║║╚╝",
+            "double": "╔╗║═╚╝",
             "curved": "╭╮│─╰╯"
         }
 
