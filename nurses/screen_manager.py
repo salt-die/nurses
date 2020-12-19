@@ -2,19 +2,12 @@ import curses
 from .widget import Widget
 
 
-class Singleton(type):
-    instance = None
-    def __call__(cls):
-        if type(cls).instance is None:
-            type(cls).instance = super().__call__()
-        return type(cls).instance
-
-
-class ScreenManager(metaclass=Singleton):
+@curses.wrapper
+class ScreenManager:
     """ScreenManager manages widgets and handles drawing to screen.
     """
-    def __init__(self):
-        self.screen = curses.initscr()
+    def __init__(self, screen):
+        self.screen = screen
         self.screen.keypad(True)
         curses.cbreak()
         curses.noecho()

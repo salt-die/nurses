@@ -1,9 +1,8 @@
 from random import random, choice
 import time
 
-from nurses import ScreenManager
+from nurses import ScreenManager as sm
 
-sm = ScreenManager()
 
 DELAY = .2
 def delayed(iter, delay=DELAY):

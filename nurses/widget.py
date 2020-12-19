@@ -33,7 +33,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         self._height = height
         self._width = width
 
-        self.default_color = sm.ScreenManager().color(1) if default_color is None else default_color
+        self.default_color = sm.ScreenManager.color(1) if default_color is None else default_color
 
         self.buffer = np.full((height, width), " ")
 
