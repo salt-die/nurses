@@ -1,4 +1,5 @@
 import curses
+
 from .widget import Widget
 
 
@@ -12,12 +13,6 @@ class ScreenManager:
         curses.cbreak()
         curses.noecho()
         curses.curs_set(0)
-
-        curses.start_color()  # TODO: Add proper color management
-        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
-        curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
-        curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
-
         self.widgets = []
 
     def erase(self):
@@ -58,9 +53,6 @@ class ScreenManager:
 
     def add_widget(self, widget):
         self.widgets.append(widget)
-
-    def color(self, n):
-        return curses.color_pair(n)
 
     def __enter__(self):
         return self
