@@ -1,10 +1,18 @@
 import curses
 
 from .widget import Widget
+from .colors import ColorDict
+
+class Wrapper(type):
+    instance = None
+
+    def __call__(self):
+        if Wrapper.instance is None:
+            Wrapper.instance = curses.wrapper(super().__call__)
+        return Wrapper.instance
 
 
-@curses.wrapper
-class ScreenManager:
+class ScreenManager(metaclass=Wrapper):
     """ScreenManager manages widgets and handles drawing to screen.
     """
     def __init__(self, screen):
@@ -14,6 +22,7 @@ class ScreenManager:
         curses.noecho()
         curses.curs_set(0)
         self.widgets = []
+        self.colors = ColorDict()
 
     def erase(self):
         """Erase the screen."""

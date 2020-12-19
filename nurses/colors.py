@@ -10,6 +10,7 @@ class ColorDict(dict):
     """A dict that automatically initializes missing color pairs."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self["WHITE", "BLACK"] = 0
         self._pair_count = count(1)
 
     def __missing__(self, key):
@@ -22,11 +23,7 @@ class ColorDict(dict):
 
     def __getattr__(self, attr):
         """Fetch the color pair (COLOR1, COLOR2) with attribute COLOR1_ON_COLOR2 or COLOR1_COLOR2."""
-        if match := COLOR_RE.match(attr):
+        if match := COLOR_RE.fullmatch(attr):
             return curses.color_pair(self[match.groups()])
 
         return super().__getattr__(attr)
-
-
-colors = ColorDict()
-colors["WHITE", "BLACK"] = 0

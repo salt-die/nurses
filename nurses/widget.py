@@ -1,6 +1,5 @@
 import curses
 
-from . import screen_manager as sm
 import numpy as np
 
 
