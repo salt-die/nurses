@@ -33,7 +33,7 @@ def move_test():
 
 @reset_sm_after
 def resize_test():
-    wid = sm.new_widget(12, 12, 13, 12, default_color=colors.RED_ON_BLACK)
+    wid = sm.new_widget(12, 12, 13, 12, colors.RED_ON_BLACK)
     for i in delayed(range(10, 0, -1)):
         wid.height -= 1
         wid[1:-1, 1:-1] = "\n".join("Resize me!" for _ in range(i))
@@ -41,7 +41,7 @@ def resize_test():
 
 @reset_sm_after
 def roll_test():
-    wid = sm.new_widget(10, 30, 1, 11, default_color=colors.CYAN_ON_YELLOW)
+    wid = sm.new_widget(10, 30, 1, 11, colors.CYAN_ON_YELLOW)
     wid[:] = "Rolling! :)"
     for _ in delayed(range(30)):
         wid.roll(vertical=False)
