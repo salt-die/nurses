@@ -142,7 +142,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
 
         self.refresh()
 
-    def roll(self, shift=1, vertical=True):
+    def roll(self, shift=1, vertical=False):
         for attr in ("buffer", "colors", "transparency"):
             setattr(self, attr, np.roll(getattr(self, attr), (-shift, 0) if vertical else (0, -shift), (0, 1)))
         self.refresh()

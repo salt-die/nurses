@@ -45,14 +45,14 @@ def roll_test():
     wid = sm.new_widget(10, 30, 1, 11, sm.colors.CYAN_ON_YELLOW)
     wid[:] = "Rolling! :)"
     for _ in delayed(range(30)):
-        wid.roll(vertical=False)
+        wid.roll()
 
 @reset_sm_after
 def scroll_test():
     wid = sm.new_widget(10, 30, 10, 12)
+    sm.colors.PURPLE = 103, 15, 215
+    wid.colors[::2] = sm.colors.PURPLE_ON_BLACK
     wid[:] = "\n".join("Scroll Test!" for _ in range(10))
-    wid.colors[::2] = sm.colors.BLUE_ON_BLACK
-    wid.refresh()
     for _ in delayed(range(10)):
         wid.scroll()
 
