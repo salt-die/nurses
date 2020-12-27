@@ -1,6 +1,12 @@
 import curses
-
 import numpy as np
+
+BORDER_STYLES = {
+    "light": "┌┐│─└┘",
+    "heavy": "┏┓┃━┗┛",
+    "double": "╔╗║═╚╝",
+    "curved": "╭╮│─╰╯"
+}
 
 
 class Widget:  # TODO:  Widget will inherit from EventListener as soon as we have one.
@@ -116,16 +122,9 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
 
     def border(self, style="light", color=None):
         """Draw a border on the edges of the widget.
-           style can be one of ["light", "heavy", "double", "curved"]
+           `style` can be one of ["light", "heavy", "double", "curved"]
         """
-        styles = {
-            "light": "┌┐│─└┘",
-            "heavy": "┏┓┃━┗┛",
-            "double": "╔╗║═╚╝",
-            "curved": "╭╮│─╰╯"
-        }
-
-        ul, ur, v, h, ll, lr = styles[style]
+        ul, ur, v, h, ll, lr = BORDER_STYLES[style]
 
         self[0] = h
         self[-1] = h
