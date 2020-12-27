@@ -7,14 +7,15 @@ import re
 DEFAULT_COLORS = "BLACK", "BLUE", "GREEN", "CYAN", "RED", "MAGENTA", "YELLOW", "WHITE"
 COLOR_RE = re.compile(r"([A-Z]+)_(?:ON_)?([A-Z]+)")
 SET_COLOR = re.compile(r"[A-Z]+")
+INIT_COLOR_START = 64  # May need to be lowered on terminals with too few colors.  Recommend at least 16, as these colors can't be changed on windows.
 
 class ColorDict(dict):
     """A dict that automatically initializes missing color pairs."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self["WHITE", "BLACK"] = 0
+        self["WHITE", "BLACK"] = 0  # Default color pair.
         self._pair_count = count(1)
-        self._colors = defaultdict(count(64).__next__, zip(DEFAULT_COLORS, count()))
+        self._colors = defaultdict(count(INIT_COLOR_START).__next__, zip(DEFAULT_COLORS, count()))
 
     def __missing__(self, key):
         colors = self._colors
@@ -42,8 +43,6 @@ class ColorDict(dict):
             return super().__setattr__(attr, rgb)
 
         if attr in DEFAULT_COLORS:
-            # I had issues trying to redefine these colors on windows; in fact, init_color on any color number < 16 didn't seem to work.
-            # This is why I start the _colors defaultdict at 256.  Perhaps, will shrink this to 16 in the future.
             raise ValueError(f"Can't redefine {attr}")
 
         if any(not (0 <= component <= 256) for component in rgb):
