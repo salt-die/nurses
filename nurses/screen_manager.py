@@ -5,16 +5,16 @@ from .scheduler import Scheduler
 from .widget import Widget
 
 
-class Wrapper(type):
+class Cursed(type):
     instance = None
 
-    def __call__(self):
-        if Wrapper.instance is None:
-            Wrapper.instance = curses.wrapper(super().__call__)
-        return Wrapper.instance
+    def __call__(cls):
+        if Cursed.instance is None:
+            Cursed.instance = curses.wrapper(super().__call__)
+        return Cursed.instance
 
 
-class ScreenManager(Scheduler, metaclass=Wrapper):
+class ScreenManager(Scheduler, metaclass=Cursed):
     """ScreenManager manages widgets and handles drawing to screen.
     """
     def __init__(self, screen):
