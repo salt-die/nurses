@@ -4,7 +4,7 @@ from itertools import count
 from time import sleep, time
 
 
-class next_task():
+class next_task:
     def __await__(self):
         yield
 
