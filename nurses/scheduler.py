@@ -35,7 +35,8 @@ class Scheduler:
 
             try:
                 self.current.send(None)
-                if self.current:
-                    self.ready.append(self.current)
             except StopIteration:
                 pass
+            else:
+                if self.current:
+                    self.ready.append(self.current)
