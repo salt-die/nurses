@@ -20,7 +20,7 @@ class ScreenManager(Scheduler, metaclass=Cursed):
     """
     def __init__(self, screen):
         self.screen = screen
-        self.screen.keypad(True)
+        screen.keypad(True)
         curses.cbreak()
         curses.noecho()
         curses.curs_set(0)
@@ -29,10 +29,6 @@ class ScreenManager(Scheduler, metaclass=Cursed):
         self.widgets = []
         self._groups = defaultdict(list)
         super().__init__()
-
-    def erase(self):
-        """Erase the screen."""
-        self.screen.erase()
 
     def refresh(self):
         # Notably, we don't use curses.panels as they aren't available for windows-curses...
