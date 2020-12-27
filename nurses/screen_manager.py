@@ -27,7 +27,7 @@ class ScreenManager(Scheduler, metaclass=Cursed):
 
         self.colors = ColorDict()
         self.widgets = []
-        self.groups = defaultdict(list)
+        self._groups = defaultdict(list)
         super().__init__()
 
     def erase(self):
@@ -59,7 +59,7 @@ class ScreenManager(Scheduler, metaclass=Cursed):
         widget = Widget(*args, **kwargs)
         self.widgets.append(widget)
         if group is not None:
-            self.groups[group].append(widget)
+            self._groups[group].append(widget)
         return widget
 
     def top(self, widget):
@@ -74,6 +74,9 @@ class ScreenManager(Scheduler, metaclass=Cursed):
     def add_widget(self, widget):
         self.widgets.append(widget)
 
+    def group(self, group):
+        return self._groups[group]
+
     def __enter__(self):
         return self
 
@@ -81,8 +84,8 @@ class ScreenManager(Scheduler, metaclass=Cursed):
         self.close()
 
     def close(self):
-        curses.nocbreak()
         self.screen.keypad(False)
+        curses.nocbreak()
         curses.echo()
         curses.flushinp()
         curses.endwin()

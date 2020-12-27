@@ -5,16 +5,16 @@ sm = ScreenManager()
 
 async def random_walk():
     for _ in range(30):
-        for widget in sm.groups["moving"]:
+        for widget in sm.group("moving"):
             widget.left += round(random())
             widget.top += round(random())
-        sm.top(choice(sm.groups["moving"]))  # Randomly place a widget on top
+        sm.top(choice(sm.group("moving")))  # Randomly place a widget on top
         sm.refresh()
         await sm.sleep(.5)
 
 async def roll():
     for _ in range(150):
-        for widget in sm.groups["moving"]:
+        for widget in sm.group("moving"):
             widget.roll(roll_border=False)
         sm.refresh()
         await sm.sleep(.1)
