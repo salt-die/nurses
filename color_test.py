@@ -1,5 +1,3 @@
-import time
-
 from nurses import ScreenManager
 
 sm = ScreenManager()
@@ -18,13 +16,17 @@ widget.colors[2::4] = sm.colors.ORANGE_ON_GREEN
 widget.colors[3::4] = sm.colors.TEAL_ON_WHITE
 widget[:] = "\n".join("Color Test!" for _ in range(HEIGHT))
 
-with sm:  # closes after
+async def roll_and_scroll():
     for _ in range(WIDTH):
         sm.refresh()
         widget.roll()
-        time.sleep(.2)
+        await sm.sleep(.2)
 
     for _ in range(HEIGHT):
         sm.refresh()
         widget.scroll()
-        time.sleep(.2)
+        await sm.sleep(.2)
+
+sm.run_soon(roll_and_scroll())
+sm.run()
+sm.close()

@@ -55,7 +55,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
     @height.setter
     def height(self, val):
         self._height = val
-        self.resize()
+        self._resize()
 
     @property
     def width(self):
@@ -64,9 +64,9 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
     @width.setter
     def width(self, val):
         self._width = val
-        self.resize()
+        self._resize()
 
-    def resize(self):
+    def _resize(self):
         height, width = self.height, self.width
         old_h, old_w = self.buffer.shape
         min_h, min_w = min(height, old_h), min(width, old_w)

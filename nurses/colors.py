@@ -14,7 +14,7 @@ class ColorDict(dict):
         super().__init__(*args, **kwargs)
         self["WHITE", "BLACK"] = 0
         self._pair_count = count(1)
-        self._colors = defaultdict(count(256).__next__, zip(DEFAULT_COLORS, count()))
+        self._colors = defaultdict(count(64).__next__, zip(DEFAULT_COLORS, count()))
 
     def __missing__(self, key):
         colors = self._colors

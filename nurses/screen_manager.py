@@ -33,6 +33,8 @@ class ScreenManager(Scheduler, metaclass=Wrapper):
         self.screen.erase()
 
     def refresh(self):
+        # Notably, we don't use curses.panels as they aren't available for windows-curses...
+        # ...upside is we don't error when moving a widget off-screen.
         screen = self.screen
         screen.erase()
 
@@ -46,7 +48,7 @@ class ScreenManager(Scheduler, metaclass=Wrapper):
             des_h = min(h - 1, des_t + widget.height)
             des_w = min(w - 1, des_l + widget.width)
 
-            widget.window.overlay(screen, src_t, src_l, des_t, des_l, des_h, des_w)
+            widget.window.overwrite(screen, src_t, src_l, des_t, des_l, des_h, des_w)
 
         screen.refresh()
 

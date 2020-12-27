@@ -31,3 +31,4 @@ for i in range(5):
 sm.run_soon(random_walk())
 sm.run_soon(roll())
 sm.run()
+sm.close()
