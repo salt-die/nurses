@@ -1,4 +1,5 @@
 import curses
+from collections import defaultdict
 
 from .colors import ColorDict
 from .scheduler import Scheduler
@@ -26,6 +27,7 @@ class ScreenManager(Scheduler, metaclass=Cursed):
 
         self.colors = ColorDict()
         self.widgets = []
+        self.groups = defaultdict(list)
         super().__init__()
 
     def erase(self):
@@ -52,10 +54,13 @@ class ScreenManager(Scheduler, metaclass=Cursed):
 
         screen.refresh()
 
-    def new_widget(self, *args, **kwargs):
-        """Same as calling Widget directly except the widget is automatically appended to widget stack."""
-        self.widgets.append(Widget(*args, **kwargs))
-        return self.widgets[-1]
+    def new_widget(self, *args, group=None, **kwargs):
+        """Create a new widget and append to widget stack.  Can group widgets if providing a hashable group."""
+        widget = Widget(*args, **kwargs)
+        self.widgets.append(widget)
+        if group is not None:
+            self.groups[group].append(widget)
+        return widget
 
     def top(self, widget):
         """Given a widget or an index of a widget, widget is moved to top of widget stack (so it is drawn last)"""

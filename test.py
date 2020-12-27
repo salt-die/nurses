@@ -3,47 +3,45 @@ from nurses import ScreenManager
 
 sm = ScreenManager()
 
-async def random_walk(moving_widgets):
+async def random_walk():
     for _ in range(30):
-        for widget in moving_widgets:
+        for widget in sm.groups["moving"]:
             widget.left += round(random())
             widget.top += round(random())
-        sm.top(choice(moving_widgets))  # Randomly place a widget on top
+        sm.top(choice(sm.groups["moving"]))  # Randomly place a widget on top
         sm.refresh()
         await sm.sleep(.5)
 
-async def roll(moving_widgets):
+async def roll():
     for _ in range(150):
-        for widget in moving_widgets:
+        for widget in sm.groups["moving"]:
             widget.roll(roll_border=False)
         sm.refresh()
         await sm.sleep(.1)
 
-async def resize(widget):
+async def resize():
     for _ in range(15):
-        widget.width -= 1
-        widget.border("curved", sm.colors.RED_ON_BLACK)
+        resize_widget.width -= 1
+        resize_widget.border("curved", sm.colors.RED_ON_BLACK)
         sm.refresh()
         await sm.sleep(1)
 
-async def scroll(widget):
+async def scroll():
     for i in range(15):
-        widget.scroll(scroll_border=False)
-        widget.colors[-2, 1: -1] = sm.colors.BLUE_ON_BLACK
-        widget[-2, 1: -1] = f"New Text{i:02}"
+        scroll_widget.scroll(scroll_border=False)
+        scroll_widget.colors[-2, 1: -1] = sm.colors.BLUE_ON_BLACK
+        scroll_widget[-2, 1: -1] = f"New Text{i:02}"
         sm.refresh()
         await sm.sleep(1)
 
 # Define a new color
 sm.colors.PURPLE = 103, 15, 215
 # Create some widgets
-moving_widgets = []
 for i in range(5):
-    widget = sm.new_widget(i * 5, 0, 4, 15)
+    widget = sm.new_widget(i * 5, 0, 4, 15, group="moving")
     widget.border(color=sm.colors.PURPLE_ON_BLACK)
     widget[1:-1, 1:-1] = "Hello, World!\nI'm a widget!"
     widget.colors[1, 1: -1] = sm.colors.RED_ON_BLACK
-    moving_widgets.append(widget)
 
 resize_widget = sm.new_widget(9, 40, 12, 18, default_color=sm.colors.YELLOW_ON_BLACK)
 resize_widget.border("curved", sm.colors.RED_ON_BLACK)
@@ -55,10 +53,5 @@ scroll_widget.border("double", sm.colors.CYAN_ON_BLACK)
 scroll_widget[1: -1, 1: -1] = "Scroll me!"
 
 with sm:  # alternatively, manually close with sm.close()
-    sm.run_soon(
-        random_walk(moving_widgets),
-        roll(moving_widgets),
-        resize(resize_widget),
-        scroll(scroll_widget)
-    )
+    sm.run_soon(random_walk(), roll(), resize(), scroll())
     sm.run()
