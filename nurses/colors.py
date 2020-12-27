@@ -13,7 +13,8 @@
 
     ::Warning:: Though ColorDict subclasses dict, using the __getitem__ interface could cause errors (bypasses checks in __getattr__).
 """
-
+# TODO: Some program may want a large number of colors, and referring to colors by name may not be convenient in such cases.
+#       Considering adding a way to refer to colors by their hex color code, something like: `sm.colors.H335551`
 # TODO: Reset colors in ScreenManager.close
 from collections import defaultdict
 import curses
