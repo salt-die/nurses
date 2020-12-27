@@ -13,8 +13,8 @@ class Scheduler:
     def __init__(self):
         self.ready = deque()
         self.sleeping = [ ]
-        self.current = None
         self.seq = count()
+        self.current = None
 
     async def sleep(self, delay):
         push(self.sleeping, (time() + delay, next(self.seq), self.current))
@@ -24,7 +24,7 @@ class Scheduler:
     def run_soon(self, *coros):
         self.ready.extend(coros)
 
-    def run(self):
+    def run(self):  # TODO: add getch and dispatch
         while self.ready or self.sleeping:
             if self.ready:
                 self.current = self.ready.popleft()
