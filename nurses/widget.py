@@ -79,6 +79,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
 
         self.buffer = new_buffer
         self.colors = new_colors
+        self.window.erase()
         self.window.resize(height, width + 1)
         self.refresh()
 
@@ -101,13 +102,14 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         if isinstance(item, str):
             if "\n" in item:
                 item = np.array(tuple(map(tuple, item.rstrip().splitlines())))
-                if item.shape != self[key].shape:
-                    # Attempt to fit the text by making it vertical.
-                    item = item.T
             elif len(item) > 1:
-                item = tuple(item)
+                item = np.array(tuple(item))
 
-        self.buffer[key] = item
+        try:
+            self.buffer[key] = item
+        except ValueError:
+            self.buffer[key] = item.T  if len(item.shape) > 1 else item[None, ].T  # Try to fit the text vertically
+
         self.refresh()
 
     def border(self, style="light", color=None):

@@ -1,5 +1,4 @@
 from random import random, choice
-
 from nurses import ScreenManager
 
 sm = ScreenManager()
@@ -22,13 +21,15 @@ async def roll(moving_widgets):
 
 async def resize(widget):
     for _ in range(15):
-        widget.height -= 1
+        widget.width -= 1
+        widget.border("curved", sm.colors.RED_ON_BLACK)
         sm.refresh()
         await sm.sleep(1)
 
 async def scroll(widget):
     for i in range(15):
         widget.scroll(scroll_border=False)
+        widget.colors[-2, 1: -1] = sm.colors.BLUE_ON_BLACK
         widget[-2, 1: -1] = f"New Text{i:02}"
         sm.refresh()
         await sm.sleep(1)
@@ -44,10 +45,10 @@ for i in range(5):
     widget.colors[1, 1: -1] = sm.colors.RED_ON_BLACK
     moving_widgets.append(widget)
 
-resize_widget = sm.new_widget(10, 40, 16, 10)
-resize_widget[:] = "Resize me!"
-resize_widget.colors[::2, ::2] = sm.colors.YELLOW_ON_BLACK
-resize_widget.colors[1::2, 1::2] = sm.colors.BLACK_ON_YELLOW
+resize_widget = sm.new_widget(9, 40, 12, 18, default_color=sm.colors.YELLOW_ON_BLACK)
+resize_widget.border("curved", sm.colors.RED_ON_BLACK)
+resize_widget[1: -1, 1: -1] = "Resize me!"
+resize_widget.colors[:, ::2] = sm.colors.BLACK_ON_YELLOW
 
 scroll_widget = sm.new_widget(9, 60, 18, 12)
 scroll_widget.border("double", sm.colors.CYAN_ON_BLACK)
