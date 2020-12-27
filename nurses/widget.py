@@ -141,15 +141,27 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
 
         self.refresh()
 
-    def roll(self, shift=1, vertical=False):
-        for attr in ("buffer", "colors", "transparency"):
-            setattr(self, attr, np.roll(getattr(self, attr), (-shift, 0) if vertical else (0, -shift), (0, 1)))
+    def roll(self, shift=1, vertical=False, roll_border=True):
+        axis = (-shift, 0) if vertical else (0, -shift)
+        if roll_border:
+            for attr in ("buffer", "colors", "transparency"):
+                setattr(self, attr, np.roll(getattr(self, attr), axis, (0, 1)))
+        else:
+            for attr in ("buffer", "colors", "transparency"):
+                getattr(self, attr)[1: -1, 1: -1] = np.roll(getattr(self, attr)[1: -1, 1: -1], axis, (0, 1))
         self.refresh()
 
-    def scroll(self):
-        for attr in ("buffer", "colors", "transparency"):
-            setattr(self, attr, np.roll(getattr(self, attr), (-1, 0), (0, 1)))
-        self.buffer[-1] = " "
-        self.colors[-1] = self.default_color
-        self.transparency[-1] = False
+    def scroll(self, scroll_border=True):
+        if scroll_border:
+            for attr in ("buffer", "colors", "transparency"):
+                setattr(self, attr, np.roll(getattr(self, attr), (-1, 0), (0, 1)))
+            self.buffer[-1] = " "
+            self.colors[-1] = self.default_color
+            self.transparency[-1] = False
+        else:
+            for attr in ("buffer", "colors", "transparency"):
+                getattr(self, attr)[1: -1, 1: -1] = np.roll(getattr(self, attr)[1: -1, 1: -1], (-1, 0), (0, 1))
+            self.buffer[-2] = " "
+            self.colors[-2] = self.default_color
+            self.transparency[-2] = False
         self.refresh()

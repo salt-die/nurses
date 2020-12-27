@@ -15,7 +15,7 @@ async def random_walk():
 async def roll():
     for _ in range(150):
         for widget in sm.widgets:
-            widget.roll()
+            widget.roll(roll_border=False)
         sm.refresh()
         await sm.sleep(.1)
 
