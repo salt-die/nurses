@@ -1,3 +1,6 @@
+# TODO: Implement a consumer mix-in for Widget to pull data/text/whatever off an asynchronous queue to automatically update their contents.
+# TODO: Implement a mix-in (an EventListener) with an `on_press` method, key presses will be dispatched to widgets' on_press method by the
+#       ScreenManager until the press is handled (an on_press method returns True).
 import curses
 import numpy as np
 
@@ -9,7 +12,7 @@ BORDER_STYLES = {
 }
 
 
-class Widget:  # TODO:  Widget will inherit from EventListener as soon as we have one.
+class Widget:
     """A widget contains a buffer that can be pushed to the widget's window by calling `refresh`
     or more simply by just using the widget's __setitem__.
 
