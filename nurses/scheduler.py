@@ -31,7 +31,7 @@ class Scheduler:
             else:
                 deadline, _, self.current = pop(self.sleeping)
                 if (delta := deadline - time()) > 0:
-                    sleep(delta)  # This blocks.  Once widget's can consume text or data from a queue this could be a bad idea.
+                    sleep(delta)  # This blocks.  Once widgets can consume text or data from a queue this could be a bad idea.
 
             try:
                 self.current.send(None)
