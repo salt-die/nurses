@@ -15,6 +15,7 @@
 """
 # TODO: Some program may want a large number of colors, and referring to colors by name may not be convenient in such cases.
 #       Considering adding a way to refer to colors by their hex color code, something like: `sm.colors.H335551`
+#       Alternatively, add a method to grab a color-pair directy from RGB values: `sm.colors.rgb(103, 15, 215, 0, 0, 0)` (PURPLE_ON_BLACK)
 # TODO: Reset colors in ScreenManager.close
 from collections import defaultdict
 import curses
