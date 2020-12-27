@@ -108,7 +108,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         try:
             self.buffer[key] = item
         except ValueError:
-            self.buffer[key] = item.T  if len(item.shape) > 1 else item[None, ].T  # Try to fit the text vertically
+            self.buffer[key] = item.T  if len(item.shape) == 2 else item[None, ].T  # Try to fit the text vertically
 
         self.refresh()
 
