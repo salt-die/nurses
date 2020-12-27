@@ -1,4 +1,20 @@
-# TODO: Reset colors after screen_manager closes
+"""To define a new color just assign the rgb values (each value being 0 - 255) directly to the color name (let sm be the ScreenManager):
+        ```py
+        sm.colors.PURPLE = 103, 15, 215
+        ```
+    ::Warning:: ColorDict expects color names to match the regex r"[A-Z]+" (i.e., capital letters only).
+
+    To get some color pair just ask for the colors by name, like so:
+        ```py
+        sm.colors.PURPLE_ON_BLACK
+        ```
+    If the color pair isn't defined, ColorDict will initialize it as long as each of the colors are defined.
+    Note the colors BLACK, BLUE, GREEN, CYAN, RED, MAGENTA, YELLOW, WHITE are already defined.
+
+    ::Warning:: Though ColorDict subclasses dict, using the __getitem__ interface could cause errors (bypasses checks in __getattr__).
+"""
+
+# TODO: Reset colors in ScreenManager.close
 from collections import defaultdict
 import curses
 from itertools import count
@@ -27,15 +43,16 @@ class ColorDict(dict):
         return self[key]
 
     def __getattr__(self, attr):
-        """Fetch the color pair (COLOR1, COLOR2) with attribute COLOR1_ON_COLOR2 or COLOR1_COLOR2."""
-        if match := COLOR_RE.fullmatch(attr):
-            for color in match.groups():
-                if color not in self._colors:
-                    raise ValueError(f"{color} not defined")
+        """Fetch the color pair (FORE, BACK) with attribute FORE_ON_BACK or FORE_BACK."""
+        if not (match := COLOR_RE.fullmatch(attr)):
+            return super().__getattr__(attr)
 
-            return curses.color_pair(self[match.groups()])
+        fore, back = match.groups()
+        if (fore_not_in := fore not in self._colors) or back not in self._colors:
+            raise ValueError(f"{fore if fore_not_in else back} not defined")
 
-        return super().__getattr__(attr)
+        return curses.color_pair(self[fore, back])
+
 
     def __setattr__(self, attr, rgb):
         """Initialize a new color `attr` or re-define an old color to rgb"""
