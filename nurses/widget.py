@@ -1,4 +1,4 @@
-# TODO: Implement a consumer mix-in for Widget to pull data/text/whatever off an asynchronous queue to automatically update their contents.
+# TODO: Implement a consumer mix-in for Widget to pull data/text/whatever off an asynchronous queue to automatically update its contents.
 # TODO: Implement a mix-in (an EventListener) with an `on_press` method, key presses will be dispatched to widgets' on_press method by the
 #       ScreenManager until the press is handled (an on_press method returns True).
 import curses
