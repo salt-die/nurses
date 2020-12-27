@@ -7,7 +7,7 @@ import re
 DEFAULT_COLORS = "BLACK", "BLUE", "GREEN", "CYAN", "RED", "MAGENTA", "YELLOW", "WHITE"
 COLOR_RE = re.compile(r"([A-Z]+)_(?:ON_)?([A-Z]+)")
 SET_COLOR = re.compile(r"[A-Z]+")
-INIT_COLOR_START = 64  # May need to be lowered on terminals with too few colors.  Recommend at least 16, as these colors can't be changed on windows.
+INIT_COLOR_START = 64  # May need to be lowered on terminals with too few colors.  Recommend at least 16, as these colors 1 - 15 can't be changed on windows.
 
 class ColorDict(dict):
     """A dict that automatically initializes missing color pairs."""
