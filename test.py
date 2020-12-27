@@ -4,48 +4,60 @@ from nurses import ScreenManager
 
 sm = ScreenManager()
 
-async def random_walk():
+async def random_walk(moving_widgets):
     for _ in range(30):
-        for widget in sm.widgets:
+        for widget in moving_widgets:
             widget.left += round(random())
             widget.top += round(random())
-        sm.top(choice(sm.widgets))  # Randomly place a widget on top
+        sm.top(choice(moving_widgets))  # Randomly place a widget on top
         sm.refresh()
         await sm.sleep(.5)
 
-async def roll():
+async def roll(moving_widgets):
     for _ in range(150):
-        for widget in sm.widgets:
+        for widget in moving_widgets:
             widget.roll(roll_border=False)
         sm.refresh()
         await sm.sleep(.1)
 
+async def resize(widget):
+    for _ in range(15):
+        widget.height -= 1
+        sm.refresh()
+        await sm.sleep(1)
+
+async def scroll(widget):
+    for i in range(15):
+        widget.scroll(scroll_border=False)
+        widget[-2, 1: -1] = f"New Text{i:02}"
+        sm.refresh()
+        await sm.sleep(1)
+
 # Define a new color
 sm.colors.PURPLE = 103, 15, 215
 # Create some widgets
+moving_widgets = []
 for i in range(5):
     widget = sm.new_widget(i * 5, 0, 4, 15)
     widget.border(color=sm.colors.PURPLE_ON_BLACK)
     widget[1:-1, 1:-1] = "Hello, World!\nI'm a widget!"
     widget.colors[1, 1: -1] = sm.colors.RED_ON_BLACK
+    moving_widgets.append(widget)
 
-sm.run_soon(random_walk())
-sm.run_soon(roll())
-sm.run()
+resize_widget = sm.new_widget(10, 40, 16, 10)
+resize_widget[:] = "Resize me!"
+resize_widget.colors[::2, ::2] = sm.colors.YELLOW_ON_BLACK
+resize_widget.colors[1::2, 1::2] = sm.colors.BLACK_ON_YELLOW
 
+scroll_widget = sm.new_widget(9, 60, 18, 12)
+scroll_widget.border("double", sm.colors.CYAN_ON_BLACK)
+scroll_widget[1: -1, 1: -1] = "Scroll me!"
 
-async def resize():
-    sm.widgets.clear()
-    widget = sm.new_widget(10, 10, 10, 10)
-    widget[:] = "Resize me!"
-    widget.colors[::2, ::2] = sm.colors.YELLOW_ON_BLACK
-    widget.colors[1::2, 1::2] = sm.colors.BLACK_ON_YELLOW
-    for _ in range(9):
-        widget.height -= 1
-        sm.refresh()
-        await sm.sleep(.3)
-
-sm.run_soon(resize())
-sm.run()
-
-sm.close()
+with sm:  # alternatively, manually close with sm.close()
+    sm.run_soon(
+        random_walk(moving_widgets),
+        roll(moving_widgets),
+        resize(resize_widget),
+        scroll(scroll_widget)
+    )
+    sm.run()

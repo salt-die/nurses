@@ -23,7 +23,6 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         default_color (optional):   a curses color_pair.  Default color of this widget.
 
       ::kwargs::
-        transparency (optional):    a boolean mask that indicates which characters to write to widget's window
         colors (optional):          an array of curses.color_pairs that indicates the color of each character
 
       ::Note::
@@ -46,11 +45,6 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
             self.colors = colors
         else:
             self.colors = np.full((height, width), self.default_color)
-
-        if transparency := kwargs.get("transparency"):
-            self.transparency = transparency
-        else:
-            self.transparency = np.zeros_like(self.buffer, dtype=bool)
 
         self.window = curses.newwin(height, width + 1)
 
@@ -83,20 +77,15 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         new_colors = np.full((height, width), self.default_color)
         new_colors[:min_h, :min_w] = self.colors[:min_h, :min_w]
 
-        new_trans = np.zeros_like(new_buffer, dtype=bool)
-        new_trans[:min_h, :min_w] = self.transparency[:min_h, :min_w]
-
         self.buffer = new_buffer
         self.colors = new_colors
-        self.transparency = new_trans
         self.window.resize(height, width + 1)
         self.refresh()
 
     def refresh(self):
         """Write the buffers to the window."""
-        it = np.nditer((self.transparency, self.buffer, self.colors), ["multi_index"])
-        for trans, char, color in it:
-            if trans: continue
+        it = np.nditer((self.buffer, self.colors), ["multi_index"])
+        for char, color in it:
             y, x = it.multi_index
             self.window.addstr(y, x, str(char), color)
 
@@ -145,24 +134,19 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
     def roll(self, shift=1, vertical=False, roll_border=True):
         axis = (-shift, 0) if vertical else (0, -shift)
         if roll_border:
-            for attr in ("buffer", "colors", "transparency"):
-                setattr(self, attr, np.roll(getattr(self, attr), axis, (0, 1)))
+            self.buffer = np.roll(self.buffer, axis, (0, 1))
+            self.colors = np.roll(self.colors, axis, (0, 1))
         else:
-            for attr in ("buffer", "colors", "transparency"):
-                getattr(self, attr)[1: -1, 1: -1] = np.roll(getattr(self, attr)[1: -1, 1: -1], axis, (0, 1))
+            self.buffer[1: -1, 1: -1] = np.roll(self.buffer[1: -1, 1: -1], axis, (0, 1))
+            self.colors[1: -1, 1: -1] = np.roll(self.colors[1: -1, 1: -1], axis, (0, 1))
         self.refresh()
 
     def scroll(self, scroll_border=True):
+        self.roll(vertical=True, roll_border=scroll_border)
         if scroll_border:
-            for attr in ("buffer", "colors", "transparency"):
-                setattr(self, attr, np.roll(getattr(self, attr), (-1, 0), (0, 1)))
             self.buffer[-1] = " "
             self.colors[-1] = self.default_color
-            self.transparency[-1] = False
         else:
-            for attr in ("buffer", "colors", "transparency"):
-                getattr(self, attr)[1: -1, 1: -1] = np.roll(getattr(self, attr)[1: -1, 1: -1], (-1, 0), (0, 1))
-            self.buffer[-2] = " "
-            self.colors[-2] = self.default_color
-            self.transparency[-2] = False
+            self.buffer[-2, 1: -1] = " "
+            self.colors[-2, 1: -1] = self.default_color
         self.refresh()

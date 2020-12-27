@@ -21,8 +21,8 @@ class Scheduler:
         self.current = None
         await next_task()
 
-    def run_soon(self, coro):
-        self.ready.append(coro)
+    def run_soon(self, *coros):
+        self.ready.extend(coros)
 
     def run(self):
         while self.ready or self.sleeping:
