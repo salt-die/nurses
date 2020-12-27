@@ -26,13 +26,12 @@ class Scheduler:
 
     def run(self):
         while self.ready or self.sleeping:
-            if not self.ready:
-                deadline, _, coro = pop(self.sleeping)
+            if self.ready:
+                self.current = self.ready.popleft()
+            else:
+                deadline, _, self.current = pop(self.sleeping)
                 if (delta := deadline - time()) > 0:
                     sleep(delta)
-                self.run_soon(coro)
-
-            self.current = self.ready.popleft()
 
             try:
                 self.current.send(None)
