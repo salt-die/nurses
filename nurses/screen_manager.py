@@ -57,7 +57,7 @@ class ScreenManager(Scheduler, metaclass=Cursed):
         self.widgets.append(Widget(*args, **kwargs))
         return self.widgets[-1]
 
-    def pull_to_front(self, widget):
+    def top(self, widget):
         """Given a widget or an index of a widget, widget is moved to top of widget stack (so it is drawn last)"""
         widgets = self.widgets
         if isinstance(widget, int):

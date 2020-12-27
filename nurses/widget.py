@@ -90,6 +90,7 @@ class Widget:  # TODO:  Widget will inherit from EventListener as soon as we hav
         self.colors = new_colors
         self.transparency = new_trans
         self.window.resize(height, width + 1)
+        self.refresh()
 
     def refresh(self):
         """Write the buffers to the window."""

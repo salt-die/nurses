@@ -9,6 +9,7 @@ async def random_walk():
         for widget in sm.widgets:
             widget.left += round(random())
             widget.top += round(random())
+        sm.top(choice(sm.widgets))  # Randomly place a widget on top
         sm.refresh()
         await sm.sleep(.5)
 
@@ -31,4 +32,20 @@ for i in range(5):
 sm.run_soon(random_walk())
 sm.run_soon(roll())
 sm.run()
+
+
+async def resize():
+    sm.widgets.clear()
+    widget = sm.new_widget(10, 10, 10, 10)
+    widget[:] = "Resize me!"
+    widget.colors[::2, ::2] = sm.colors.YELLOW_ON_BLACK
+    widget.colors[1::2, 1::2] = sm.colors.BLACK_ON_YELLOW
+    for _ in range(9):
+        widget.height -= 1
+        sm.refresh()
+        await sm.sleep(.3)
+
+sm.run_soon(resize())
+sm.run()
+
 sm.close()
