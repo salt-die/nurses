@@ -15,11 +15,11 @@ class Widget:
     __getitem__ and __setitem__ call the respective buffer functions directly, so one can slice
     and write to a Widget as if it was a numpy array.
       ::args::
-        top:                        upper coordinate of widget relative to screen
-        left:                       left coordinate of widget relative to screen
-        height:                     height of the widget
-        width:                      width of the widget
-        default_color (optional):   a curses color_pair.  Default color of this widget.
+        top:                upper coordinate of widget relative to screen
+        left:               left coordinate of widget relative to screen
+        height:             height of the widget
+        width:              width of the widget
+        color (optional):   a curses color_pair.  Default color of this widget.
 
       ::kwargs::
         colors (optional):          an array of curses.color_pairs that indicates the color of each character
@@ -30,20 +30,20 @@ class Widget:
         Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
         and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
     """
-    def __init__(self, top, left, height, width, default_color=None, **kwargs):
+    def __init__(self, top, left, height, width, color=None, **kwargs):
         self.top = top
         self.left = left
         self._height = height
         self._width = width
 
-        self.default_color = curses.color_pair(0) if default_color is None else default_color
+        self.color = curses.color_pair(0) if color is None else color
 
         self.has_border = False
         self.buffer = np.full((height, width), " ")
         if colors := kwargs.get("colors"):
             self.colors = colors
         else:
-            self.colors = np.full((height, width), self.default_color)
+            self.colors = np.full((height, width), self.color)
 
         self.window = curses.newwin(height, width + 1)
 
@@ -95,7 +95,7 @@ class Widget:
         new_buffer = np.full((height, width), " ")
         new_buffer[:min_h, :min_w] = self._buffer[:min_h, :min_w]
 
-        new_colors = np.full((height, width), self.default_color)
+        new_colors = np.full((height, width), self.color)
         new_colors[:min_h, :min_w] = self._colors[:min_h, :min_w]
 
         self._buffer = new_buffer
@@ -180,7 +180,7 @@ class Widget:
         """
         self.roll(vertical=True)
         self.buffer[-1] = " "
-        self.colors[-1] = self.default_color
+        self.colors[-1] = self.color
         self.refresh()
 
     def on_press(self, key):
