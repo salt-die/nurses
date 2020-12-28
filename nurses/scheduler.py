@@ -24,14 +24,14 @@ class Scheduler:
     def run_soon(self, *coros):
         self.ready.extend(coros)
 
-    def run(self):  # TODO: add getch and dispatch
+    def run(self):
         while self.ready or self.sleeping:
             if self.ready:
                 self.current = self.ready.popleft()
             else:
                 deadline, _, self.current = pop(self.sleeping)
                 if (delta := deadline - time()) > 0:
-                    sleep(delta)  # This blocks.  Once widgets can consume text or data from a queue this could be a bad idea.
+                    sleep(delta)
 
             try:
                 self.current.send(None)
