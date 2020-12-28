@@ -40,12 +40,14 @@ class ScreenManager(Scheduler, metaclass=Singleton):
             while True:
                 if not self.ready and not self.sleeping:
                     return
+
                 key = self.screen.getch()
                 if key == EXIT:
                     self.ready.clear()
                     self.sleeping.clear()
                     return
-                elif key != -1:
+
+                if key != -1:
                     self.dispatch(key)
                 await self.sleep(GETCH_DELAY)
 
