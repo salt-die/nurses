@@ -2,7 +2,7 @@ import curses
 from collections import defaultdict
 
 from .colors import ColorDict
-from .scheduler import Scheduler, next_task
+from .scheduler import Scheduler
 from .widget import Widget
 
 
