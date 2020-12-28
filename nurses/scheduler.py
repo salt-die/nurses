@@ -24,7 +24,9 @@ class Scheduler:
     def run_soon(self, *coros):
         self.ready.extend(coros)
 
-    def run(self):
+    def run(self, *coros):
+        self.run_soon(*coros)
+
         while self.ready or self.sleeping:
             if self.ready:
                 self.current = self.ready.popleft()
