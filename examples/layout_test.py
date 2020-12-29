@@ -1,6 +1,8 @@
 from nurses import ScreenManager, load_string
 
 with ScreenManager() as sm:
+    # Define a widget layout with a toml-like string
+    # load_string will return a dictionary of the widgets, names taken from the string
     widgets = load_string("""
     HSplit 3
         title

@@ -62,7 +62,8 @@ class LayoutBuilder(Transformer):
         return w
 
 
-def load_string(layout):
+def load_string(layout_string):
     builder = LayoutBuilder()
-    Lark(grammar, parser='lalr', postlex=LayoutIndenter(), transformer=builder).parse(dedent(layout)).update()
+    parser = Lark(grammar, parser='lalr', postlex=LayoutIndenter(), transformer=builder)
+    parser.parse(dedent(layout_string)).update()
     return builder.widgets
