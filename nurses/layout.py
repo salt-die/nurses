@@ -1,101 +1,72 @@
 from .screen_manager import ScreenManager
 
-
-class LayoutBase:
+# TODO: Add minimum size arguments to layouts
+class Layout:
     def __init__(self):
         self.panels = [None, None]
-        self.top = 0
-        self.left = 0
+        self.top = self.left = 0
         self.height, self.width = ScreenManager().screen.getmaxyx()
 
-    def __getitem__(self, key):
-        return self.panels[key]
 
-    @property
-    def top(self):
-        return self._top
-
-    @top.setter
-    def top(self, value):
-        self._top = value
-        self.reset()
-
-    @property
-    def left(self):
-        return self._left
-
-    @left.setter
-    def left(self, value):
-        self._left = value
-        self.reset()
-
-    @property
-    def height(self):
-        return self._height
-
-    @height.setter
-    def height(self, value):
-        self._height = value
-        self.reset()
-
-    @property
-    def width(self):
-        return self._width
-
-    @width.setter
-    def width(self, value):
-        self._width = value
-        self.reset()
-
-    def reset(self):
-        for i, item in enumerate(self.panels):
-            if item:
-                self[i] = item
-
-
-class HSplit(LayoutBase):
+class HSplit(Layout):
     def __init__(self, row):
         super().__init__()
+        self._row = row
+
+    def update(self):
+        row = self._row
         if isinstance(row, float):
             if row < 0:
-                row = 1 - row
+                row += 1
             row = round(row * self.height)
         elif row < 0:
-            row = self.height - row
-        self.row = row
+            row += self.height
 
-    def __setitem__(self, key, item):
-        self.panels[key] = item
-        item.width = self.width
-        item.left = self.left
+        for i, item in enumerate(self.panels):
+            if not item:
+                continue
 
-        if key == 0:
-            item.height = self.row
-            item.top = self.top
-        elif key == 1:
-            item.height = self.height - self.row
-            item.top = self.top + self.row
+            item.width = self.width
+            item.left = self.left
+
+            if i == 0:
+                item.height = row
+                item.top = self.top
+            elif i == 1:
+                item.height = self.height - row
+                item.top = self.top + row
+
+            if isinstance(item, Layout):
+                item.update()
 
 
-class VSplit(LayoutBase):
+class VSplit(Layout):
     def __init__(self, col):
         super().__init__()
+        self._col = col
+
+    def update(self):
+        col = self._col
         if isinstance(col, float):
             if col < 0:
-                col = 1 - col
+                col += 1
             col = round(col * self.width)
         elif col < 0:
-            col = self.width - col
-        self.col = col
+            col += self.width
 
-    def __setitem__(self, key, item):
-        self.panels[key] = item
-        item.height = self.height
-        item.top = self.top
+        for i, item in enumerate(self.panels):
+            if not item:
+                continue
 
-        if key == 0:
-            item.width = self.col
-            item.left = self.left
-        elif key == 1:
-            item.width = self.width - self.col
-            item.left = self.left + self.col
+            item.height = self.height
+            item.top = self.top
+
+            if i == 0:
+                item.width = col
+                item.left = self.left
+            elif i == 1:
+                item.width = self.width - col
+                item.left = self.left + col
+
+            if isinstance(item, Layout):
+                item.update()

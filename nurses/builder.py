@@ -1,3 +1,4 @@
+# TODO: Find a way to init widgets with more options in the build string
 from textwrap import dedent
 
 from lark import Lark, Transformer
@@ -8,12 +9,12 @@ from .screen_manager import ScreenManager
 grammar = r"""
     ?start: _NL* (hsplit | vsplit)
 
-    hsplit: "HSplit" NUMBER _NL [_INDENT (widget | hsplit | vsplit) (widget | hsplit | vsplit) _DEDENT] -> add_hsplit
-    vsplit: "VSplit" NUMBER _NL [_INDENT (widget | hsplit | vsplit) (widget | hsplit | vsplit) _DEDENT] -> add_vsplit
+    hsplit: "HSplit" SIGNED_NUMBER _NL [_INDENT (widget | hsplit | vsplit) (widget | hsplit | vsplit) _DEDENT] -> add_hsplit
+    vsplit: "VSplit" SIGNED_NUMBER _NL [_INDENT (widget | hsplit | vsplit) (widget | hsplit | vsplit) _DEDENT] -> add_vsplit
     widget: NAME _NL -> new_widget
 
     %import common.CNAME -> NAME
-    %import common.NUMBER
+    %import common.SIGNED_NUMBER
     %import common.WS_INLINE
     %declare _INDENT _DEDENT
     %ignore WS_INLINE
@@ -37,17 +38,23 @@ class LayoutBuilder(Transformer):
         self.sm = ScreenManager()
 
     def add_hsplit(self, args):
-        row, _0, _1 = args
-        h = HSplit(int(row) if row.isdigit() else float(row))
-        h[0] = _0
-        h[1] = _1
+        row, top, bottom = args
+        try:
+            row = int(row)
+        except ValueError:
+            row = float(row)
+        h = HSplit(row)
+        h.panels = [top, bottom]
         return h
 
     def add_vsplit(self, args):
-        col, _0, _1 = args
-        v = VSplit(int(col) if col.isdigit() else float(col))
-        v[0] = _0
-        v[1] = _1
+        col, left, right = args
+        try:
+            col = int(col)
+        except ValueError:
+            col = float(col)
+        v = VSplit(col)
+        v.panels = [left, right]
         return v
 
     def new_widget(self, args):
@@ -57,5 +64,5 @@ class LayoutBuilder(Transformer):
 
 def load_string(layout):
     builder = LayoutBuilder()
-    Lark(grammar, parser='lalr', postlex=LayoutIndenter(), transformer=builder).parse(dedent(layout))
+    Lark(grammar, parser='lalr', postlex=LayoutIndenter(), transformer=builder).parse(dedent(layout)).update()
     return builder.widgets

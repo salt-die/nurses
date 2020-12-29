@@ -4,9 +4,11 @@ with ScreenManager() as sm:
     widgets = load_string("""
     HSplit 3
         title
-        VSplit .5
-            left
-            right
+        HSplit -3
+            VSplit .5
+                left
+                right
+            bottom
     """)
 
     title = widgets["title"]
@@ -19,6 +21,9 @@ with ScreenManager() as sm:
 
     right = widgets["right"]
     right.border("double", sm.colors.MAGENTA_ON_BLACK)
+
+    bottom = widgets["bottom"]
+    bottom.border("light", sm.colors.GREEN_ON_BLACK)
 
     async def delayed_for(stop, delay):
         for i in range(stop):
