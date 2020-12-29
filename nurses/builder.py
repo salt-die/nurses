@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 from lark import Lark, Transformer
 from lark.indenter import Indenter
 from .layout import HSplit, VSplit
@@ -52,5 +54,5 @@ class LayoutBuilder(Transformer):
 
 def load_string(layout):
     builder = LayoutBuilder()
-    Lark(grammar, parser='lalr', postlex=LayoutIndenter(), transformer=builder).parse(layout)
+    Lark(grammar, parser='lalr', postlex=LayoutIndenter(), transformer=builder).parse(dedent(layout))
     return builder.widgets
