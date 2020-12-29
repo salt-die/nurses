@@ -56,7 +56,13 @@ class LayoutBase:
 class HSplit(LayoutBase):
     def __init__(self, row):
         super().__init__()
-        self.row = round(row * self.height) if isinstance(row, float) else row
+        if isinstance(row, float):
+            if row < 0:
+                row = 1 - row
+            row = round(row * self.height)
+        elif row < 0:
+            row = self.height - row
+        self.row = row
 
     def __setitem__(self, key, item):
         self.panels[key] = item
@@ -74,7 +80,13 @@ class HSplit(LayoutBase):
 class VSplit(LayoutBase):
     def __init__(self, col):
         super().__init__()
-        self.col = round(col * self.width) if isinstance(col, float) else col
+        if isinstance(col, float):
+            if col < 0:
+                col = 1 - col
+            col = round(col * self.width)
+        elif col < 0:
+            col = self.width - col
+        self.col = col
 
     def __setitem__(self, key, item):
         self.panels[key] = item

@@ -24,7 +24,7 @@ with ScreenManager() as sm:
             for widget in sm.group("moving"):
                 widget.left += round(random())
                 widget.top += round(random())
-            sm.top(choice(sm.group("moving")))  # Randomly place a widget on top
+            sm.top(choice(sm.group("moving")))
 
             sm.refresh()
             await sm.sleep(.5)
