@@ -21,6 +21,7 @@ grammar = r"""
     _NL: /(\r?\n[\t ]*)+/
 """
 
+
 class LayoutIndenter(Indenter):
     NL_type = '_NL'
     OPEN_PAREN_types = []
@@ -28,6 +29,7 @@ class LayoutIndenter(Indenter):
     INDENT_type = '_INDENT'
     DEDENT_type = '_DEDENT'
     tab_len = 8
+
 
 class LayoutBuilder(Transformer):
     def __init__(self):
@@ -51,6 +53,7 @@ class LayoutBuilder(Transformer):
     def new_widget(self, args):
         self.widgets[str(args[0])] = w = self.sm.new_widget()
         return w
+
 
 def load_string(layout):
     builder = LayoutBuilder()
