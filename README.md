@@ -4,6 +4,6 @@ A portmanteau of Numpy and Curses.  This library aims to implement curses widget
 numpy arrays and typical GUI widgets.
 
 
-# test.py:
+# /examples/async_test.py:
 
-![output of test.py](test.gif)
+![output of test.py](async_test.gif)
