@@ -1,19 +1,7 @@
 from nurses import ScreenManager
 
 with ScreenManager() as sm:
-    sm.colors.PURPLE = 103, 15, 215
-
-    async def hello():
-        widget = sm.new_widget(5, 5, 3, 15, sm.colors.GREEN_ON_BLACK)
-        widget.border("curved", sm.colors.PURPLE_ON_BLACK)
-        widget[:] = "Hello, World!"
-
-        for _ in range(60):
-            widget.roll()
-            sm.refresh()
-            await sm.sleep(.2)
-
-    async def scroll_border():
+    async def marching_border():
         # Here we demonstrate how to use numpy indexing to simplify animating text marching around a border.
         widget = sm.new_widget(5, 25, 3, 15, sm.colors.YELLOW_ON_BLACK)
         widget[0, :13] = "Hello, World!"
@@ -33,4 +21,4 @@ with ScreenManager() as sm:
             sm.refresh()
             await sm.sleep(.1)
 
-    sm.run(hello(), scroll_border())
+    sm.run(marching_border())
