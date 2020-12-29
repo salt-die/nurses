@@ -9,34 +9,37 @@ with ScreenManager() as sm:
             right
     """)
 
-    async def roll_title():
-        title = widgets["title"]
-        title.border("curved", sm.colors.CYAN_ON_BLACK)
-        title[0, :5] = "Title"
-        title.colors[:] = sm.colors.YELLOW_ON_BLACK
-        for _ in range(100):
-            title.roll()
+    title = widgets["title"]
+    title.border("curved", sm.colors.CYAN_ON_BLACK)
+    title[0, :5] = "Title"
+    title.colors[:] = sm.colors.YELLOW_ON_BLACK
+
+    left = widgets["left"]
+    left.border("heavy", sm.colors.GREEN_ON_BLACK)
+
+    right = widgets["right"]
+    right.border("double", sm.colors.MAGENTA_ON_BLACK)
+
+    async def delayed_for(stop, delay):
+        for i in range(stop):
+            yield i
             sm.refresh()
-            await sm.sleep(.1)
+            await sm.sleep(delay)
+
+    async def roll_title():
+        async for _ in delayed_for(100, .1):
+            title.roll()
 
     async def scroll_up():
-        left = widgets["left"]
-        left.border("heavy", sm.colors.GREEN_ON_BLACK)
-        for i in range(50):
+        async for i in delayed_for(50, .2):
             left.scroll()
             left.colors[-1] = sm.colors.RED_ON_BLACK
             left[-1, :12] = f"Scroll up {i:02}"
-            sm.refresh()
-            await sm.sleep(.2)
 
     async def scroll_down():
-        right = widgets["right"]
-        right.border("double", sm.colors.MAGENTA_ON_BLACK)
-        for i in range(33):
+        async for i in delayed_for(33, .3):
             right.roll(-1, vertical=True)
             right.colors[0] = sm.colors.BLUE_ON_BLACK
             right[0, :14] = f"Scroll down {i:02}"
-            sm.refresh()
-            await sm.sleep(.3)
 
     sm.run(roll_title(), scroll_up(), scroll_down())
