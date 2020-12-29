@@ -36,27 +36,36 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         self._groups = defaultdict(list)
         super().__init__()
 
-        async def getch():
-            while True:
-                if not self.ready and not self.sleeping:
-                    return
-
-                key = self.screen.getch()
-                if key == EXIT:
-                    self.ready.clear()
-                    self.sleeping.clear()
-                    return
-
-                if key != -1:
-                    self.dispatch(key)
-                await self.sleep(GETCH_DELAY)
-
-        self.ready.append(getch())
+    def pause(self):
+        """Block until a key is pressed."""
+        screen = self.screen
+        screen.nodelay(False)
+        screen.getch()
+        screen.nodelay(True)
 
     def dispatch(self, key):
         for widget in reversed(self.widgets):
             if widget.on_press(key):
                 break
+
+    async def getch(self):
+        while True:
+            if not self.ready and not self.sleeping:
+                return
+
+            key = self.screen.getch()
+            if key == EXIT:
+                self.ready.clear()
+                self.sleeping.clear()
+                return
+
+            if key != -1:
+                self.dispatch(key)
+            await self.sleep(GETCH_DELAY)
+
+    def run(self, *coros):
+        self.ready.append(self.getch())
+        super().run(*coros)
 
     def refresh(self):
         # Notably, we don't use curses.panels as they aren't available for windows-curses...
@@ -80,8 +89,15 @@ class ScreenManager(Scheduler, metaclass=Singleton):
 
     def new_widget(self, *args, group=None, **kwargs):
         """Create a new widget and append to widget stack.  Can group widgets if providing a hashable group."""
-        top, left, height, width, *rest = args
         h, w = self.screen.getmaxyx()
+        w -= 1
+
+        if not args:
+            top, left = 0, 0
+            height, width = h, w
+            rest = ()
+        else:
+            top, left, height, width, *rest = args
         # Float arguments will be taken as percentage of screen size.
         if isinstance(top, float):
             top = round(top * h)

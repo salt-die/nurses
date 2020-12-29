@@ -105,7 +105,7 @@ class Widget:
         if self.has_border:
             self.border(*self.has_border)
         else:
-            self.refresh
+            self.refresh()
 
     def refresh(self):
         """Write the buffers to the window."""
