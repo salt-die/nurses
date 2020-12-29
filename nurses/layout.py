@@ -52,6 +52,7 @@ class LayoutBase:
             if item:
                 self[i] = item
 
+
 class HSplit(LayoutBase):
     def __init__(self, row):
         super().__init__()
