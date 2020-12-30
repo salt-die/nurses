@@ -83,7 +83,10 @@ class ScreenManager(Scheduler, metaclass=Singleton):
             des_h = min(h - 1, des_t + widget.height)
             des_w = min(w - 1, des_l + widget.width)
 
-            widget.window.overwrite(screen, src_t, src_l, des_t, des_l, des_h, des_w)
+            if widget.is_transparent:
+                widget.window.overlay(screen, src_t, src_l, des_t, des_l, des_h, des_w)
+            else:
+                widget.window.overwrite(screen, src_t, src_l, des_t, des_l, des_h, des_w)
 
         screen.refresh()
 

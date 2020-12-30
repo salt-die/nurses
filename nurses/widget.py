@@ -23,6 +23,7 @@ class Widget:
 
       ::kwargs::
         colors (optional):          an array of curses.color_pairs that indicates the color of each character
+        transparent (optional):     default is false; If true widget will overlay other widgets instead of overwrite them.
 
       ::Note::
         If some part of the widget moves out-of-bounds of the screen only the part that overlaps the screen will be drawn.
@@ -39,11 +40,15 @@ class Widget:
         self.color = curses.color_pair(0) if color is None else color
 
         self.has_border = False
+
         self.buffer = np.full((height, width), " ")
+
         if colors := kwargs.get("colors"):
             self.colors = colors
         else:
             self.colors = np.full((height, width), self.color)
+
+        self.is_transparent = bool(kwargs.get("transparent"))
 
         self.window = curses.newwin(height, width + 1)
 
