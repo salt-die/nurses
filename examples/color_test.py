@@ -16,14 +16,10 @@ with ScreenManager() as sm:
     widget[:] = "Color Test!"
 
     async def roll_and_scroll():
-        for _ in range(WIDTH):
-            sm.refresh()
+        async for _ in sm.delayed(range(WIDTH), .2):
             widget.roll()
-            await sm.sleep(.2)
 
-        for _ in range(HEIGHT):
-            sm.refresh()
+        async for _ in sm.delayed(range(HEIGHT), .2):
             widget.scroll()
-            await sm.sleep(.2)
 
     sm.run(roll_and_scroll())

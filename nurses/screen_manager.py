@@ -90,6 +90,13 @@ class ScreenManager(Scheduler, metaclass=Singleton):
 
         screen.refresh()
 
+    async def delayed(self, iterable, delay):
+        """Utility method: return an async iterator over iterable with delay.  Refreshes ScreenManager every iteration."""
+        for i in iterable:
+            yield i
+            self.refresh()
+            await self.sleep(delay)
+
     def new_widget(self, *args, group=None, **kwargs):
         """Create a new widget and append to widget stack.  Can group widgets if providing a hashable group."""
         h, w = self.screen.getmaxyx()

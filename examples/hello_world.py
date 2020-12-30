@@ -6,7 +6,7 @@ with ScreenManager() as sm:
         widget = sm.new_widget(5, 25, 3, 15, sm.colors.YELLOW_ON_BLACK)
         widget[0, :13] = "Hello, World!"
 
-        for _ in range(120):
+        async for _ in sm.delayed(range(120), .1):
             # Move each edge clockwise then place the 3 values that got overwritten.
             tr, bl, br = widget[0, -1], widget[-1, 0], widget[-1, -1]
             b = widget.buffer
@@ -18,7 +18,5 @@ with ScreenManager() as sm:
             b[-1, -2] = br
             b[-2,  0] = bl
             widget.refresh()
-            sm.refresh()
-            await sm.sleep(.1)
 
     sm.run(marching_border())

@@ -20,37 +20,25 @@ with ScreenManager() as sm:
     scroll_widget[:] = "Scroll me!"
 
     async def random_walk():
-        for _ in range(30):
+        async for _ in sm.delayed(range(30), .5):
             for widget in sm.group("moving"):
                 widget.left += round(random())
                 widget.top += round(random())
             sm.top(choice(sm.group("moving")))
 
-            sm.refresh()
-            await sm.sleep(.5)
-
     async def roll():
-        for _ in range(150):
+        async for _ in sm.delayed(range(150), .1):
             for widget in sm.group("moving"):
                 widget.roll()
 
-            sm.refresh()
-            await sm.sleep(.1)
-
     async def resize():
-        for _ in range(15):
+        async for _ in sm.delayed(range(15), 1):
             resize_widget.width -= 1
 
-            sm.refresh()
-            await sm.sleep(1)
-
     async def scroll():
-        for i in range(15):
+        async for i in sm.delayed(range(15), 1):
             scroll_widget.scroll()
             scroll_widget.colors[-1] = sm.colors.BLUE_ON_BLACK
             scroll_widget[-1] = f"New Text{i:02}"
-
-            sm.refresh()
-            await sm.sleep(1)
 
     sm.run(random_walk(), roll(), resize(), scroll())

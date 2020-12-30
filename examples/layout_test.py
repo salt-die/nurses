@@ -27,24 +27,18 @@ with ScreenManager() as sm:
     bottom = widgets["bottom"]
     bottom.border("light", sm.colors.GREEN_ON_BLACK)
 
-    async def delayed_for(stop, delay):
-        for i in range(stop):
-            yield i
-            sm.refresh()
-            await sm.sleep(delay)
-
     async def roll_title():
-        async for _ in delayed_for(100, .1):
+        async for _ in sm.delayed(range(100), .1):
             title.roll()
 
     async def scroll_up():
-        async for i in delayed_for(50, .2):
+        async for i in sm.delayed(range(50), .2):
             left.scroll()
             left.colors[-1] = sm.colors.RED_ON_BLACK
             left[-1, :12] = f"Scroll up {i:02}"
 
     async def scroll_down():
-        async for i in delayed_for(33, .3):
+        async for i in sm.delayed(range(33), .3):
             right.roll(-1, vertical=True)
             right.colors[0] = sm.colors.BLUE_ON_BLACK
             right[0, :14] = f"Scroll down {i:02}"
