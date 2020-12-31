@@ -168,7 +168,6 @@ class Widget:
         """
         return self.buffer[key]
 
-    @refresh_after
     def __setitem__(self, key, item):
         """
         Coerce `item` into a ndarray then call `buffer.__setitem__(key, item)`.
@@ -195,6 +194,8 @@ class Widget:
             self.buffer[key] = item
         except ValueError:
             self.buffer[key] = np.rot90(item if len(item.shape) == 2 else item[None, ], -1)  # Try to fit the text vertically
+
+        self.refresh()
 
     @refresh_after
     def border(self, style="light", color=None, *, read_only=True):
