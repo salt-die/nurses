@@ -17,8 +17,7 @@ with ScreenManager() as sm:
             new_widget(border=("light", sm.colors.GREEN_ON_BLACK))
     """)
     globals().update(widgets)  # add widgets to this namespace
-    right.color = sm.colors.BLUE_ON_BLACK
-    right.colors[:] = right.color
+    right.colors[:] = right.color = sm.colors.BLUE_ON_BLACK
     right.border("double", sm.colors.MAGENTA_ON_BLACK)
 
     async def roll_title():
