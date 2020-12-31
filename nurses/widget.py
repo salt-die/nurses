@@ -1,3 +1,5 @@
+from functools import wraps
+
 import curses
 import numpy as np
 
@@ -7,6 +9,20 @@ BORDER_STYLES = {
     "double": "╔╗║═╚╝",
     "curved": "╭╮│─╰╯"
 }
+
+def refresh_after(method):
+    """
+    Most methods that modify the buffer will automatically refresh the widget afterwards.
+    This decorator provides a `refresh` parameter to these methods that can be set to
+    False to disable the automatic refresh.
+    """
+    @wraps(method)
+    def wrapper(self, *args, refresh=True, **kwargs):
+        method(self, *args, **kwargs)
+        if refresh:
+            self.refresh()
+    return wrapper
+
 
 class Widget:
     """
@@ -152,6 +168,7 @@ class Widget:
         """
         return self.buffer[key]
 
+    @refresh_after
     def __setitem__(self, key, item):
         """
         Coerce `item` into a ndarray then call `buffer.__setitem__(key, item)`.
@@ -179,8 +196,7 @@ class Widget:
         except ValueError:
             self.buffer[key] = np.rot90(item if len(item.shape) == 2 else item[None, ], -1)  # Try to fit the text vertically
 
-        self.refresh()
-
+    @refresh_after
     def border(self, style="light", color=None, *, read_only=True):
         """
         Draw a border on the edges of the widget.
@@ -217,8 +233,7 @@ class Widget:
             c = self._colors
             c[0] = c[-1] = c[:, 0] = c[:, -1] = color
 
-        self.refresh()
-
+    @refresh_after
     def roll(self, shift=1, vertical=False):
         """
         Roll the contents of the widget. Items that roll beyond the last position are re-introduced at the first.
@@ -238,8 +253,8 @@ class Widget:
         axis = (-shift, 0) if vertical else (0, -shift)
         self.buffer = np.roll(self.buffer, axis, (0, 1))
         self.colors = np.roll(self.colors, axis, (0, 1))
-        self.refresh()
 
+    @refresh_after
     def scroll(self, lines=1):
         """
         Scroll the contents of the buffer upwards or downwards, erasing the last/first lines.
@@ -257,7 +272,6 @@ class Widget:
         slice_ = slice(-lines, None) if lines > 0 else slice(None, -lines)
         self.buffer[slice_] = " "
         self.colors[slice_] = self.color
-        self.refresh()
 
     def on_press(self, key):
         """
