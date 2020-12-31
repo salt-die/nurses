@@ -1,18 +1,3 @@
-"""To define a new color just assign the rgb values (each value being 0 - 255) directly to the color name (let sm be the ScreenManager):
-        ```py
-        sm.colors.PURPLE = 103, 15, 215
-        ```
-    ::Warning:: ColorDict expects color names to match the regex r"[A-Z]+" (i.e., capital letters only).
-
-    To get some color pair just ask for the colors by name, like so:
-        ```py
-        sm.colors.PURPLE_ON_BLACK
-        ```
-    If the color pair isn't defined, ColorDict will initialize it as long as each of the colors are defined.
-    Note the colors BLACK, BLUE, GREEN, CYAN, RED, MAGENTA, YELLOW, WHITE are already defined.
-
-    ::Warning:: Though ColorDict subclasses dict, using the __getitem__ interface could cause errors (bypasses checks in __getattr__).
-"""
 # TODO: Some program may want a large number of colors, and referring to colors by name may not be convenient in such cases.
 #       Considering adding a way to refer to colors by their hex color code, something like: `sm.colors.H335551`
 #       Alternatively, add a method to grab a color-pair directy from RGB values: `sm.colors.rgb(103, 15, 215, 0, 0, 0)` (PURPLE_ON_BLACK)
