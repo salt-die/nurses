@@ -32,7 +32,7 @@ with ScreenManager() as sm:
 
     async def scroll_down():
         async for i in sm.delayed(range(33), .3):
-            right.roll(-1, vertical=True)
+            right.scroll(-1)
             right[0, :14] = f"Scroll down {i:02}"
 
     sm.run(roll_title(), scroll_up(), scroll_down())

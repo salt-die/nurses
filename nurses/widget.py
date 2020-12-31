@@ -254,8 +254,9 @@ class Widget:
         `self.refresh` will be called after a call to this method.
         """
         self.roll(lines, vertical=True)
-        self.buffer[-lines] = " "
-        self.colors[-lines] = self.color
+        slice_ = slice(-lines, None) if lines > 0 else slice(None, -lines)
+        self.buffer[slice_] = " "
+        self.colors[slice_] = self.color
         self.refresh()
 
     def on_press(self, key):
