@@ -174,21 +174,20 @@ class Widget:
 
         Notes
         -----
-        If `item` is a string of length > 1, string is coerced into an array or an array of arrays (depending on the presence of newlines).
+        If `len(item) > 1`, `item` is coerced into an array or an array of arrays (depending on the presence of newlines).
         If the array's shape can't be cast to `self.buffer` it will be rotated and tried again (setting the text vertically).
 
         If `self.has_border` is truth-y then indices will be offset automatically.
-        (i.e., `border[1: -1, 1: -1].__setitem__` will be called instead)
+        (i.e., `buffer[1: -1, 1: -1].__setitem__` will be called instead)
 
         Examples
         --------
         >>> my_widget[2:4, :13] = "Hello, World!\\nI'm a widget!"
         """
-        if isinstance(item, str):
-            if "\n" in item:
-                item = np.array(tuple(map(tuple, item.rstrip().splitlines())))
-            elif len(item) > 1:
-                item = np.array(tuple(item))
+        if "\n" in item:
+            item = np.array(tuple(map(tuple, item.rstrip("\n").splitlines())))
+        elif len(item) > 1:
+            item = np.array(tuple(item))
 
         try:
             self.buffer[key] = item
