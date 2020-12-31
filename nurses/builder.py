@@ -6,6 +6,8 @@ from .layout import HSplit, VSplit
 from .screen_manager import ScreenManager
 
 # TODO: Add optional arguments to widgets and hsplit in the grammar
+# TODO: Convert optional arguments automatically to int/float based on signature of layout or widget (probably through typehints)
+# TODO: Layout tokens should be auto-generateed from .layout.Layout.layouts
 grammar = r"""
     ?start: _NL* (hsplit | vsplit)
 
