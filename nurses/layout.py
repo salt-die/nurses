@@ -1,4 +1,5 @@
-from .screen_manager import ScreenManager
+from .screen_manager import ScreenManager, _convert
+
 
 # TODO: Add minimum size arguments to layouts
 class Layout:
@@ -11,16 +12,10 @@ class Layout:
 class HSplit(Layout):
     def __init__(self, row):
         super().__init__()
-        self._row = row
+        self.row = row
 
     def update(self):
-        row = self._row
-        if isinstance(row, float):
-            if row < 0:
-                row += 1
-            row = round(row * self.height)
-        elif row < 0:
-            row += self.height
+        row = _convert(self.row, self.height)
 
         for i, item in enumerate(self.panels):
             if not item:
@@ -43,16 +38,10 @@ class HSplit(Layout):
 class VSplit(Layout):
     def __init__(self, col):
         super().__init__()
-        self._col = col
+        self.col = col
 
     def update(self):
-        col = self._col
-        if isinstance(col, float):
-            if col < 0:
-                col += 1
-            col = round(col * self.width)
-        elif col < 0:
-            col += self.width
+        col = _convert(self.col, self.width)
 
         for i, item in enumerate(self.panels):
             if not item:

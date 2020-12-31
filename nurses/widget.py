@@ -31,6 +31,11 @@ class Widget:
         Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
         and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
     """
+    types = { }  # Registrar of subclasses of Widget
+
+    def __init_subclass__(cls):
+        Widget.types[cls.__name__] = cls
+
     def __init__(self, top, left, height, width, color=None, **kwargs):
         self.top = top
         self.left = left
@@ -50,7 +55,11 @@ class Widget:
 
         self.is_transparent = bool(kwargs.get("transparent"))
 
-        self.window = curses.newwin(height, width + 1)
+        # Curses will return ERR if creating a newwin wider or taller than our screen.
+        # We can get around this by creating a tiny window and then resizing to be as large as we'd like.
+        # TODO: Test this hack on linux.
+        self.window = curses.newwin(1, 1)
+        self.window.resize(height, width + 1)
 
     @property
     def height(self):

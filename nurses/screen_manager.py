@@ -10,6 +10,15 @@ GETCH_DELAY = .1
 EXIT = ord('q')
 
 
+def _convert(pos, bounds):
+    """Utility function that converts a fractional or negative position to an absolute one."""
+    if isinstance(pos, float):
+        if pos < 0: pos += 1
+        return round(pos * bounds)
+    if pos < 0: pos += bounds
+    return pos
+
+
 class Singleton(type):
     instance = None
 
@@ -97,28 +106,22 @@ class ScreenManager(Scheduler, metaclass=Singleton):
             self.refresh()
             await self.sleep(delay)
 
-    def new_widget(self, *args, group=None, **kwargs):
-        """Create a new widget and append to widget stack.  Can group widgets if providing a hashable group."""
+    def new_widget(self, *args, group=None, create_with=Widget, **kwargs):
+        """Create a new widget and append to widget stack.  Can group widgets if providing a hashable group.
+           To create a new subclassed widget use `create_with=MyWidget` or `create_with="MyWidget"` (pass the class or the class' name).
+        """
         h, w = self.screen.getmaxyx()
-        w -= 1
+        top, left, height, width, *rest = (0, 0, h, w) if not args else args
 
-        if not args:
-            top, left = 0, 0
-            height, width = h, w
-            rest = ()
-        else:
-            top, left, height, width, *rest = args
-        # Float arguments will be taken as percentage of screen size.
-        if isinstance(top, float):
-            top = round(top * h)
-        if isinstance(left, float):
-            left = round(left * w)
-        if isinstance(height, float):
-            height = round(height * h)
-        if isinstance(width, float):
-            width = round(width * w)
+        top    = _convert(   top, h)
+        left   = _convert(  left, w)
+        height = _convert(height, h)
+        width  = _convert( width, w)
 
-        widget = Widget(top, left, height, width, *rest, **kwargs)
+        if not isinstance(create_with, Widget):
+            create_with = Widget.types.get(create_with, Widget)
+
+        widget = create_with(top, left, height, width, *rest, **kwargs)
         self.widgets.append(widget)
         if group is not None:
             self._groups[group].append(widget)
