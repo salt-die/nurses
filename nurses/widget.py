@@ -9,7 +9,8 @@ BORDER_STYLES = {
 }
 
 class Widget:
-    """A wrapper over a curses.window.
+    """
+    A wrapper over a curses.window.
 
     Parameters
     ----------
