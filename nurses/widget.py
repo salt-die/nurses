@@ -154,7 +154,7 @@ class Widget:
 
     def __setitem__(self, key, item):
         """
-        Coerce item into a ndarray then call `buffer.__setitem__(key, item)`.
+        Coerce `item` into a ndarray then call `buffer.__setitem__(key, item)`.
 
         Notes
         -----
