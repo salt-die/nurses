@@ -8,7 +8,7 @@ from .widget import Widget
 from .screen_manager import ScreenManager
 
 
-grammar = r"""
+GRAMMAR = r"""
     ?start: _NL* python
 
     python: PYTHON _NL [_INDENT (widget | python)+ _DEDENT] -> eval_python
@@ -57,7 +57,7 @@ class LayoutBuilder(Transformer):
 def load_string(build_string):
     # Alternatively, we could cache the builder and parser and just reset the builder's widgets for each new call to `load_string`
     builder = LayoutBuilder()
-    parser = Lark(grammar, parser='lalr', postlex=LayoutIndenter(), transformer=builder)
+    parser = Lark(GRAMMAR, parser='lalr', postlex=LayoutIndenter(), transformer=builder)
     layout = parser.parse(dedent(build_string))
     layout.update()
     return builder.widgets
