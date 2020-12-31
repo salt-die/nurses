@@ -1,3 +1,5 @@
+"""Credit for ascii art logo to Matthew Barber (https://ascii.matthewbarber.io/art/python/)
+"""
 from math import hypot
 from pathlib import Path
 
