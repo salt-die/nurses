@@ -15,7 +15,8 @@ class Layout:
         self.height, self.width = ScreenManager().screen.getmaxyx()
 
     def update(self):
-        """Set the widths/heights of sublayouts/contained widgets and call update on sublayouts."""
+        """Set the widths/heights of sublayouts/contained widgets and call update on sublayouts.
+        """
         raise NotImplementedError
 
 
