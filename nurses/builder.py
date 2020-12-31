@@ -1,4 +1,3 @@
-# TODO: Find a way to init widgets with more options in the build string
 from textwrap import dedent
 
 from lark import Lark, Transformer
@@ -6,6 +5,7 @@ from lark.indenter import Indenter
 from .layout import HSplit, VSplit
 from .screen_manager import ScreenManager
 
+# TODO: Add optional arguments to widgets and hsplit in the grammar
 grammar = r"""
     ?start: _NL* (hsplit | vsplit)
 
@@ -35,35 +35,34 @@ class LayoutIndenter(Indenter):
 class LayoutBuilder(Transformer):
     def __init__(self):
         self.widgets = {}
-        self.sm = ScreenManager()
 
-    def add_hsplit(self, args):
-        row, top, bottom = args
-        try:
-            row = int(row)
-        except ValueError:
-            row = float(row)
-        h = HSplit(row)
-        h.panels = [top, bottom]
-        return h
+    @classmethod
+    def add_hsplit(cls, args):
+        return cls.add_split(HSplit, args)
 
-    def add_vsplit(self, args):
-        col, left, right = args
-        try:
-            col = int(col)
-        except ValueError:
-            col = float(col)
-        v = VSplit(col)
-        v.panels = [left, right]
-        return v
+    @classmethod
+    def add_vsplit(cls, args):
+        return cls.add_split(VSplit, args)
+
+    @staticmethod
+    def add_split(split, args):
+        line, panel_1, panel_2 = args
+
+        line = float(line) if '.' in line else int(line)
+        layout = split(line)
+        layout.panels = [panel_1, panel_2]
+        return layout
 
     def new_widget(self, args):
-        self.widgets[str(args[0])] = w = self.sm.new_widget()
-        return w
+        widget = str(args[0])
+        self.widgets[widget] = ScreenManager().new_widget()
+        return self.widgets[widget]
 
 
-def load_string(layout_string):
+def load_string(build_string):
+    # Alternatively, we could cache the builder and parser and just reset the builder's widgets for each new call to `load_string`
     builder = LayoutBuilder()
     parser = Lark(grammar, parser='lalr', postlex=LayoutIndenter(), transformer=builder)
-    parser.parse(dedent(layout_string)).update()
+    layout = parser.parse(dedent(build_string))
+    layout.update()
     return builder.widgets
