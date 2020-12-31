@@ -127,8 +127,7 @@ if __name__ == "__main__":
         for char, color in it:
             y, x = it.multi_index
             if char != " ":
-                particle = sm.new_widget(y, x, 1, 1, color=color, cursor=cursor, group="particles", create_with=Pokable)
-                particle[0, 0] = str(char)
-
+                particle = sm.new_widget(y, x, 1, 1, color=color, cursor=cursor, create_with=Pokable)
+                particle[:] = str(char)
         sm.top(cursor)
         sm.run(refresh())
