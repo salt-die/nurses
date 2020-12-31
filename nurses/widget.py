@@ -9,34 +9,45 @@ BORDER_STYLES = {
 }
 
 class Widget:
-    """A widget contains a buffer that can be pushed to the widget's window by calling `refresh`
-    or more simply by just using the widget's __setitem__.
+    """A wrapper over a curses.window.
 
+    Parameters
+    ----------
+    top, left
+        upper and left-most coordinates of widget relative to screen
+    height, width
+        dimensions of the widget
+    color: optional
+       A curses color_pair, the default color of this widget. (the default is `curses.color_pair(0)`)
+
+    Other Parameters
+    ----------------
+    colors: optional
+        A ndarray of curses.color_pairs with same dimensions as widget. (the default is `np.full((height, width), color))`)
+    border: optional
+        border: optional
+            The border type; one of `nurses.widget.BORDER_STYLES`. (by default a widget has no border)
+    border_color: optional
+        A curses color_pair.  If a border is given, border_color will be the color of the border. (the default is `color`)
+    transparent: optional
+        If true widget will overlay other widgets instead of overwrite them (whitespace will be "see-through"). (the default is `False`)
+
+    Notes
+    -----
     __getitem__ and __setitem__ call the respective buffer functions directly, so one can slice
     and write to a Widget as if it was a numpy array.
-      ::args::
-        top:                upper coordinate of widget relative to screen
-        left:               left coordinate of widget relative to screen
-        height:             height of the widget
-        width:              width of the widget
-        color (optional):   a curses color_pair.  Default color of this widget.
 
-      ::kwargs::
-        colors (optional):          an array of curses.color_pairs that indicates the color of each character
-        border (optional):          border type, one of ["light", "heavy", "double", "curved"]; by default a widget has no border
-        border_color (optional):    a curses color_pair
-        transparent (optional):     default is false; If true widget will overlay other widgets instead of overwrite them.
+    If some part of the widget moves out-of-bounds of the screen only the part that overlaps the screen will be drawn.
 
-      ::Note::
-        If some part of the widget moves out-of-bounds of the screen only the part that overlaps the screen will be drawn.
-
-        Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
-        and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
+    Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
+    and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
     """
     types = { }  # Registry of subclasses of Widget
 
     def __init_subclass__(cls):
         Widget.types[cls.__name__] = cls
+        if not cls.on_press.__doc__:
+            cls.on_press.__doc__ = Widget.on_press.__doc__
 
     def __init__(self, top, left, height, width, color=None, **kwargs):
         self.top = top
@@ -127,23 +138,35 @@ class Widget:
             self.refresh()
 
     def refresh(self):
-        """Write the buffers to the window."""
+        """Write the buffers to the window.
+        """
         it = np.nditer((self._buffer, self._colors), ["multi_index"])
         for char, color in it:
             y, x = it.multi_index
             self.window.addstr(y, x, str(char), color)
 
     def __getitem__(self, key):
-        """buffer.__getitem__ except offset if self.has_border is truth-y."""
+        """
+        `buffer.__getitem__` except offset if `self.has_border` is truth-y
+        (i.e., `buffer[1: -1, 1: -1].__getitem__` if `self.has_border`).
+        """
         return self.buffer[key]
 
     def __setitem__(self, key, item):
-        """buffer.__setitem__ except in cases where item is a string.
-        If item is a string of length > 1: coerce string into a tuple or tuple of tuples.
-        This convenience will allow one to update text on a widget more directly:
-            `my_widget[2:4, :13] = "Hello, World!\nI'm a widget!"`
+        """
+        Coerce item into a ndarray then call `buffer.__setitem__(key, item)`.
 
-        If self.has_border is truth-y then indices will be offset automatically.
+        Notes
+        -----
+        If `item` is a string of length > 1, string is coerced into an array or an array of arrays (depending on the presence of newlines).
+        If the array's shape can't be cast to `self.buffer` it will be rotated and tried again (setting the text vertically).
+
+        If `self.has_border` is truth-y then indices will be offset automatically.
+        (i.e., `border[1: -1, 1: -1].__setitem__` will be called instead)
+
+        Examples
+        --------
+        >>> my_widget[2:4, :13] = "Hello, World!\\nI'm a widget!"
         """
         if isinstance(item, str):
             if "\n" in item:
@@ -154,18 +177,28 @@ class Widget:
         try:
             self.buffer[key] = item
         except ValueError:
-            self.buffer[key] = item.T if len(item.shape) == 2 else item[None, ].T  # Try to fit the text vertically
+            self.buffer[key] = np.rot90(item if len(item.shape) == 2 else item[None, ], -1)  # Try to fit the text vertically
 
         self.refresh()
 
     def border(self, style="light", color=None, *, read_only=True):
-        """Draw a border on the edges of the widget.
-           `style` can be one of ["light", "heavy", "double", "curved"]
+        """
+        Draw a border on the edges of the widget.
+        Parameters
+        ----------
+        style: optional
+            The style of the border, can be one of `nurses.widget.BORDER_STYLES`. (the default is "light")
 
-           Calling this method sets the attribute `has_border` to (style, color).
-           Methods such as __getitem__, roll, scroll, resize will take care to preserve the border
-           as long as `has_border` is truth-y.  To disable this behavior set `has_border` to False
-           or call this method with `read_only=False`.
+            Calling this method sets the attribute `has_border` to (style, color).
+
+        color: optional
+            The color of the border.  (the default is the widget's `color`)
+
+        Notes
+        -----
+        Methods such as `__getitem__`, `roll`, `scroll`, `_resize` will take care to preserve the border
+        as long as `has_border` is truth-y.  To disable this behavior set `has_border` to False or call
+        this method with `read_only=False`.
         """
         self.has_border = style, color
 
@@ -186,25 +219,48 @@ class Widget:
         self.refresh()
 
     def roll(self, shift=1, vertical=False):
-        """Roll the contents of the buffer.
-           Items that roll beyond the last position are re-introduced at the first.
+        """
+        Roll the contents of the widget. Items that roll beyond the last position are re-introduced at the first.
+
+        Parameters
+        ----------
+        shift: optional
+            Number of places to shift the contents. `shift` may be negative. (the default is 1)
+
+        vertical: optional
+            Whether to roll vertically.  (the default is `False`, i.e., rolls are horizontal by default)
+
+        Notes
+        -----
+        Widget is refreshed after call to `roll`.
         """
         axis = (-shift, 0) if vertical else (0, -shift)
         self.buffer = np.roll(self.buffer, axis, (0, 1))
         self.colors = np.roll(self.colors, axis, (0, 1))
         self.refresh()
 
-    def scroll(self):
-        """Scroll the contents of the buffer upwards, erasing the last line.
+    def scroll(self, lines=1):
         """
-        self.roll(vertical=True)
-        self.buffer[-1] = " "
-        self.colors[-1] = self.color
+        Scroll the contents of the buffer upwards or downwards, erasing the last/first lines.
+
+        Parameters
+        ----------
+        lines: optional
+            Number of lines to scroll. To scroll down, lines should be negative. (the default is 1)
+
+        Notes
+        -----
+        Widget is refreshed after call to `roll`.
+        """
+        self.roll(lines, vertical=True)
+        self.buffer[-lines] = " "
+        self.colors[-lines] = self.color
         self.refresh()
 
     def on_press(self, key):
-        """Called when `key` is pressed and no widgets above this widget have handled the press.
-           Return True if press is handled to stop dispatching.
+        """
+        Called when a key is pressed and no widgets above this widget have handled the press.
+        A press is handled when a widget's `on_press` method returns True.
         """
         pass
 

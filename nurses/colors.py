@@ -28,7 +28,23 @@ SET_COLOR = re.compile(r"[A-Z]+")
 INIT_COLOR_START = 64  # May need to be lowered on terminals with too few colors.  Recommend at least 16, as the colors 1 - 15 can't be changed on windows.
 
 class ColorDict(dict):
-    """A dict that automatically initializes missing color pairs."""
+    """
+    A dict that automatically initializes colors or missing color pairs.
+
+    Notes
+    -----
+    The colors BLACK, BLUE, GREEN, CYAN, RED, MAGENTA, YELLOW, WHITE are defined by default.
+
+    Examples
+    --------
+    >>> sm.colors.PURPLE = 103, 15, 215
+
+    This will define a new color `PURPLE`
+
+    >>> sm.colors.PURPLE_ON_BLACK
+
+    This will return a curses color_pair; both colors must already be define.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self["WHITE", "BLACK"] = 0  # Default color pair.
@@ -45,7 +61,8 @@ class ColorDict(dict):
         return self[key]
 
     def __getattr__(self, attr):
-        """Fetch the color pair (FORE, BACK) with attribute FORE_ON_BACK or FORE_BACK."""
+        """Fetch the color pair (FORE, BACK) with attribute FORE_ON_BACK or FORE_BACK.
+        """
         if not (match := COLOR_RE.fullmatch(attr)):
             return super().__getattr__(attr)
 
@@ -57,7 +74,8 @@ class ColorDict(dict):
 
 
     def __setattr__(self, attr, rgb):
-        """Initialize a new color `attr` or re-define an old color to rgb"""
+        """Initialize a new color `attr` or re-define an old color to rgb.
+        """
         if not SET_COLOR.fullmatch(attr):
             return super().__setattr__(attr, rgb)
 

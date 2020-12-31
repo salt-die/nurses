@@ -55,6 +55,43 @@ class LayoutBuilder(Transformer):
 
 
 def load_string(build_string):
+    """Returns dictionary of widgets whose sizes are set by the layouts in the TAML-like `build_string`.
+
+    See Also
+    --------
+    /examples/layout_test.py
+
+    Notes
+    -----
+    Indentation indicates a widget or layout belongs to an outer Layout.
+    Each line is expected to be valid python for a Layout or a Widget.  `ScreenManager()` is given the alias `sm`.
+    `sm.new_widget` can be shortened to just `new_widget`.
+
+    Examples
+    --------
+    >>> load_string(\"\"\"
+    HSplit(3)
+        title
+        HSplit(-3)
+            VSplit(.5)
+                left
+                right
+            bottom
+    \"\"\")
+
+    This would return a dictionary of widgets with keys ("title", "left", "right", "bottom").
+    The widgets positions and dimensions would be similar to:
+
+    +-----------------+
+    | title           |
+    +-----------------+
+    | left   | right  |
+    |        |        |
+    |        |        |
+    +-----------------+
+    | bottom          |
+    +-----------------+
+    """
     # Alternatively, we could cache the builder and parser and just reset the builder's widgets for each new call to `load_string`
     builder = LayoutBuilder()
     parser = Lark(GRAMMAR, parser='lalr', postlex=LayoutIndenter(), transformer=builder)

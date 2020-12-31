@@ -11,7 +11,8 @@ EXIT = ord('q')
 
 
 def _convert(pos, bounds):
-    """Utility function that converts a fractional or negative position to an absolute one."""
+    """Utility function that converts a fractional or negative position to an absolute one.
+    """
     if isinstance(pos, float):
         if pos < 0: pos += 1
         return round(pos * bounds)
@@ -46,7 +47,8 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         super().__init__()
 
     def pause(self):
-        """Block until a key is pressed."""
+        """Block until a key is pressed.
+        """
         screen = self.screen
         screen.nodelay(False)
         screen.getch()
@@ -100,15 +102,17 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         screen.refresh()
 
     async def delayed(self, iterable, delay):
-        """Utility method: return an async iterator over iterable with delay.  Refreshes ScreenManager every iteration."""
+        """Utility method: return an async iterator over iterable with delay.  Refreshes ScreenManager every iteration.
+        """
         for i in iterable:
             yield i
             self.refresh()
             await self.sleep(delay)
 
     def new_widget(self, *args, group=None, create_with=Widget, **kwargs):
-        """Create a new widget and append to widget stack.  Can group widgets if providing a hashable group.
-           To create a new subclassed widget use `create_with=MyWidget` or `create_with="MyWidget"` (pass the class or the class' name).
+        """
+        Create a new widget and append to widget stack.  Can group widgets if providing a hashable group.
+        To create a new subclassed widget use `create_with=MyWidget` or `create_with="MyWidget"` (pass the class or the class' name).
         """
         h, w = self.screen.getmaxyx()
         top, left, height, width, *rest = (0, 0, h, w) if not args else args
@@ -128,7 +132,8 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         return widget
 
     def top(self, widget):
-        """Given a widget or an index of a widget, widget is moved to top of widget stack (so it is drawn last)."""
+        """Given a widget or an index of a widget, widget is moved to top of widget stack (so it is drawn last).
+        """
         widgets = self.widgets
         if isinstance(widget, int):
             widgets.append(widgets.pop(widget))
@@ -137,7 +142,8 @@ class ScreenManager(Scheduler, metaclass=Singleton):
             widgets.append(widget)
 
     def bottom(self, widget):
-        """Given a widget or an index of a widget, widget is moved to bottom of widget stack (so it is drawn first)."""
+        """Given a widget or an index of a widget, widget is moved to bottom of widget stack (so it is drawn first).
+        """
         widgets = self.widgets
         if isinstance(widget, int):
             widgets.insert(0, widgets.pop(widget))
