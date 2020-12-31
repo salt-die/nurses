@@ -122,8 +122,8 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         height = _convert(height, h)
         width  = _convert( width, w)
 
-        if not isinstance(create_with, Widget):
-            create_with = Widget.types.get(create_with, Widget)
+        if isinstance(create_with, str):
+            create_with = Widget.types[create_with]
 
         widget = create_with(top, left, height, width, *rest, **kwargs)
         self.widgets.append(widget)

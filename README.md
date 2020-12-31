@@ -6,4 +6,8 @@ numpy arrays and typical GUI widgets.
 
 # /examples/async_test.py:
 
-![output of test.py](async_test.gif)
+![asynchronous test](async_test.gif)
+
+# /examples/exploding_logo.py:
+
+![exploding python logo](exploding_python.gif)
