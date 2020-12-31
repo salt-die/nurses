@@ -29,7 +29,7 @@ class Widget:
     border_color: optional
         A curses color_pair.  If a border is given, border_color will be the color of the border. (the default is `color`)
     transparent: optional
-        If true widget will overlay other widgets instead of overwrite them (whitespace will be "see-through"). (the default is `False`)
+        If true, widget will overlay other widgets instead of overwrite them (whitespace will be "see-through"). (the default is `False`)
 
     Notes
     -----
