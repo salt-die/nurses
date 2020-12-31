@@ -92,7 +92,7 @@ class ScreenManager(Scheduler, metaclass=Singleton):
             des_t = max(0, y)
             des_l = max(0, x)
             des_h = min(h - 1, des_t + widget.height)
-            des_w = min(w - 1, des_l + widget.width)
+            des_w = min(w - 1, des_l + widget.width - 1)  # -1 compensates for the extra width of widget's window
 
             if widget.is_transparent:
                 widget.window.overlay(screen, src_t, src_l, des_t, des_l, des_h, des_w)

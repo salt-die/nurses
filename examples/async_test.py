@@ -17,7 +17,6 @@ with ScreenManager() as sm:
     scroll_widget[:] = "Scroll me!"
     scroll_widget.color = sm.colors.BLUE_ON_BLACK
 
-
     async def random_walk():
         async for _ in sm.delayed(range(30), .5):
             for widget in sm.group("moving"):

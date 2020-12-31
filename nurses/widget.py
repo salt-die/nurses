@@ -134,6 +134,9 @@ class Widget:
             self._buffer = array
 
     def _resize(self):
+        if self.has_border:
+            self._buffer[:, -1] = self._buffer[-1] = " "  # Erase the right-most/bottom-most border in case widget expands
+
         height, width = self.height, self.width
         old_h, old_w = self._buffer.shape
         min_h, min_w = min(height, old_h), min(width, old_w)
@@ -148,10 +151,7 @@ class Widget:
         self._colors = new_colors
         self.window.erase()
         self.window.resize(height, width + 1)
-        if self.has_border:
-            self.border(*self.has_border)
-        else:
-            self.refresh()
+        self.border(*self.has_border) if self.has_border else self.refresh()
 
     def refresh(self):
         """Write the buffers to the window.
