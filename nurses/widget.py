@@ -25,8 +25,7 @@ class Widget:
     colors: optional
         A ndarray of curses.color_pairs with same dimensions as widget. (the default is `np.full((height, width), color))`)
     border: optional
-        border: optional
-            The border type; one of `nurses.widget.BORDER_STYLES`. (by default a widget has no border)
+        The border type; one of `nurses.widget.BORDER_STYLES`. (by default a widget has no border)
     border_color: optional
         A curses color_pair.  If a border is given, border_color will be the color of the border. (the default is `color`)
     transparent: optional
