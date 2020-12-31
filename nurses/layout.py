@@ -1,13 +1,14 @@
 from .screen_manager import ScreenManager, _convert
 
 
-# TODO: Add minimum size arguments to layouts (needs to be added to build string grammar as well)
+# TODO: Add minimum size arguments to layouts
 class Layout:
     layouts = {}  # Registry of subclasses of Layout
 
     def __init_subclass__(cls):
         Layout.layouts[cls.__name__] = cls
-        cls.update.__doc__ = Layout.update.__doc__
+        if not cls.update.__doc__:
+            cls.update.__doc__ = Layout.update.__doc__
 
     def __init__(self):
         self.top = self.left = 0
