@@ -1,4 +1,12 @@
 """Credit for ascii art logo to Matthew Barber (https://ascii.matthewbarber.io/art/python/)
+
+* **'q'** to quit
+
+* **'r'** to reset logo
+
+* arrow-keys to move cursor
+
+* space to poke the logo
 """
 from math import hypot
 from pathlib import Path
@@ -93,10 +101,10 @@ class Pokable(Widget):
             await sm.sleep(PARTICLE_DELAY)
 
 
-async def refresh_often():
+async def refresh(delay=REFRESH_DELAY):
     while True:
         sm.refresh()
-        await sm.sleep(REFRESH_DELAY)
+        await sm.sleep(delay)
 
 
 if __name__ == "__main__":
@@ -105,24 +113,22 @@ if __name__ == "__main__":
 
     logo = np.array([list(line + (MAX_X - len(line)) * " ") for line in logo.splitlines()])
 
-    sm = ScreenManager()
+    with ScreenManager() as sm:
+        cursor = sm.new_widget(0, 0, 1, 1, create_with=Cursor)
+        cursor[:] = "█"
 
-    cursor = sm.new_widget(0, 0, 1, 1, create_with=Cursor)
-    cursor[:] = "█"
+        # Setup the "particles"
+        colors = np.full((MAX_Y, MAX_X), sm.colors.BLUE_ON_BLACK)
+        colors[-7:] = sm.colors.YELLOW_ON_BLACK
+        colors[-13: -7, -41:] = sm.colors.YELLOW_ON_BLACK
+        colors[-14, -17:] = sm.colors.YELLOW_ON_BLACK
+        colors[-20: -14, -15:] = sm.colors.YELLOW_ON_BLACK
+        it = np.nditer((logo, colors), ["multi_index"])
+        for char, color in it:
+            y, x = it.multi_index
+            if char != " ":
+                particle = sm.new_widget(y, x, 1, 1, color=color, cursor=cursor, group="particles", create_with=Pokable)
+                particle[0, 0] = str(char)
 
-    # Setup the "particles"
-    colors = np.full((MAX_Y, MAX_X), sm.colors.BLUE_ON_BLACK)
-    colors[-7:] = sm.colors.YELLOW_ON_BLACK
-    colors[-13: -7, -41:] = sm.colors.YELLOW_ON_BLACK
-    colors[-14, -17:] = sm.colors.YELLOW_ON_BLACK
-    colors[-20: -14, -15:] = sm.colors.YELLOW_ON_BLACK
-    it = np.nditer((logo, colors), ["multi_index"])
-    for char, color in it:
-        y, x = it.multi_index
-        if char != " ":
-            particle = sm.new_widget(y, x, 1, 1, color=color, cursor=cursor, group="particles", create_with=Pokable)
-            particle[0, 0] = str(char)
-
-    sm.top(cursor)
-    sm.run(refresh_often())
-    sm.close()
+        sm.top(cursor)
+        sm.run(refresh())
