@@ -23,6 +23,7 @@ class Widget:
 
       ::kwargs::
         colors (optional):          an array of curses.color_pairs that indicates the color of each character
+        border (optional):          a tuple containing a border type and color, or a one-tuple of either type or color
         transparent (optional):     default is false; If true widget will overlay other widgets instead of overwrite them.
 
       ::Note::
@@ -31,7 +32,7 @@ class Widget:
         Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
         and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
     """
-    types = { }  # Registrar of subclasses of Widget
+    types = { }  # Registry of subclasses of Widget
 
     def __init_subclass__(cls):
         Widget.types[cls.__name__] = cls
@@ -42,24 +43,32 @@ class Widget:
         self._height = height
         self._width = width
 
+        self._buffer = np.full((height, width), " ")
+
         self.color = curses.color_pair(0) if color is None else color
 
-        self.has_border = False
-
-        self.buffer = np.full((height, width), " ")
-
         if colors := kwargs.get("colors"):
-            self.colors = colors
+            self._colors = colors
         else:
-            self.colors = np.full((height, width), self.color)
+            self._colors = np.full((height, width), self.color)
 
         self.is_transparent = bool(kwargs.get("transparent"))
 
-        # Curses will return ERR if creating a newwin wider or taller than our screen.
+        # Curses will return ERR if creating a window wider or taller than our screen.
         # We can get around this by creating a tiny window and then resizing to be as large as we'd like.
         # TODO: Test this hack on linux.
         self.window = curses.newwin(1, 1)
         self.window.resize(height, width + 1)
+
+        if border := kwargs.get("border"):
+            if len(border) == 2:
+                self.border(*border)
+            elif isinstance(border[0], str):
+                self.border(style=border[0])
+            else:
+                self.border(color=border[0])
+        else:
+            self.has_border = False
 
     @property
     def height(self):
@@ -202,3 +211,5 @@ class Widget:
            Return True if press is handled to stop dispatching.
         """
         pass
+
+Widget.types["Widget"] = Widget

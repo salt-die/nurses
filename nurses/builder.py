@@ -1,25 +1,28 @@
+from collections import ChainMap
 from textwrap import dedent
 
 from lark import Lark, Transformer
 from lark.indenter import Indenter
-from .layout import HSplit, VSplit
+from .layout import Layout
+from .widget import Widget
 from .screen_manager import ScreenManager
 
-# TODO: Add optional arguments to widgets and hsplit in the grammar
-# TODO: Convert optional arguments automatically to int/float based on signature of layout or widget (probably through typehints)
-# TODO: Layout tokens should be auto-generateed from .layout.Layout.layouts
+
 grammar = r"""
-    ?start: _NL* (hsplit | vsplit)
+    ?start: _NL* python
 
-    hsplit: "HSplit" SIGNED_NUMBER _NL [_INDENT (widget | hsplit | vsplit) (widget | hsplit | vsplit) _DEDENT] -> add_hsplit
-    vsplit: "VSplit" SIGNED_NUMBER _NL [_INDENT (widget | hsplit | vsplit) (widget | hsplit | vsplit) _DEDENT] -> add_vsplit
-    widget: NAME _NL -> new_widget
+    python: PYTHON _NL [_INDENT (widget | python)+ _DEDENT] -> eval_python
+    widget: (NAME | PYTHON "as" NAME) _NL -> add_widget
 
-    %import common.CNAME -> NAME
-    %import common.SIGNED_NUMBER
+    %import common.CNAME
     %import common.WS_INLINE
+    %import common.SH_COMMENT
+    NAME: CNAME ("." CNAME)*
+    PYTHON: (NAME | "new_widget") "(" /.*/ ")"
+
     %declare _INDENT _DEDENT
     %ignore WS_INLINE
+    %ignore _NL* SH_COMMENT
 
     _NL: /(\r?\n[\t ]*)+/
 """
@@ -37,28 +40,18 @@ class LayoutIndenter(Indenter):
 class LayoutBuilder(Transformer):
     def __init__(self):
         self.widgets = {}
+        self._locals = ChainMap(Layout.layouts, Widget.types, {"sm": ScreenManager(), "new_widget": ScreenManager().new_widget})
 
-    @classmethod
-    def add_hsplit(cls, args):
-        return cls.add_split(HSplit, args)
+    def eval_python(self, args):
+        obj = eval(str(args[0]), globals(), self._locals)
+        if isinstance(obj, Layout):
+            obj.panels = args[1:]
+        return obj
 
-    @classmethod
-    def add_vsplit(cls, args):
-        return cls.add_split(VSplit, args)
-
-    @staticmethod
-    def add_split(split, args):
-        line, panel_1, panel_2 = args
-
-        line = float(line) if '.' in line else int(line)
-        layout = split(line)
-        layout.panels = [panel_1, panel_2]
-        return layout
-
-    def new_widget(self, args):
-        widget = str(args[0])
-        self.widgets[widget] = ScreenManager().new_widget()
-        return self.widgets[widget]
+    def add_widget(self, args):
+        name = str(args[-1])
+        self.widgets[name] = ScreenManager().new_widget() if len(args) == 1 else self.eval_python(args)
+        return self.widgets[name]
 
 
 def load_string(build_string):

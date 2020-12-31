@@ -3,10 +3,10 @@ from .screen_manager import ScreenManager, _convert
 
 # TODO: Add minimum size arguments to layouts (needs to be added to build string grammar as well)
 class Layout:
-    layouts = {}
+    layouts = {}  # Registry of subclasses of Layout
 
     def __init_subclass__(cls):
-        Layout.layouts[cls.__name__] = cls  # Register layouts
+        Layout.layouts[cls.__name__] = cls
         cls.update.__doc__ = Layout.update.__doc__
 
     def __init__(self):
@@ -19,7 +19,7 @@ class Layout:
 
 
 # One can exploit a symmetry in the update functions of HSplit and VSplit to write a single function
-# for both, but the function becomes much harder to read with setattr everywhere.  I prefer this:
+# for both, but it's less readable.  We've chosen the more verbose option:
 class HSplit(Layout):
     def __init__(self, row):
         super().__init__()
