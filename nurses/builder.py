@@ -55,7 +55,8 @@ class LayoutBuilder(Transformer):
 
 
 def load_string(build_string):
-    """Returns dictionary of widgets whose sizes are set by the layouts in the TAML-like `build_string`.
+    """
+    Returns dict of widgets whose positions and dimensions are set by the layouts in the TAML-like build string.
 
     See Also
     --------
@@ -64,8 +65,9 @@ def load_string(build_string):
     Notes
     -----
     Indentation indicates a widget or layout belongs to an outer Layout.
-    Each line is expected to be valid python for a Layout or a Widget.  `ScreenManager()` is given the alias `sm`.
-    `sm.new_widget` can be shortened to just `new_widget`.
+    Each line is expected to be valid python for a Layout or a Widget (possibly followed by `as NAME`,
+    where NAME is the name of the widget in the returned dict) or a name for a new widget.
+    `ScreenManager()` is given the alias `sm`. `sm.new_widget` can be shortened to just `new_widget`.
 
     Examples
     --------
