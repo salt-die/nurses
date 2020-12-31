@@ -232,7 +232,7 @@ class Widget:
 
         Notes
         -----
-        Widget is refreshed after call to `roll`.
+        `self.refresh` will be called after a call to this method.
         """
         axis = (-shift, 0) if vertical else (0, -shift)
         self.buffer = np.roll(self.buffer, axis, (0, 1))
@@ -250,7 +250,7 @@ class Widget:
 
         Notes
         -----
-        Widget is refreshed after call to `roll`.
+        `self.refresh` will be called after a call to this method.
         """
         self.roll(lines, vertical=True)
         self.buffer[-lines] = " "
