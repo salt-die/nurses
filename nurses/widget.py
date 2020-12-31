@@ -183,18 +183,19 @@ class Widget:
     def border(self, style="light", color=None, *, read_only=True):
         """
         Draw a border on the edges of the widget.
+
         Parameters
         ----------
         style: optional
             The style of the border, can be one of `nurses.widget.BORDER_STYLES`. (the default is "light")
-
-            Calling this method sets the attribute `has_border` to (style, color).
 
         color: optional
             The color of the border.  (the default is the widget's `color`)
 
         Notes
         -----
+        Calling this method sets the attribute `has_border` to (style, color).
+
         Methods such as `__getitem__`, `roll`, `scroll`, `_resize` will take care to preserve the border
         as long as `has_border` is truth-y.  To disable this behavior set `has_border` to False or call
         this method with `read_only=False`.
