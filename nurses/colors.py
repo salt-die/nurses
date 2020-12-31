@@ -28,7 +28,7 @@ class ColorDict(dict):
 
     >>> sm.colors.PURPLE_ON_BLACK
 
-    This will return a curses color_pair; both colors must already be define.
+    This will return a curses color_pair; both colors must already be defined. (The color pair will be created if it doesn't exist.)
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
