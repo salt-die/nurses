@@ -23,7 +23,8 @@ class Widget:
 
       ::kwargs::
         colors (optional):          an array of curses.color_pairs that indicates the color of each character
-        border (optional):          a tuple containing a border type and color, or a one-tuple of either type or color
+        border (optional):          border type, one of ["light", "heavy", "double", "curved"]; by default a widget has no border
+        border_color (optional):    a curses color_pair
         transparent (optional):     default is false; If true widget will overlay other widgets instead of overwrite them.
 
       ::Note::
@@ -61,12 +62,7 @@ class Widget:
         self.window.resize(height, width + 1)
 
         if border := kwargs.get("border"):
-            if len(border) == 2:
-                self.border(*border)
-            elif isinstance(border[0], str):
-                self.border(style=border[0])
-            else:
-                self.border(color=border[0])
+            self.border(border, kwargs.get("border_color"))
         else:
             self.has_border = False
 

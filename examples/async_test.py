@@ -5,15 +5,15 @@ with ScreenManager() as sm:
     sm.colors.PURPLE = 103, 15, 215  # Define a new color
 
     for i in range(5):
-        widget = sm.new_widget(i * 5, 0, 4, 15, group="moving", border=(sm.colors.PURPLE_ON_BLACK,))
+        widget = sm.new_widget(i * 5, 0, 4, 15, group="moving", border="light", border_color=sm.colors.PURPLE_ON_BLACK)
         widget[:] = "Hello, World!\nI'm a widget!"
         widget.colors[0] = sm.colors.RED_ON_BLACK
 
-    resize_widget = sm.new_widget(9, 40, 12, 18, sm.colors.YELLOW_ON_BLACK, border=("curved", sm.colors.RED_ON_BLACK))
+    resize_widget = sm.new_widget(9, 40, 12, 18, sm.colors.YELLOW_ON_BLACK, border="curved", border_color=sm.colors.RED_ON_BLACK)
     resize_widget[:] = "Resize me!"
     resize_widget.colors[:, ::2] = sm.colors.BLACK_ON_YELLOW
 
-    scroll_widget = sm.new_widget(9, 60, 18, 12, border=("double", sm.colors.CYAN_ON_BLACK))
+    scroll_widget = sm.new_widget(9, 60, 18, 12, border="double", border_color=sm.colors.CYAN_ON_BLACK)
     scroll_widget[:] = "Scroll me!"
 
     async def random_walk():

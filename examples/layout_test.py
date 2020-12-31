@@ -7,14 +7,14 @@ with ScreenManager() as sm:
     HSplit(3)
         # valid python creates widget, `as NAME` will name the widget
         # `sm` refers to ScreenManager()
-        sm.new_widget(color=sm.colors.YELLOW_ON_BLACK, border=("curved", sm.colors.CYAN_ON_BLACK)) as title
+        sm.new_widget(color=sm.colors.YELLOW_ON_BLACK, border="curved", border_color=sm.colors.CYAN_ON_BLACK) as title
         HSplit(-3)
             VSplit(.5)
                 # can just use `new_widget` without the preceding "sm."
-                new_widget(color=sm.colors.RED_ON_BLACK, border=("heavy", sm.colors.GREEN_ON_BLACK)) as left
+                new_widget(color=sm.colors.RED_ON_BLACK, border="heavy", border_color=sm.colors.GREEN_ON_BLACK) as left
                 right  # can create a default widget with just a name
             # names aren't necessary, widgets will be omitted from the returned dictionary
-            new_widget(border=("light", sm.colors.GREEN_ON_BLACK))
+            new_widget(border="light", border_color=sm.colors.GREEN_ON_BLACK)
     """)
     globals().update(widgets)  # add widgets to this namespace
     right.colors[:] = right.color = sm.colors.BLUE_ON_BLACK
