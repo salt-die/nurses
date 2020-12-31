@@ -18,7 +18,7 @@ grammar = r"""
     %import common.WS_INLINE
     %import common.SH_COMMENT
     NAME: CNAME ("." CNAME)*
-    PYTHON: (NAME | "new_widget") "(" /.*/ ")"
+    PYTHON: NAME "(" /.*/ ")"
 
     %declare _INDENT _DEDENT
     %ignore WS_INLINE
