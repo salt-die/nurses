@@ -15,6 +15,8 @@ with ScreenManager() as sm:
 
     scroll_widget = sm.new_widget(9, 60, 18, 12, border="double", border_color=sm.colors.CYAN_ON_BLACK)
     scroll_widget[:] = "Scroll me!"
+    scroll_widget.color = sm.colors.BLUE_ON_BLACK
+
 
     async def random_walk():
         async for _ in sm.delayed(range(30), .5):
@@ -33,7 +35,6 @@ with ScreenManager() as sm:
             resize_widget.width -= 1
 
     async def scroll():
-        scroll_widget.color = sm.colors.BLUE_ON_BLACK
         async for i in sm.delayed(range(15), 1):
             scroll_widget.scroll()
             scroll_widget[-1] = f"New Text{i:02}"
