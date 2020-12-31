@@ -51,8 +51,9 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         """
         screen = self.screen
         screen.nodelay(False)
-        screen.getch()
+        key = screen.getch()
         screen.nodelay(True)
+        return key
 
     def dispatch(self, key):
         for widget in reversed(self.widgets):
