@@ -1,44 +1,95 @@
 from collections import deque
 from heapq import heappop as pop, heappush as push
-from itertools import count
 from time import sleep, time
 
 
 class next_task:
+    __slots__ = ()
+
     def __await__(self):
         yield
 
 
+class Task:
+    __slots__ = "coro", "is_canceled", "deadline"
+
+    def __init__(self, coro, deadline=0):
+        self.coro = coro
+        self.deadline = deadline
+        self.is_canceled = False
+
+    def __lt__(self, other):
+        return self.deadline < other.deadline
+
+
 class Scheduler:
     def __init__(self):
+        self.tasks = { }
         self.ready = deque()
         self.sleeping = [ ]
-        self.seq = count()
         self.current = None
 
     async def sleep(self, delay):
-        push(self.sleeping, (time() + delay, next(self.seq), self.current))
+        self.current.deadline = time() + delay
+        push(self.sleeping, self.current)
+        self.tasks[self.current.coro] = self.current
         self.current = None
         await next_task()
 
+    def cancel(self, coro):
+        self.tasks[coro].is_canceled = True
+
     def run_soon(self, *coros):
-        self.ready.extend(coros)
+        for coro in coros:
+            self.tasks[coro] = task = Task(coro)
+            self.ready.append(task)
 
     def run(self, *coros):
         self.run_soon(*coros)
 
-        while self.ready or self.sleeping:
-            if self.ready:
-                self.current = self.ready.popleft()
+        ready = self.ready
+        sleeping = self.sleeping
+        tasks = self.tasks
+
+        while ready or sleeping:
+            now = time()
+
+            while sleeping and sleeping[0].deadline <= now:
+                ready.append(pop(sleeping))
+
+            if ready:
+                self.current = ready.popleft()
             else:
-                deadline, _, self.current = pop(self.sleeping)
-                if (delta := deadline - time()) > 0:
-                    sleep(delta)
+                self.current = pop(sleeping)
+                sleep(self.current.deadline - now)
+
+            del tasks[self.current.coro]
+
+            if self.current.is_canceled:
+                continue
 
             try:
-                self.current.send(None)
+                self.current.coro.send(None)
             except StopIteration:
                 continue
 
             if self.current:
-                self.ready.append(self.current)
+                ready.append(self.current)
+                tasks[self.current.coro] = self.current
+
+    def schedule_callback(self, callback, delay, *args, **kwargs):
+        """
+        Schedule `callback(*args, **kwargs)` every `delay` seconds.  `delay` can be 0.
+        Returns a coroutine (this can be used to cancel the callback with `cancel(coroutine)`).
+        """
+        async def wrapped():
+            while True:
+                callback(*args, **kwargs)
+                if delay > 0:
+                    await self.sleep(delay)
+                else:
+                    await next_task()
+
+        coro = wrapped()
+        self.run_soon(coro)
+        return coro

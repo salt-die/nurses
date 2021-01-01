@@ -73,10 +73,11 @@ class ScreenManager(Scheduler, metaclass=Singleton):
 
             if key != -1:
                 self.dispatch(key)
+
             await self.sleep(GETCH_DELAY)
 
     def run(self, *coros):
-        self.ready.append(self.getch())
+        self.run_soon(self.getch())
         super().run(*coros)
 
     def refresh(self):
