@@ -1,12 +1,11 @@
-"""Credit for ascii art logo to Matthew Barber (https://ascii.matthewbarber.io/art/python/)
+"""
+Credit for ascii art logo to Matthew Barber (https://ascii.matthewbarber.io/art/python/)
 
-* **'q'** to quit
-
-* **'r'** to reset logo
-
-* arrow-keys to move cursor
-
-* space to poke the logo
+Directions:
+    'q' to quit
+    'r' to reset
+    arrow-keys to move
+    space to poke
 """
 from math import hypot
 from pathlib import Path
@@ -15,24 +14,24 @@ from nurses import ScreenManager
 from nurses.widget import Widget
 import numpy as np
 
-N, E, S, W = 259, 261, 258, 260
-SPACE, R = 32, 114
-POKE_POWER = 20
+UP, RIGHT, DOWN, LEFT = 259, 261, 258, 260
+SPACE, RESET = 32, 114
+POKE_POWER = 1  # Increase this for more powerful pokes
 MAX_VELOCITY = 4
-FRICTION = .9
-MAX_Y, MAX_X = 27, 56
+FRICTION = .97
+HEIGHT, WIDTH = 27, 56
 PARTICLE_DELAY, REFRESH_DELAY = .01, .02
 
 
 class Cursor(Widget):
     def on_press(self, key):
-        if key == N:
+        if key == UP:
             self.top -= 2
-        elif key == W:
+        elif key == LEFT:
             self.left -= 4
-        elif key == S:
+        elif key == DOWN:
             self.top += 2
-        elif key == E:
+        elif key == RIGHT:
             self.left += 4
         else:
             return None
@@ -46,12 +45,12 @@ class Pokable(Widget):
         self.vy = self.vx = 0  # velocity
         self.y = self.sy = self.top
         self.x = self.sx = self.left
-        sm.run_soon(self.step())
+        sm.schedule_callback(self.step, PARTICLE_DELAY)
 
     def on_press(self, key):
         if key == SPACE:
             self.poke()
-        elif key == R:
+        elif key == RESET:
             sm.run_soon(self.reset())
 
     def poke(self):
@@ -64,61 +63,54 @@ class Pokable(Widget):
         self.vx += power * dx
         self.vy += power * dy
 
-    async def step(self):
-        while True:
-            vy, vx = self.vy, self.vx
-            if (mag := hypot(vy, vx)) > MAX_VELOCITY:
-                normal = MAX_VELOCITY / mag
-                vx *= normal
-                vy *= normal
+    def step(self):
+        vy, vx = self.vy, self.vx
+        if (mag := hypot(vy, vx)) > MAX_VELOCITY:
+            normal = MAX_VELOCITY / mag
+            vx *= normal
+            vy *= normal
 
+        self.y += vy
+        self.x += vx
+
+        if not 0 <= self.y <= HEIGHT:
+            vy *= -1
             self.y += vy
+        if not 0 <= self.x <= WIDTH:
+            vx *= -1
             self.x += vx
 
-            if not 0 <= self.y <= MAX_Y:
-                vy *= -1
-                self.y += vy
-            if not 0 <= self.x <= MAX_X:
-                vx *= -1
-                self.x += vx
-
-            self.top = round(self.y)
-            self.left = round(self.x)
-            self.vy = vy * FRICTION
-            self.vx = vx * FRICTION
-
-            await sm.sleep(PARTICLE_DELAY)
+        self.top = round(self.y)
+        self.left = round(self.x)
+        self.vy = vy * FRICTION
+        self.vx = vx * FRICTION
 
     async def reset(self):
         self.vy = self.vx = 0
-        y_dis = 1 / 100 * (self.sy - self.y)
-        x_dis = 1 / 100 * (self.sx - self.x)
-        for i in range(100):
-            self.y += y_dis
-            self.x += x_dis
+        for i in range(1, 101):
+            a = i / 100
+            b = 1 - a
+            self.y = a * self.sy + b * self.y
+            self.x = a * self.sx + b * self.x
             self.top = round(self.y)
             self.left = round(self.x)
+            if self.top == self.sy and self.left == self.sx:
+                return
             await sm.sleep(PARTICLE_DELAY)
-
-
-async def refresh(delay=REFRESH_DELAY):
-    while True:
-        sm.refresh()
-        await sm.sleep(delay)
 
 
 if __name__ == "__main__":
     with open(Path(__file__).parent / "python_logo.txt") as f:
         logo = f.read()
 
-    logo = np.array([list(line + (MAX_X - len(line)) * " ") for line in logo.splitlines()])
+    logo = np.array([list(line + (WIDTH - len(line)) * " ") for line in logo.splitlines()])
 
     with ScreenManager() as sm:
         cursor = sm.new_widget(0, 0, 1, 1, create_with=Cursor)
         cursor[:] = "█"
 
         # Setup the "particles"
-        colors = np.full((MAX_Y, MAX_X), sm.colors.BLUE_ON_BLACK)
+        colors = np.full((HEIGHT, WIDTH), sm.colors.BLUE_ON_BLACK)
         colors[-7:] = sm.colors.YELLOW_ON_BLACK
         colors[-13: -7, -41:] = sm.colors.YELLOW_ON_BLACK
         colors[-14, -17:] = sm.colors.YELLOW_ON_BLACK
@@ -129,5 +121,7 @@ if __name__ == "__main__":
             if char != " ":
                 particle = sm.new_widget(y, x, 1, 1, color=color, cursor=cursor, create_with=Pokable)
                 particle[:] = str(char)
+
         sm.top(cursor)
-        sm.run(refresh())
+        sm.schedule_callback(sm.refresh, REFRESH_DELAY)
+        sm.run()
