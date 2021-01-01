@@ -35,6 +35,9 @@ class Cursor(Widget):
             self.left += 4
         else:
             return None
+
+        self.top %= HEIGHT
+        self.left %= WIDTH
         return True
 
 
