@@ -44,7 +44,10 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         self.colors = ColorDict()
         self.widgets = []
         self._groups = defaultdict(list)
+
         super().__init__()
+
+        self.run_soon(self.getch())
 
     def pause(self):
         """Block until a key is pressed.
@@ -75,10 +78,6 @@ class ScreenManager(Scheduler, metaclass=Singleton):
                 self.dispatch(key)
 
             await self.sleep(GETCH_DELAY)
-
-    def run(self, *coros):
-        self.run_soon(self.getch())
-        super().run(*coros)
 
     def refresh(self):
         # Notably, we don't use curses.panels as they aren't available for windows-curses...
