@@ -67,7 +67,7 @@ class ColorDict(dict):
         if attr in DEFAULT_COLORS:
             raise ValueError(f"Can't redefine {attr}")
 
-        if any(not (0 <= component <= 256) for component in rgb):
-            raise ValueError("RGB components must be between 0 and 256")
+        if any(not (0 <= component <= 255) for component in rgb):
+            raise ValueError("RGB components must be between 0 and 255")
 
-        curses.init_color(self._colors[attr], *(round(component / 256 * 1000) for component in rgb))
+        curses.init_color(self._colors[attr], *(round(component / 255 * 1000) for component in rgb))
