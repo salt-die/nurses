@@ -16,7 +16,7 @@ import numpy as np
 
 UP, RIGHT, DOWN, LEFT = 259, 261, 258, 260
 SPACE, RESET = 32, 114
-POKE_POWER = 1  # Increase this for more powerful pokes
+POKE_POWER = 2  # Increase this for more powerful pokes
 MAX_VELOCITY = 4
 FRICTION = .97
 HEIGHT, WIDTH = 27, 56
@@ -36,8 +36,8 @@ class Cursor(Widget):
         else:
             return None
 
-        self.top %= HEIGHT
-        self.left %= WIDTH
+        self.top %= HEIGHT + 1
+        self.left %= WIDTH + 1
         return True
 
 
@@ -57,8 +57,8 @@ class Pokable(Widget):
             sm.run_soon(self.reset())
 
     def poke(self):
-        dy = self.y - self.cursor.top
-        dx = self.x - self.cursor.left
+        dy = self.y - self.cursor.top - 1
+        dx = self.x - self.cursor.left - 1
         hyp = dx**2 + dy**2
         if not hyp:
             return
@@ -109,8 +109,9 @@ if __name__ == "__main__":
     logo = np.array([list(line + (WIDTH - len(line)) * " ") for line in logo.splitlines()])
 
     with ScreenManager() as sm:
-        cursor = sm.new_widget(0, 0, 1, 1, create_with=Cursor)
-        cursor[:] = "█"
+        cursor = sm.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
+        cursor[(0, -1), 1] = "|"
+        cursor[1] = "-+-"
 
         # Setup the "particles"
         colors = np.full((HEIGHT, WIDTH), sm.colors.BLUE_ON_BLACK)
