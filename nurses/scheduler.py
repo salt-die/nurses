@@ -96,12 +96,15 @@ class Scheduler:
         """
         # We could avoid the exec with conditionals leading to each version of the
         # following function, but I find this more readable. - salt
-        code = f"""
+        code = """
         async def wrapped():
-            {f"for _ in range({n})" if n else "while True"}:
+            {loop}:
                 callable(*args, **kwargs)
-                await {f"self.sleep({delay})" if delay > 0 else "next_task()"}
-        """
+                await {awaitable}
+        """.format(
+            loop=f"for _ in range({n})" if n else "while True",
+            awaitable=f"self.sleep({delay})" if delay > 0 else "next_task()",
+        )
         locals()["next_task"] = next_task
         loc = { }
         exec(dedent(code), locals(), loc)
