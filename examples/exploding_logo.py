@@ -20,7 +20,7 @@ POKE_POWER = 2  # Increase this for more powerful pokes
 MAX_VELOCITY = 4
 FRICTION = .97
 HEIGHT, WIDTH = 27, 56
-PARTICLE_DELAY, REFRESH_DELAY = .01, .02
+PARTICLE_DELAY = .01
 
 
 class Cursor(Widget):
@@ -125,5 +125,5 @@ if __name__ == "__main__":
                 particle[:] = str(char)
 
         sm.top(cursor)
-        sm.schedule(sm.refresh, delay=REFRESH_DELAY)
+        sm.schedule(sm.refresh)
         sm.run()
