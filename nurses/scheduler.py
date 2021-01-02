@@ -103,6 +103,7 @@ class Scheduler:
                 callable(*args, **kwargs)
                 await {f"self.sleep({delay})" if delay > 0 else "next_task()"}
         """
+        locals()["next_task"] = next_task
         loc = { }
         exec(dedent(code), locals(), loc)
 
