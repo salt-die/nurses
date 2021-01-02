@@ -35,7 +35,7 @@ class HSplit(Layout):
     If `row` is a float, it's taken to be percentage of the screen (i.e., HSplit(.33) will split the screen
     33% of the distance from top to bottom).
 
-    No (direct) child's height will be less than `min_height` (default is 1).
+    No (direct) child's height will be less than `min_height` (default is 1, should be positive).
     """
     def __init__(self, row, min_height=1):
         super().__init__()
@@ -75,7 +75,7 @@ class VSplit(Layout):
     If `col` is a float, it's taken to be percentage of the screen (i.e., VSplit(.33) will split the screen
     33% of the distance from left to right).
 
-    No (direct) child's width will be less than `min_width` (default is 1, can be positive int or float).
+    No (direct) child's width will be less than `min_width` (default is 1, should be positive).
     """
     def __init__(self, col, min_width=1):
         super().__init__()
