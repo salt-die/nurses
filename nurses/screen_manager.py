@@ -70,6 +70,7 @@ class ScreenManager(Scheduler, metaclass=Singleton):
             if key == EXIT:
                 self.ready.clear()
                 self.sleeping.clear()
+                self.tasks.clear()
                 return
 
             if key != -1:
@@ -77,8 +78,9 @@ class ScreenManager(Scheduler, metaclass=Singleton):
 
             await self.sleep(GETCH_DELAY)
 
-    def run(self, *coros):
-        self.run_soon(self.getch())  # Schedule getch here once it's guaranteed to be awaited.
+    def run(self, *coros, getch=True):
+        if getch:
+            self.run_soon(self.getch())
         super().run(*coros)
 
     def refresh(self):
