@@ -93,7 +93,7 @@ class Scheduler:
         Schedule `callback(*args, **kwargs)` every `delay` seconds.
         Returns a task (task.cancel() can be used to unschedule the callback).
 
-        if `n` is provided, callback is only called `n` times.
+        If `n` is non-zero, `callback` is only scheduled `n` times.
         """
         # We could avoid the exec with conditionals leading to each version of the
         # following function, but I find this more readable. - salt
