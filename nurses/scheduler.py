@@ -14,9 +14,8 @@ class next_task:
 class Task:
     __slots__ = "coro", "is_canceled", "deadline"
 
-    def __init__(self, coro, deadline=0):
+    def __init__(self, coro):
         self.coro = coro
-        self.deadline = deadline
         self.is_canceled = False
 
     def cancel(self):
@@ -54,7 +53,7 @@ class Scheduler:
             self.ready.append(task)
 
     def run(self, *coros):
-        """Start the event loop. All of `*coros` will be scheduled with `run_soon` before the loop starts.
+        """Start the event loop. All of `coros` will be scheduled with `run_soon` before the loop starts.
         """
         self.run_soon(*coros)
 
