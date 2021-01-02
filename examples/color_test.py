@@ -15,11 +15,9 @@ with ScreenManager() as sm:
     widget.colors[3::4] = sm.colors.TEAL_ON_WHITE
     widget[:] = "Color Test!"
 
-    async def roll_and_scroll():
-        async for _ in sm.delayed(range(WIDTH), .2):
-            widget.roll()
-
-        async for _ in sm.delayed(range(HEIGHT), .2):
-            widget.scroll()
-
-    sm.run(roll_and_scroll())
+    sm.schedule_callback(widget.roll, delay=.2, n=WIDTH)
+    sm.schedule_callback(sm.refresh, delay=.2, n=WIDTH)
+    sm.run()
+    sm.schedule_callback(widget.scroll, delay=.2, n=HEIGHT)
+    sm.schedule_callback(sm.refresh, delay=.2, n=WIDTH)
+    sm.run()

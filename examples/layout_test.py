@@ -17,13 +17,11 @@ with ScreenManager() as sm:
             new_widget(border="light", border_color=sm.colors.GREEN_ON_BLACK)
     """)
     globals().update(widgets)  # add widgets to this namespace
+
+    title[0, :5] = "Title"
+
     right.colors[:] = right.color = sm.colors.BLUE_ON_BLACK
     right.border("double", sm.colors.MAGENTA_ON_BLACK)
-
-    async def roll_title():
-        title[0, :5] = "Title"
-        async for _ in sm.delayed(range(100), .1):
-            title.roll()
 
     async def scroll_up():
         async for i in sm.delayed(range(50), .2):
@@ -35,4 +33,6 @@ with ScreenManager() as sm:
             right.scroll(-1)
             right[0, :14] = f"Scroll down {i:02}"
 
-    sm.run(roll_title(), scroll_up(), scroll_down())
+    sm.schedule_callback(title.roll, delay=.1, n=100)
+    sm.schedule_callback(sm.refresh, delay=.1, n=100)
+    sm.run(scroll_up(), scroll_down())

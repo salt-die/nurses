@@ -17,25 +17,23 @@ with ScreenManager() as sm:
     scroll_widget[:] = "Scroll me!"
     scroll_widget.color = sm.colors.BLUE_ON_BLACK
 
-    async def random_walk():
-        async for _ in sm.delayed(range(30), .5):
-            for widget in sm.group("moving"):
-                widget.left += round(random())
-                widget.top += round(random())
-            sm.top(choice(sm.group("moving")))
+    def random_walk():
+        for widget in sm.group("moving"):
+            widget.left += round(random())
+            widget.top += round(random())
+        sm.top(choice(sm.group("moving")))
 
-    async def roll():
-        async for _ in sm.delayed(range(150), .1):
-            for widget in sm.group("moving"):
-                widget.roll()
-
-    async def resize():
-        async for _ in sm.delayed(range(15), 1):
-            resize_widget.width -= 1
+    def resize():
+        resize_widget.width -= 1
 
     async def scroll():
         async for i in sm.delayed(range(15), 1):
             scroll_widget.scroll()
             scroll_widget[-1] = f"New Text{i:02}"
 
-    sm.run(random_walk(), roll(), resize(), scroll())
+    sm.schedule_callback(random_walk, delay=.5, n=30)
+    for widget in sm.group("moving"):
+        sm.schedule_callback(widget.roll, delay=.1, n=150)
+    sm.schedule_callback(resize, delay=1, n=15)
+    sm.schedule_callback(sm.refresh, delay=.1, n=150)
+    sm.run(scroll())

@@ -48,7 +48,7 @@ class Pokable(Widget):
         self.vy = self.vx = 0  # velocity
         self.y = self.sy = self.top
         self.x = self.sx = self.left
-        sm.schedule_callback(self.step, PARTICLE_DELAY)
+        sm.schedule_callback(self.step, delay=PARTICLE_DELAY)
 
     def on_press(self, key):
         if key == SPACE:
@@ -90,7 +90,7 @@ class Pokable(Widget):
 
     async def reset(self):
         self.vy = self.vx = 0
-        for i in range(1, 101):
+        async for i in sm.delayed(range(1, 101), PARTICLE_DELAY):
             a = i / 100
             b = 1 - a
             self.y = a * self.sy + b * self.y
@@ -99,8 +99,6 @@ class Pokable(Widget):
             self.left = round(self.x)
             if self.top == self.sy and self.left == self.sx:
                 return
-            await sm.sleep(PARTICLE_DELAY)
-
 
 if __name__ == "__main__":
     with open(Path(__file__).parent / "python_logo.txt") as f:
@@ -127,5 +125,5 @@ if __name__ == "__main__":
                 particle[:] = str(char)
 
         sm.top(cursor)
-        sm.schedule_callback(sm.refresh, REFRESH_DELAY)
+        sm.schedule_callback(sm.refresh, delay=REFRESH_DELAY)
         sm.run()
