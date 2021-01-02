@@ -18,6 +18,9 @@ class Task:
         self.deadline = deadline
         self.is_canceled = False
 
+    def cancel(self):
+        self.is_canceled = True
+
     def __lt__(self, other):
         return self.deadline < other.deadline
 
@@ -36,15 +39,22 @@ class Scheduler:
         self.current = None
         await next_task()
 
-    def cancel(self, coro):
-        self.tasks[coro].is_canceled = True
+    def cancel(self, *coros):
+        """Unschedule the given coroutines.
+        """
+        for coro in coros:
+            self.tasks[coro].cancel()
 
     def run_soon(self, *coros):
+        """Schedule the given coroutines to run as soon as possible.
+        """
         for coro in coros:
             self.tasks[coro] = task = Task(coro)
             self.ready.append(task)
 
     def run(self, *coros):
+        """Start the event loop. All of `*coros` will be scheduled with `run_soon` before the loop starts.
+        """
         self.run_soon(*coros)
 
         ready = self.ready
@@ -80,16 +90,13 @@ class Scheduler:
     def schedule_callback(self, callback, delay, *args, **kwargs):
         """
         Schedule `callback(*args, **kwargs)` every `delay` seconds.  `delay` can be 0.
-        Returns a coroutine (this can be used to cancel the callback with `cancel(coroutine)`).
+        Returns a task (task.cancel() can be used to unschedule the callback).
         """
         async def wrapped():
             while True:
                 callback(*args, **kwargs)
-                if delay > 0:
-                    await self.sleep(delay)
-                else:
-                    await next_task()
+                await self.sleep(delay) if delay > 0 else await next_task()
 
         coro = wrapped()
         self.run_soon(coro)
-        return coro
+        return self.tasks[coro]
