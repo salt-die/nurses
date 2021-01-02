@@ -105,11 +105,10 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         screen.refresh()
 
     async def delayed(self, iterable, delay):
-        """Utility method: return an async iterator over iterable with delay.  Refreshes ScreenManager every iteration.
+        """Utility method: return an async iterator over iterable with delay.
         """
         for i in iterable:
             yield i
-            self.refresh()
             await self.sleep(delay)
 
     def new_widget(self, *args, group=None, create_with=Widget, **kwargs):

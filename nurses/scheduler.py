@@ -1,5 +1,6 @@
 from collections import deque
-from heapq import heappop as pop, heappush as push
+from heapq import heappop, heappush
+from textwrap import dedent
 from time import sleep, time
 
 
@@ -34,7 +35,7 @@ class Scheduler:
 
     async def sleep(self, delay):
         self.current.deadline = time() + delay
-        push(self.sleeping, self.current)
+        heappush(self.sleeping, self.current)
         self.tasks[self.current.coro] = self.current
         self.current = None
         await next_task()
@@ -65,12 +66,12 @@ class Scheduler:
             now = time()
 
             while sleeping and sleeping[0].deadline <= now:
-                ready.append(pop(sleeping))
+                ready.append(heappop(sleeping))
 
             if ready:
                 self.current = ready.popleft()
             else:
-                self.current = pop(sleeping)
+                self.current = heappop(sleeping)
                 sleep(self.current.deadline - now)
 
             del tasks[self.current.coro]
@@ -87,16 +88,23 @@ class Scheduler:
                 ready.append(self.current)
                 tasks[self.current.coro] = self.current
 
-    def schedule_callback(self, callback, delay, *args, **kwargs):
+    def schedule_callback(self, callback, delay, *args, n=0, **kwargs):
         """
         Schedule `callback(*args, **kwargs)` every `delay` seconds.  `delay` can be 0.
         Returns a task (task.cancel() can be used to unschedule the callback).
-        """
-        async def wrapped():
-            while True:
-                callback(*args, **kwargs)
-                await self.sleep(delay) if delay > 0 else await next_task()
 
-        coro = wrapped()
+        if `n` is provided, callback is only called `n` times.
+        """
+        code = f"""
+        async def wrapped():
+            {f"for _ in range({n})" if n else "while True"}:
+                callback(*args, **kwargs)
+                await {f"self.sleep({delay})" if delay > 0 else "next_task()"}
+        """
+        glob = locals()
+        loc = { }
+        exec(dedent(code), glob, loc)
+
+        coro = loc["wrapped"]()
         self.run_soon(coro)
         return self.tasks[coro]
