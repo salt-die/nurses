@@ -280,4 +280,5 @@ class Widget:
         """
         pass
 
+
 Widget.types["Widget"] = Widget
