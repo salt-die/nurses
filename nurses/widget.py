@@ -1,6 +1,6 @@
 from functools import wraps
-
 import curses
+
 import numpy as np
 
 BORDER_STYLES = {
@@ -211,7 +211,7 @@ class Widget:
 
         Notes
         -----
-        Calling this method sets the attribute `has_border` to (style, color).
+        Calling this method sets the attribute `has_border` to `(style, color)`.
 
         Methods such as `__setitem__`, `roll`, `scroll`, `_resize` will take care to preserve the border
         as long as `has_border` is truth-y.  To disable this behavior set `has_border` to False or call
@@ -245,10 +245,6 @@ class Widget:
 
         vertical: optional
             Whether to roll vertically.  (the default is `False`, i.e., rolls are horizontal by default)
-
-        Notes
-        -----
-        `self.refresh` will be called after a call to this method.
         """
         axis = (-shift, 0) if vertical else (0, -shift)
         self.buffer = np.roll(self.buffer, axis, (0, 1))
@@ -263,10 +259,6 @@ class Widget:
         ----------
         lines: optional
             Number of lines to scroll. To scroll down, lines should be negative. (the default is 1)
-
-        Notes
-        -----
-        `self.refresh` will be called after a call to this method.
         """
         self.roll(lines, vertical=True)
         slice_ = slice(-lines, None) if lines > 0 else slice(None, -lines)
