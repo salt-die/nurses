@@ -45,7 +45,7 @@ class LayoutBuilder(Transformer):
     def eval_python(self, args):
         obj = eval(str(args[0]), globals(), self._locals)
         if isinstance(obj, Layout):
-            obj.panels = args[1:]
+            obj.children = args[1:]
         return obj
 
     def add_widget(self, args):
