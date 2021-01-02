@@ -88,22 +88,23 @@ class Scheduler:
                 ready.append(self.current)
                 tasks[self.current.coro] = self.current
 
-    def schedule_callback(self, callback, delay, *args, n=0, **kwargs):
+    def schedule_callback(self, callback, *args, delay=0, n=0, **kwargs):
         """
-        Schedule `callback(*args, **kwargs)` every `delay` seconds.  `delay` can be 0.
+        Schedule `callback(*args, **kwargs)` every `delay` seconds.
         Returns a task (task.cancel() can be used to unschedule the callback).
 
         if `n` is provided, callback is only called `n` times.
         """
+        # We could avoid the exec with conditionals leading to each version of the
+        # following function, but I find this more readable. - salt
         code = f"""
         async def wrapped():
             {f"for _ in range({n})" if n else "while True"}:
                 callback(*args, **kwargs)
                 await {f"self.sleep({delay})" if delay > 0 else "next_task()"}
         """
-        glob = locals()
         loc = { }
-        exec(dedent(code), glob, loc)
+        exec(dedent(code), locals(), loc)
 
         coro = loc["wrapped"]()
         self.run_soon(coro)
