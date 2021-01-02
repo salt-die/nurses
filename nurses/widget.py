@@ -168,13 +168,13 @@ class Widget:
         """
         return self.buffer[key]
 
-    def __setitem__(self, key, item):
+    def __setitem__(self, key, text):
         """
-        Coerce `item` into a ndarray then call `buffer.__setitem__(key, item)`.
+        Coerce `text` into a ndarray then call `buffer.__setitem__(key, text)`.
 
         Notes
         -----
-        If `len(item) > 1`, `item` is coerced into an array or an array of arrays (depending on the presence of newlines).
+        If `len(text) > 1`, `text` is coerced into an array or an array of arrays (depending on the presence of newlines).
         If the array's shape can't be cast to `self.buffer` it will be rotated and tried again (setting the text vertically).
 
         If `self.has_border` is truth-y then indices will be offset automatically.
@@ -184,15 +184,15 @@ class Widget:
         --------
         >>> my_widget[2:4, :13] = "Hello, World!\\nI'm a widget!"
         """
-        if "\n" in item:
-            item = np.array(tuple(map(tuple, item.rstrip("\n").splitlines())))
-        elif len(item) > 1:
-            item = np.array(tuple(item))
+        if "\n" in text:
+            text = np.array(tuple(map(tuple, text.rstrip("\n").splitlines())))
+        elif len(text) > 1:
+            text = np.array(tuple(text))
 
         try:
-            self.buffer[key] = item
+            self.buffer[key] = text
         except ValueError:
-            self.buffer[key] = np.rot90(item if len(item.shape) == 2 else item[None, ], -1)  # Try to fit the text vertically
+            self.buffer[key] = np.rot90(text if len(text.shape) == 2 else text[None, ], -1)  # Try to fit the text vertically
 
         self.refresh()
 
