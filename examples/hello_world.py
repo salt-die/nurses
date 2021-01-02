@@ -19,5 +19,5 @@ with ScreenManager() as sm:
         widget.refresh()
         sm.refresh()
 
-    sm.schedule_callback(marching_border, delay=.1, n=120)
+    sm.schedule(marching_border, delay=.1, n=120)
     sm.run()

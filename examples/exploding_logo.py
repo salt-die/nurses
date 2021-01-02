@@ -48,7 +48,7 @@ class Pokable(Widget):
         self.vy = self.vx = 0  # velocity
         self.y = self.sy = self.top
         self.x = self.sx = self.left
-        sm.schedule_callback(self.step, delay=PARTICLE_DELAY)
+        sm.schedule(self.step, delay=PARTICLE_DELAY)
 
     def on_press(self, key):
         if key == SPACE:
@@ -125,5 +125,5 @@ if __name__ == "__main__":
                 particle[:] = str(char)
 
         sm.top(cursor)
-        sm.schedule_callback(sm.refresh, delay=REFRESH_DELAY)
+        sm.schedule(sm.refresh, delay=REFRESH_DELAY)
         sm.run()

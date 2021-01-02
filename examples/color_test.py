@@ -15,9 +15,9 @@ with ScreenManager() as sm:
     widget.colors[3::4] = sm.colors.TEAL_ON_WHITE
     widget[:] = "Color Test!"
 
-    sm.schedule_callback(widget.roll, delay=.2, n=WIDTH)
-    sm.schedule_callback(sm.refresh, delay=.2, n=WIDTH)
+    sm.schedule(widget.roll, delay=.2, n=WIDTH)
+    sm.schedule(sm.refresh, delay=.2, n=WIDTH)
     sm.run()
-    sm.schedule_callback(widget.scroll, delay=.2, n=HEIGHT)
-    sm.schedule_callback(sm.refresh, delay=.2, n=WIDTH)
+    sm.schedule(widget.scroll, delay=.2, n=HEIGHT)
+    sm.schedule(sm.refresh, delay=.2, n=WIDTH)
     sm.run()

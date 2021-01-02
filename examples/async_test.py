@@ -31,9 +31,9 @@ with ScreenManager() as sm:
             scroll_widget.scroll()
             scroll_widget[-1] = f"New Text{i:02}"
 
-    sm.schedule_callback(random_walk, delay=.5, n=30)
+    sm.schedule(random_walk, delay=.5, n=30)
     for widget in sm.group("moving"):
-        sm.schedule_callback(widget.roll, delay=.1, n=150)
-    sm.schedule_callback(resize, delay=1, n=15)
-    sm.schedule_callback(sm.refresh, delay=.1, n=150)
+        sm.schedule(widget.roll, delay=.1, n=150)
+    sm.schedule(resize, delay=1, n=15)
+    sm.schedule(sm.refresh, delay=.1, n=150)
     sm.run(scroll())
