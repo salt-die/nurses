@@ -76,6 +76,9 @@ class Pokable(Widget):
 
     def step(self):
         vy, vx = self.vy, self.vx
+        if vy == vx == 0:
+            return
+
         if (mag := hypot(vy, vx)) > MAX_VELOCITY:
             normal = MAX_VELOCITY / mag
             vx *= normal
