@@ -17,7 +17,7 @@ TODO
 
 Notes
 -----
-Should Layouts inherit from Widget? Or should both Layout and Widget inherit from a common base?  This could allow to ScreenManager to be agnostic to
-dispatching to or drawing either and probably is not much effort to implement.
+Should Layouts inherit from Widget? Or should both Layout and Widget inherit from a common base?  This could allow ScreenManager to be agnostic to
+dispatching to or drawing either.
 
 `load_string` should probably return the outer-most Layout.
