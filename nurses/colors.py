@@ -7,7 +7,7 @@ DEFAULT_COLORS = "BLACK", "BLUE", "GREEN", "CYAN", "RED", "MAGENTA", "YELLOW", "
 DEFAULT_RGBS = tuple(product((-1, -2), repeat=3))  # Default colors are set by the terminal and could be anything; these tuples are just placeholders.
 COLOR_RE = re.compile(r"[A-Z_]+")
 COLOR_PAIR_RE = re.compile(r"([A-Z_]+)_ON_([A-Z_]+)")
-INIT_COLOR_START = 16  # Colors 1 - 15 can't be changed on windows. This might be need to be changed for other systems.
+INIT_COLOR_START = 16  # Colors 0 - 15 can't be changed on windows. This might be need to be changed for other systems.
 
 def _scale(components):
     """This scales rgb values in the range 0-255 to be in the range 0-1000.
