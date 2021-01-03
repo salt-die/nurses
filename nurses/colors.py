@@ -53,7 +53,7 @@ class _ColorManager:
     Notes
     -----
     The names BLACK, BLUE, GREEN, CYAN, RED, MAGENTA, YELLOW, WHITE are already defined and can't be redefined.
-    These are your terminal default colors, not necessarily true blue or true black, etc.
+    These are your terminal default colors, don't necessarily correspond to black, blue, green, etc.
     """
     def __init__(self):
         self._names_to_rgb = dict(zip(DEFAULT_COLORS, DEFAULT_RGBS))
