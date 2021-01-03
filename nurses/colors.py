@@ -24,9 +24,9 @@ def _scale(components):
     return (round(component / 255 * 1000) for component in components)
 
 
-class ColorManager:
+class _ColorManager:
     """
-    :class: ColorManager manages curses color inits and color pair inits for nurses. There are two ways to get a
+    :class: _ColorManager manages curses color inits and color pair inits for nurses. There are two ways to get a
     curses color pair from this class.  The simplest way is to first define a color alias with
     `cm.COLOR = r, g, b' where `COLOR` can be any name consisting of capital letters and underscores and r, g, b
     are the color components between 0 - 255. Once aliases are defined one can retrieve a color pair by name:
@@ -41,7 +41,7 @@ class ColorManager:
     The names BLACK, BLUE, GREEN, CYAN, RED, MAGENTA, YELLOW, WHITE are already defined and can't be redefined.
 
     Curses allows redefining an already defined color pair which will immediately change the colors of anything on
-    screen using that color pair.  While one can redefine aliases with :class: ColorManager, there's currently
+    screen using that color pair.  While one can redefine aliases with :class: _ColorManager, there's currently
     no support for redefining a color pair.
     """
     def __init__(self):
