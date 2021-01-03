@@ -16,3 +16,11 @@ with ScreenManager() as sm:
 
     sm.refresh()
     sm.pause()
+
+    sm.colors.PURPLE = 255, 50, 100
+    sm.pause()
+
+    rgb = sm.colors.rgb
+    sm.colors.redefine_color_pair(rgb.ORANGE_ON_GREEN, rgb.TEAL_ON_BLACK)
+    sm.refresh()
+    sm.pause()

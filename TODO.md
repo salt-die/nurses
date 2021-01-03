@@ -10,14 +10,14 @@ TODO
     * Resizable
 
 * Layouts
-    * Grid - a n x m layout of widgets
+    * Grid - a `n * m` layout of widgets
     * Stack  - a row or column of widgets
-    * Scrolling
-
-* Colors
-    * Support for redefining a color pair?  I'm unsure if I even want this feature and would require another refactor of colors.py.
+    * Scrolling - a row or column of widgets that extends off-screen and can be scrolled
 
 
 Notes
 -----
-Should Layouts inherit from Widget? Or should both Layout and Widget inherit from a common base?  Doing either could allow for more flexibility positioning and dispatching to widgets.  And allow widgets to contain widgets.
+Should Layouts inherit from Widget? Or should both Layout and Widget inherit from a common base?  This could allow to ScreenManager to be agnostic to
+dispatching to or drawing either and probably is not much effort to implement.
+
+`load_string` should probably return the outer-most Layout.

@@ -14,14 +14,40 @@ DEFAULT_RGBS = (
     (255, 255,   0),
     (255, 255, 255),
 )
-COLOR_PAIR_RE = re.compile(r"([A-Z_]+)_ON_([A-Z_]+)")
 COLOR_RE = re.compile(r"[A-Z_]+")
+COLOR_PAIR_RE = re.compile(r"([A-Z_]+)_ON_([A-Z_]+)")
 INIT_COLOR_START = 16  # Colors 1 - 15 can't be changed on windows. This might be need to be changed for other systems.
 
 def _scale(components):
     """This scales rgb values in the range 0-255 to be in the range 0-1000.
     """
     return (round(component / 255 * 1000) for component in components)
+
+
+class _RGB:
+    """
+    This utility class will return the rgb values of colors or color pairs by name using __getattr__.
+    It's mostly to be used to simplify redefining colors or color pairs.
+
+    Examples
+    --------
+
+    >>> sm.colors.redefine_color(sm.colors.rgb.ORANGE, sm.colors.rgb.BLUE)
+    """
+    def __init__(self, names):
+        self.names = names
+
+    def __getattr__(self, alias):
+        names = self.names
+
+        if match := COLOR_PAIR_RE.fullmatch(alias):
+            fore, back = match.groups()
+            return names[fore], names[back]
+
+        if COLOR_RE.fullmatch(alias):
+            return names[alias]
+
+        return super().__getattr__(alias)
 
 
 class _ColorManager:
@@ -39,22 +65,18 @@ class _ColorManager:
     Notes
     -----
     The names BLACK, BLUE, GREEN, CYAN, RED, MAGENTA, YELLOW, WHITE are already defined and can't be redefined.
-
-    Curses allows redefining an already defined color pair which will immediately change the colors of anything on
-    screen using that color pair.  While one can redefine aliases with :class: _ColorManager, there's currently
-    no support for redefining a color pair.
     """
     def __init__(self):
         self._names_to_rgb = dict(zip(DEFAULT_COLORS, DEFAULT_RGBS))
         self._rgb_to_curses = defaultdict(count(INIT_COLOR_START).__next__, zip(DEFAULT_RGBS, count()))
         self._pair_to_curses = defaultdict(count(1).__next__, {(DEFAULT_RGBS[-1], DEFAULT_RGBS[0]): 0})
+        self.rgb = _RGB(self._names_to_rgb)
 
-    def pair(self, fr, fg, fb, br, bg, bb):
+    def pair(self, fore, back):
         """
-        Return a curses color pair whose foreground components are `fr, fg, fb` and whose
-        background components are `br, bg, bb`.
+        Return a curses color pair from a pair of rgb-tuples.
         """
-        pair = fore, back = (fr, fg, fb), (br, bg, bb)
+        pair = fore, back
         rgbs = self._rgb_to_curses
         pairs = self._pair_to_curses
 
@@ -81,7 +103,7 @@ class _ColorManager:
         if back not in names:
             raise ValueError(f"{back} not defined")
 
-        return self.pair(*names[fore], *names[back])
+        return self.pair(names[fore], names[back])
 
     def __setattr__(self, color, rgb):
         """Assign `color` to `rgb`.
@@ -95,4 +117,24 @@ class _ColorManager:
         if any(component < 0 or component > 255 for component in rgb):
             raise ValueError(f"invalid components {rgb}")
 
-        self._names_to_rgb[color] = rgb
+        names = self._names_to_rgb
+        if color in names and names[color] in self._rgb_to_curses:
+            self.redefine_color(names[color], rgb)
+        names[color] = rgb
+
+    def redefine_color(self, old, new):
+        """The color `old` is everywhere replaced with `new`.  Change is immediate without a screen refresh.
+        """
+        rgbs = self._rgb_to_curses
+
+        rgbs[new] = rgbs.pop(old)
+        curses.init_color(rgbs[new], *_scale(new))
+
+    def redefine_color_pair(self, old, new):
+        """The color pair `old` is everywhere replaced with `new`. Screen needs refresh to see changes.
+        """
+        rgbs = self._rgb_to_curses
+        pairs = self._pair_to_curses
+
+        pairs[new] = pairs.pop(old)
+        curses.init_pair(pairs[new], rgbs[new[0]], rgbs[new[1]])
