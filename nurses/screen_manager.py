@@ -14,9 +14,9 @@ def _convert(pos, bounds):
     """Utility function that converts a fractional or negative position to an absolute one.
     """
     if isinstance(pos, float):
-        if pos < 0: pos += 1
-        return round(pos * bounds)
-    if pos < 0: pos += bounds
+        pos = round(pos * bounds)
+    if pos < 0:
+        pos += bounds
     return pos
 
 
