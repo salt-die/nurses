@@ -1,3 +1,5 @@
+from math import sin, pi
+import time
 from nurses import ScreenManager
 
 with ScreenManager() as sm:
@@ -10,18 +12,25 @@ with ScreenManager() as sm:
     widget = sm.new_widget(10, 10, 10, 11)
     widget.colors[0::4] = sm.colors.PURPLE_ON_BLACK
     widget.colors[1::4] = sm.colors.FUCHSIA_ON_YELLOW
-    widget.colors[2::4] = sm.colors.ORANGE_ON_GREEN
+    widget.colors[2::4] = sm.colors.ORANGE_ON_PURPLE
     widget.colors[3::4] = sm.colors.TEAL_ON_WHITE
     widget[:] = "Color Test!"
 
     sm.refresh()
     sm.pause()
 
-    sm.colors.PURPLE = 255, 50, 100 # Note that `sm.colors.redefine_color(sm.colors.rgb.PURPLE, (255, 50, 100))` is similar,
-                                    # but doesn't redefine the alias so that new color pairs using PURPLE would still use the old value `(103, 15, 215)`.
-    sm.pause()
+    COLORS = 20
+    def rainbow_rgbs(n):
+        offsets = 0, 2 * pi / 3, 4 * pi / 3
+        for i in range(n):
+            yield tuple(int(sin(2 * pi / n * i + offset) * 127 + 128) for offset in offsets)
 
-    rgb = sm.colors.rgb
-    sm.colors.redefine_color_pair(rgb.ORANGE_ON_GREEN, rgb.TEAL_ON_BLACK)  # The first color pair must exist.
-    sm.refresh()
-    sm.pause()
+    pairs = tuple(sm.colors.pair(rgb, (0, 0, 0)) for rgb in rainbow_rgbs(COLORS))
+
+    async def rainbow():
+        async for i in sm.delayed(range(200), .1):
+            widget.colors[:] = pairs[i % COLORS]
+            widget.refresh()
+            sm.refresh()
+
+    sm.run(rainbow())
