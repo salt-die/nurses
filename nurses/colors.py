@@ -70,7 +70,7 @@ class ColorManager:
         return curses.color_pair(pairs[pair])
 
     def __getattr__(self, color_pair):
-        """Fetch the color pair (FOREGROUND, BACKGROUND) with attribute FOREGROUN_ON_BACKGROUND.
+        """Fetch the color pair (FOREGROUND, BACKGROUND) with attribute FOREGROUND_ON_BACKGROUND.
         """
         if not (match := COLOR_PAIR_RE.fullmatch(color_pair)):
             return super().__getattr__(color_pair)
