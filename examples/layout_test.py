@@ -33,6 +33,6 @@ with ScreenManager() as sm:
             right.scroll(-1)
             right[0, :14] = f"Scroll down {i:02}"
 
-    sm.schedule(title.roll, delay=.1, n=100)
     sm.schedule(sm.refresh, delay=.1, n=100)
+    sm.schedule(title.roll, delay=.1, n=100)
     sm.run(scroll_up(), scroll_down())
