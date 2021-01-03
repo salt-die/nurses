@@ -20,16 +20,17 @@ with ScreenManager() as sm:
     sm.pause()
 
     COLORS = 20
-    def rainbow_rgbs(n):
+    def rainbow_rgbs(n=COLORS):
         offsets = 0, 2 * pi / 3, 4 * pi / 3
         for i in range(n):
             yield tuple(int(sin(2 * pi / n * i + offset) * 127 + 128) for offset in offsets)
 
-    pairs = tuple(sm.colors.pair(rgb, (0, 0, 0)) for rgb in rainbow_rgbs(COLORS))
+    for rgb in rainbow_rgbs():
+        sm.colors.pair(rgb, (0, 0, 0), palette="rainbow")
 
     async def rainbow():
         async for i in sm.delayed(range(200), .1):
-            widget.colors[:] = pairs[i % COLORS]
+            widget.colors[:] = sm.colors.palette["rainbow"][i % COLORS]
             widget.refresh()
             sm.refresh()
 

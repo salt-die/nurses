@@ -34,9 +34,12 @@ class _ColorManager:
         self._names_to_rgb = dict(zip(DEFAULT_COLORS, DEFAULT_RGBS))
         self._rgb_to_curses = defaultdict(count(INIT_COLOR_START).__next__, zip(DEFAULT_RGBS, count()))
         self._pair_to_curses = defaultdict(count(1).__next__, {(DEFAULT_RGBS[-1], DEFAULT_RGBS[0]): 0})
+        self.palette = defaultdict(list)
 
-    def pair(self, fore, back):
-        """Return a curses color pair from a pair of rgb-tuples.
+    def pair(self, fore, back, palette=None):
+        """
+        Return a curses color pair from a pair of rgb-tuples. If `palette` is provided, the color
+        pair will be appended to `self.palette[palette]`.  This can simplify creating color gradients.
         """
         pair = fore, back
         pairs = self._pair_to_curses
@@ -49,7 +52,13 @@ class _ColorManager:
 
         if pair not in pairs:
             curses.init_pair(pairs[pair], rgbs[fore], rgbs[back])
-        return curses.color_pair(pairs[pair])
+
+        color = curses.color_pair(pairs[pair])
+
+        if palette is not None:
+            self.palette[palette].append(color)
+
+        return color
 
     def __getattr__(self, attr):
         """Fetch the color pair (FOREGROUND, BACKGROUND) with attribute FOREGROUND_ON_BACKGROUND.
