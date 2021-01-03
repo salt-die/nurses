@@ -1,7 +1,7 @@
 import curses
 from collections import defaultdict
 
-from .colors import _ColorManager
+from ._colors import ColorManager
 from .scheduler import Scheduler
 from .widget import Widget
 
@@ -41,7 +41,7 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         curses.curs_set(0)
         curses.start_color()
 
-        self.colors = _ColorManager()
+        self.colors = ColorManager()
         self.widgets = []
         self._groups = defaultdict(list)
 

@@ -9,15 +9,15 @@ COLOR_RE = re.compile(r"[A-Z_]+")
 COLOR_PAIR_RE = re.compile(r"([A-Z_]+)_ON_([A-Z_]+)")
 INIT_COLOR_START = 16  # Colors 0 - 15 are already init on windows terminal and can't be re-init
 
-def _scale(components):
+def scale(components):
     """This scales rgb values in the range 0-255 to be in the range 0-1000.
     """
     return (round(component / 255 * 1000) for component in components)
 
 
-class _ColorManager:
+class ColorManager:
     """
-    :class: _ColorManager manages curses color inits and color pair inits for nurses. There are two ways to get a
+    :class: ColorManager manages curses color inits and color pair inits for nurses. There are two ways to get a
     curses color pair from this class.  The simplest way is to first define a color alias with
     `cm.COLOR = r, g, b' where `COLOR` can be any name consisting of capital letters and underscores and r, g, b
     are the color components between 0 - 255. Once aliases are defined one can retrieve a color pair by name:
@@ -46,9 +46,9 @@ class _ColorManager:
         rgbs = self._rgb_to_curses
 
         if fore not in rgbs:
-            curses.init_color(rgbs[fore], *_scale(fore))
+            curses.init_color(rgbs[fore], *scale(fore))
         if back not in rgbs:
-            curses.init_color(rgbs[back], *_scale(back))
+            curses.init_color(rgbs[back], *scale(back))
 
         if pair not in pairs:
             curses.init_pair(pairs[pair], rgbs[fore], rgbs[back])
