@@ -1,6 +1,3 @@
-# TODO: Some program may want a large number of colors, and referring to colors by name may not be convenient in such cases.
-#       Considering adding a way to refer to colors by their hex color code, something like: `sm.colors.H335551`
-#       Alternatively, add a method to grab a color-pair directy from RGB values: `sm.colors.rgb(103, 15, 215, 0, 0, 0)` (PURPLE_ON_BLACK)
 # TODO: Reset colors in ScreenManager.close
 from collections import defaultdict
 import curses
@@ -8,66 +5,95 @@ from itertools import count
 import re
 
 DEFAULT_COLORS = "BLACK", "BLUE", "GREEN", "CYAN", "RED", "MAGENTA", "YELLOW", "WHITE"
-COLOR_RE = re.compile(r"([A-Z]+)_(?:ON_)?([A-Z]+)")
-SET_COLOR = re.compile(r"[A-Z]+")
-INIT_COLOR_START = 64  # May need to be lowered on terminals with too few colors.  Recommend at least 16, as the colors 1 - 15 can't be changed on windows.
+DEFAULT_RGBS = (
+    (  0,   0,   0),
+    (  0,   0, 255),
+    (  0, 255,   0),
+    (  0, 255, 255),
+    (255,   0,   0),
+    (255,   0, 255),
+    (255, 255,   0),
+    (255, 255, 255),
+)
+COLOR_PAIR_RE = re.compile(r"([A-Z_]+)_ON_([A-Z_]+)")
+COLOR_RE = re.compile(r"[A-Z_]+")
+INIT_COLOR_START = 16  # Colors 1 - 15 can't be changed on windows. This might be need to be changed for other systems.
 
-class ColorDict(dict):
+def _scale(components):
+    """This scales rgb values in the range 0-255 to be in the range 0-1000.
     """
-    A dict that automatically initializes colors or missing color pairs.
+    return (round(component / 255 * 1000) for component in components)
+
+
+class ColorManager:
+    """
+    :class: ColorManager manages curses color inits and color pair inits for nurses. There are two ways to get a
+    curses color pair from this class.  The simplest way is to first define a color alias with
+    `cm.COLOR = r, g, b' where `COLOR` can be any name consisting of capital letters and underscores and r, g, b
+    are the color components between 0 - 255. Once aliases are defined one can retrieve a color pair by name:
+    `cm.FOREGROUND_ON_BACKGROUND`.
+
+    An alternative way to get a curses color pair is the `pair` method. `cm.pair(fr, fg, fb, br, bg, bb)`
+    returns the color pair whose foreground components are `fr, fg, fb` and whose background components are
+    `br, bg, bb`.
 
     Notes
     -----
-    The colors BLACK, BLUE, GREEN, CYAN, RED, MAGENTA, YELLOW, WHITE are defined by default.
+    The names BLACK, BLUE, GREEN, CYAN, RED, MAGENTA, YELLOW, WHITE are already defined and can't be redefined.
 
-    Examples
-    --------
-    >>> sm.colors.PURPLE = 103, 15, 215
-
-    This will define a new color `PURPLE`
-
-    >>> sm.colors.PURPLE_ON_BLACK
-
-    This will return a curses color_pair; both colors must already be defined. (The color pair will be created if it doesn't exist.)
+    Curses allows redefining an already defined color pair which will immediately change the colors of anything on
+    screen using that color pair.  While one can redefine aliases with :class: ColorManager, there's currently
+    no support for redefining a color pair.
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self["WHITE", "BLACK"] = 0  # Default color pair.
-        self._pair_count = count(1)
-        self._colors = defaultdict(count(INIT_COLOR_START).__next__, zip(DEFAULT_COLORS, count()))
+    def __init__(self):
+        self._names_to_rgb = dict(zip(DEFAULT_COLORS, DEFAULT_RGBS))
+        self._rgb_to_curses = defaultdict(count(INIT_COLOR_START).__next__, zip(DEFAULT_RGBS, count()))
+        self._pair_to_curses = defaultdict(count(1).__next__, {(DEFAULT_RGBS[-1], DEFAULT_RGBS[0]): 0})
 
-    def __missing__(self, key):
-        colors = self._colors
-        pair_number = next(self._pair_count)
-
-        curses.init_pair(pair_number, colors[key[0]], colors[key[1]])
-
-        self[key] = pair_number
-        return self[key]
-
-    def __getattr__(self, attr):
-        """Fetch the color pair (FORE, BACK) with attribute FORE_ON_BACK or FORE_BACK.
+    def pair(self, fr, fg, fb, br, bg, bb):
         """
-        if not (match := COLOR_RE.fullmatch(attr)):
-            return super().__getattr__(attr)
+        Return a curses color pair whose foreground components are `fr, fg, fb` and whose
+        background components are `br, bg, bb`.
+        """
+        pair = fore, back = (fr, fg, fb), (br, bg, bb)
+        rgbs = self._rgb_to_curses
+        pairs = self._pair_to_curses
 
+        if fore not in rgbs:
+            curses.init_color(rgbs[fore], *_scale(fore))
+        if back not in rgbs:
+            curses.init_color(rgbs[back], *_scale(back))
+
+        if pair not in pairs:
+            curses.init_pair(pairs[pair], rgbs[fore], rgbs[back])
+
+        return curses.color_pair(pairs[pair])
+
+    def __getattr__(self, color_pair):
+        """Fetch the color pair (FOREGROUND, BACKGROUND) with attribute FOREGROUN_ON_BACKGROUND.
+        """
+        if not (match := COLOR_PAIR_RE.fullmatch(color_pair)):
+            return super().__getattr__(color_pair)
+
+        names = self._names_to_rgb
         fore, back = match.groups()
-        if (fore_not_in := fore not in self._colors) or back not in self._colors:
-            raise ValueError(f"{fore if fore_not_in else back} not defined")
+        if fore not in names:
+            raise ValueError(f"{fore} not defined")
+        if back not in names:
+            raise ValueError(f"{back} not defined")
 
-        return curses.color_pair(self[fore, back])
+        return self.pair(*names[fore], *names[back])
 
-
-    def __setattr__(self, attr, rgb):
-        """Initialize a new color `attr` or re-define an old color to rgb.
+    def __setattr__(self, color, rgb):
+        """Assign `color` to `rgb`.
         """
-        if not SET_COLOR.fullmatch(attr):
-            return super().__setattr__(attr, rgb)
+        if not COLOR_RE.fullmatch(color):
+            return super().__setattr__(color, rgb)
 
-        if attr in DEFAULT_COLORS:
-            raise ValueError(f"Can't redefine {attr}")
+        if color in DEFAULT_COLORS:
+            raise ValueError(f"can't redefine {color}")
 
-        if any(not (0 <= component <= 255) for component in rgb):
-            raise ValueError("RGB components must be between 0 and 255")
+        if any(component < 0 or component > 255 for component in rgb):
+            raise ValueError(f"invalid components {rgb}")
 
-        curses.init_color(self._colors[attr], *(round(component / 255 * 1000) for component in rgb))
+        self._names_to_rgb[color] = rgb
