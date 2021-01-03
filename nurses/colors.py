@@ -1,19 +1,10 @@
 from collections import defaultdict
 import curses
-from itertools import count
+from itertools import count, product
 import re
 
 DEFAULT_COLORS = "BLACK", "BLUE", "GREEN", "CYAN", "RED", "MAGENTA", "YELLOW", "WHITE"
-DEFAULT_RGBS = (
-    (  0,   0,   0),
-    (  0,   0, 255),
-    (  0, 255,   0),
-    (  0, 255, 255),
-    (255,   0,   0),
-    (255,   0, 255),
-    (255, 255,   0),
-    (255, 255, 255),
-)
+DEFAULT_RGBS = tuple(product((0, 255), repeat=3))
 COLOR_RE = re.compile(r"[A-Z_]+")
 COLOR_PAIR_RE = re.compile(r"([A-Z_]+)_ON_([A-Z_]+)")
 INIT_COLOR_START = 16  # Colors 1 - 15 can't be changed on windows. This might be need to be changed for other systems.
@@ -31,7 +22,6 @@ class _RGB:
 
     Examples
     --------
-
     >>> sm.colors.redefine_color(sm.colors.rgb.ORANGE, sm.colors.rgb.BLUE)
     """
     def __init__(self, names):
@@ -58,9 +48,7 @@ class _ColorManager:
     are the color components between 0 - 255. Once aliases are defined one can retrieve a color pair by name:
     `cm.FOREGROUND_ON_BACKGROUND`.
 
-    An alternative way to get a curses color pair is the `pair` method. `cm.pair(fr, fg, fb, br, bg, bb)`
-    returns the color pair whose foreground components are `fr, fg, fb` and whose background components are
-    `br, bg, bb`.
+    An alternative way to get a curses color pair is the `pair` method which expects a pair of rgb 3-tuples.
 
     Notes
     -----
@@ -73,8 +61,7 @@ class _ColorManager:
         self.rgb = _RGB(self._names_to_rgb)
 
     def pair(self, fore, back):
-        """
-        Return a curses color pair from a pair of rgb-tuples.
+        """Return a curses color pair from a pair of rgb-tuples.
         """
         pair = fore, back
         rgbs = self._rgb_to_curses

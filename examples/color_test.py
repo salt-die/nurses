@@ -17,10 +17,11 @@ with ScreenManager() as sm:
     sm.refresh()
     sm.pause()
 
-    sm.colors.PURPLE = 255, 50, 100
+    sm.colors.PURPLE = 255, 50, 100 # Note that `sm.colors.redefine_color(sm.colors.rgb.PURPLE, (255, 50, 100))` is similar,
+                                    # but doesn't redefine the alias so that new color pairs using PURPLE would still use the old value `(103, 15, 215)`.
     sm.pause()
 
     rgb = sm.colors.rgb
-    sm.colors.redefine_color_pair(rgb.ORANGE_ON_GREEN, rgb.TEAL_ON_BLACK)
+    sm.colors.redefine_color_pair(rgb.ORANGE_ON_GREEN, rgb.TEAL_ON_BLACK)  # The first color pair must exist.
     sm.refresh()
     sm.pause()
