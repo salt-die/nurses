@@ -7,7 +7,7 @@ DEFAULT_COLORS = "BLACK", "BLUE", "GREEN", "CYAN", "RED", "MAGENTA", "YELLOW", "
 DEFAULT_RGBS = tuple(product((-1, -2), repeat=3))  # Default colors are set by the terminal and could be anything; these tuples are just placeholders.
 COLOR_RE = re.compile(r"[A-Z_]+")
 COLOR_PAIR_RE = re.compile(r"([A-Z_]+)_ON_([A-Z_]+)")
-INIT_COLOR_START = 16  # Colors 0 - 15 can't be changed on windows. This might be need to be changed for other systems.
+INIT_COLOR_START = 16  # Colors 0 - 15 are already init on windows terminal and can't be re-init
 
 def _scale(components):
     """This scales rgb values in the range 0-255 to be in the range 0-1000.
@@ -35,23 +35,20 @@ class _ColorManager:
         self._rgb_to_curses = defaultdict(count(INIT_COLOR_START).__next__, zip(DEFAULT_RGBS, count()))
         self._pair_to_curses = defaultdict(count(1).__next__, {(DEFAULT_RGBS[-1], DEFAULT_RGBS[0]): 0})
 
-    def color(self, rgb):
-        """Return a curses color number from a rgb-tuple.
-        """
-        rgbs = self._rgb_to_curses
-        if rgb not in rgbs:
-            curses.init_color(rgbs[rgb], *_scale(rgb))
-        return rgbs[rgb]
-
     def pair(self, fore, back):
         """Return a curses color pair from a pair of rgb-tuples.
         """
         pair = fore, back
-        color = self.color
         pairs = self._pair_to_curses
+        rgbs = self._rgb_to_curses
+
+        if fore not in rgbs:
+            curses.init_color(rgbs[fore], *_scale(fore))
+        if back not in rgbs:
+            curses.init_color(rgbs[back], *_scale(back))
 
         if pair not in pairs:
-            curses.init_pair(pairs[pair], color(fore), color(back))
+            curses.init_pair(pairs[pair], rgbs[fore], rgbs[back])
         return curses.color_pair(pairs[pair])
 
     def __getattr__(self, attr):
