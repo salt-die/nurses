@@ -4,7 +4,7 @@ from itertools import count, product
 import re
 
 DEFAULT_COLORS = "BLACK", "BLUE", "GREEN", "CYAN", "RED", "MAGENTA", "YELLOW", "WHITE"
-DEFAULT_RGBS = tuple(product((0, 255), repeat=3))
+DEFAULT_RGBS = tuple(product((-1, -2), repeat=3))  # Default colors are set by the terminal and could be anything; these tuples are just placeholders.
 COLOR_RE = re.compile(r"[A-Z_]+")
 COLOR_PAIR_RE = re.compile(r"([A-Z_]+)_ON_([A-Z_]+)")
 INIT_COLOR_START = 16  # Colors 1 - 15 can't be changed on windows. This might be need to be changed for other systems.
@@ -53,6 +53,7 @@ class _ColorManager:
     Notes
     -----
     The names BLACK, BLUE, GREEN, CYAN, RED, MAGENTA, YELLOW, WHITE are already defined and can't be redefined.
+    These are your terminal default colors, not necessarily true blue or true black, etc.
     """
     def __init__(self):
         self._names_to_rgb = dict(zip(DEFAULT_COLORS, DEFAULT_RGBS))
