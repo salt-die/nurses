@@ -1,4 +1,3 @@
-# TODO: Reset colors in ScreenManager.close
 from collections import defaultdict
 import curses
 from itertools import count
