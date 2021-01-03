@@ -7,17 +7,12 @@ with ScreenManager() as sm:
     sm.colors.ORANGE = 224, 132, 33
     sm.colors.TEAL = 17, 163, 112
 
-    HEIGHT, WIDTH = 10, 11
-    widget = sm.new_widget(10, 10, HEIGHT, WIDTH)
+    widget = sm.new_widget(10, 10, 10, 11)
     widget.colors[0::4] = sm.colors.PURPLE_ON_BLACK
     widget.colors[1::4] = sm.colors.FUCHSIA_ON_YELLOW
     widget.colors[2::4] = sm.colors.ORANGE_ON_GREEN
     widget.colors[3::4] = sm.colors.TEAL_ON_WHITE
     widget[:] = "Color Test!"
 
-    sm.schedule(widget.roll, delay=.2, n=WIDTH)
-    sm.schedule(sm.refresh, delay=.2, n=WIDTH)
-    sm.run()
-    sm.schedule(widget.scroll, delay=.2, n=HEIGHT)
-    sm.schedule(sm.refresh, delay=.2, n=WIDTH)
-    sm.run()
+    sm.refresh()
+    sm.pause()
