@@ -7,13 +7,13 @@ Directions:
     arrow-keys to move
     space to poke
 """
-import curses
 from math import pi, sin
 from pathlib import Path
 
 import numpy as np
 from nurses import ScreenManager
 from nurses.widget import Widget
+from nurses.widget_base import WidgetBase
 
 UP, RIGHT, DOWN, LEFT, SPACE, RESET = 259, 261, 258, 260, 32, 114  # Keybindings
 POKE_POWER = 2  # Increase this for more powerful pokes
@@ -51,21 +51,16 @@ class Cursor(Widget):
         return True
 
 
-class Particle:
-    """This class fits the Widget api without inheriting from Widget: we don't need numpy array buffers for single character windows!
+class Particle(WidgetBase):
+    """We don't need numpy array buffers for single character windows, so we just inherit from WidgetBase instead of Widget.
     """
     # We create a lot of particles, if we can get any speed up from this, we'll take it!
     __slots__ = (
-        "height", "width", "top", "left",  "start", "pos", "vel",
-        "start_color", "current_color", "character", "cursor", "window", "is_transparent"
+        "start", "pos", "vel", "start_color", "current_color", "character", "cursor"
     )
 
     def __init__(self, top, left, cursor, current_color, character):
-        self.height = self.width = 1
-
-        self.top = top
-        self.left = left
-
+        super().__init__(top, left, 1, 1)
         self.start = self.pos = complex(top, left)
 
         self.vel = 0j # velocity
@@ -74,9 +69,6 @@ class Particle:
         self.character = character
 
         self.cursor = cursor
-        self.window = curses.newwin(1, 2)
-
-        self.is_transparent = False  # Needed to convince ScreenManager we're a Widget
 
         self.refresh()
         sm.schedule(self.step)
