@@ -5,11 +5,6 @@ from time import sleep, time
 from types import coroutine
 
 
-@coroutine
-def next_task():
-    yield
-
-
 class Task:
     __slots__ = "coro", "is_canceled", "deadline"
 
@@ -25,8 +20,6 @@ class Task:
 
 
 class Scheduler:
-    next_task = next_task
-
     def __init__(self):
         self.tasks = { }
         self.ready = deque()
@@ -38,20 +31,20 @@ class Scheduler:
         heappush(self.sleeping, self.current)
         self.tasks[self.current.coro] = self.current
         self.current = None
-        await next_task()
-
-    def cancel(self, *coros):
-        """Unschedule the given coroutines.
-        """
-        for coro in coros:
-            self.tasks[coro].cancel()
+        await self.next_task()
 
     def run_soon(self, *coros):
         """Schedule the given coroutines to run as soon as possible.
         """
         for coro in coros:
-            self.tasks[coro] = task = Task(coro)
-            self.ready.append(task)
+            self.new_task(coro)
+
+    def new_task(self, coro):
+        """Schedule a given coroutine and return a task.  `task.cancel()` will unschedule the coroutine.
+        """
+        self.tasks[coro] = task = Task(coro)
+        self.ready.append(task)
+        return task
 
     def run(self, *coros):
         """Start the event loop. All of `coros` will be scheduled with `run_soon` before the loop starts.
@@ -104,12 +97,16 @@ class Scheduler:
                 await {awaitable}
         """.format(
             loop=f"for _ in range({n})" if n else "while True",
-            awaitable=f"self.sleep({delay})" if delay > 0 else "next_task()",
+            awaitable=f"self.sleep({delay})" if delay > 0 else "self.next_task()",
         )
-        locals()["next_task"] = next_task
         loc = { }
         exec(dedent(code), locals(), loc)
 
         coro = loc["wrapped"]()
         self.run_soon(coro)
         return self.tasks[coro]
+
+    @staticmethod
+    @coroutine
+    def next_task():
+        yield
