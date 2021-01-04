@@ -15,6 +15,8 @@ class WidgetMeta(ABCMeta):
 
 
 class WidgetBase(metaclass=WidgetMeta):
+    """Inheriting from this class will always guarantee we fulfill the Widget api.
+    """
     def __init__(self, top=0, left=0, height=None, width=None, transparent=False):
         h, w = sm.ScreenManager().screen.getmaxyx()
         if height is None:
