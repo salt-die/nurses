@@ -1,9 +1,10 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
-from .screen_manager import ScreenManager, _convert
+from .widget_base import WidgetBase
+from .screen_manager import ScreenManager
 
 
-class Layout(ABC):
+class Layout(WidgetBase):
     """
     Layouts are used to assign position and dimensions of contained widgets/sub-layouts.
 
@@ -16,10 +17,6 @@ class Layout(ABC):
         Layout.layouts[cls.__name__] = cls
         if not cls.update.__doc__:
             cls.update.__doc__ = Layout.update.__doc__
-
-    def __init__(self):
-        self.top = self.left = 0
-        self.height, self.width = ScreenManager().screen.getmaxyx()
 
     @abstractmethod
     def update(self):
@@ -44,8 +41,8 @@ class HSplit(Layout):
         self.children = [None, None]
 
     def update(self):
-        row = _convert(self.row, self.height)
-        min_height = _convert(self.min_height, self.height)
+        row = self.convert(self.row, self.height)
+        min_height = self.convert(self.min_height, self.height)
         if row < min_height:
             row = min_height
         elif self.height - row < min_height:
@@ -84,8 +81,8 @@ class VSplit(Layout):
         self.children = [None, None]
 
     def update(self):
-        col = _convert(self.col, self.width)
-        min_width = _convert(self.min_width, self.width)
+        col = self.convert(self.col, self.width)
+        min_width = self.convert(self.min_width, self.width)
         if col < min_width:
             col = min_width
         elif self.width - col < min_width:

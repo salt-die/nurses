@@ -14,7 +14,6 @@ from pathlib import Path
 import numpy as np
 from nurses import ScreenManager
 from nurses.widget import Widget
-from nurses.scheduler import next_task
 
 UP, RIGHT, DOWN, LEFT, SPACE, RESET = 259, 261, 258, 260, 32, 114  # Keybindings
 POKE_POWER = 2  # Increase this for more powerful pokes
@@ -127,7 +126,7 @@ class Particle:
             self.refresh()
             if self.top == self.start.real and self.left == self.start.imag and self.start_color == self.current_color:
                 return
-            await next_task()
+            await sm.next_task()
 
     def refresh(self):
         self.window.addstr(0, 0, self.character, sm.colors.palette["rainbow"][int(self.current_color)])

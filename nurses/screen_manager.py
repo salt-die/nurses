@@ -5,19 +5,8 @@ from ._colors import ColorManager
 from .scheduler import Scheduler
 from .widget import Widget
 
-
 GETCH_DELAY = .1
 EXIT = ord('q')
-
-
-def _convert(pos, bounds):
-    """Utility function that converts a fractional or negative position to an absolute one.
-    """
-    if isinstance(pos, float):
-        pos = round(pos * bounds)
-    if pos < 0:
-        pos += bounds
-    return pos
 
 
 class Singleton(type):
@@ -118,22 +107,24 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         Create a new widget and append to widget stack.  Can group widgets if providing a hashable group.
         To create a new subclassed widget use `create_with=MyWidget` or `create_with="MyWidget"` (pass the class or the class' name).
         """
-        h, w = self.screen.getmaxyx()
-        top, left, height, width, *rest = (0, 0, h, w) if not args else args
-
-        top    = _convert(   top, h)
-        left   = _convert(  left, w)
-        height = _convert(height, h)
-        width  = _convert( width, w)
-
         if isinstance(create_with, str):
             create_with = Widget.types[create_with]
 
-        widget = create_with(top, left, height, width, *rest, **kwargs)
+        widget = create_with(*args, **kwargs)
         self.widgets.append(widget)
         if group is not None:
             self._groups[group].append(widget)
         return widget
+
+    def newwin(self, lines, cols):
+        """Wraps curses.newwin.
+        """
+        # Curses will return ERR if creating a window wider or taller than our screen.
+        # We can get around this by creating a tiny window and then resizing to be as large as we'd like.
+        # TODO: Test this hack on linux.
+        win = curses.newwin(1, 1)
+        win.resize(lines, cols + 1)
+        return win
 
     def top(self, widget):
         """Given a widget or an index of a widget, widget is moved to top of widget stack (so it is drawn last).

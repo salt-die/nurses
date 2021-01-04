@@ -2,13 +2,11 @@ from collections import deque
 from heapq import heappop, heappush
 from textwrap import dedent
 from time import sleep, time
+from types import coroutine
 
-
-class next_task:
-    __slots__ = ()
-
-    def __await__(self):
-        yield
+@coroutine
+def next_task():
+    yield
 
 
 class Task:
@@ -27,6 +25,7 @@ class Task:
 
 class Scheduler:
     def __init__(self):
+        self.next_task = next_task
         self.tasks = { }
         self.ready = deque()
         self.sleeping = [ ]

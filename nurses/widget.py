@@ -1,7 +1,8 @@
-from functools import wraps
-import curses
+from contextlib import contextmanager
 
 import numpy as np
+from .widget_base import WidgetBase
+from . import screen_manager as sm  # Avoid circular import
 
 BORDER_STYLES = {
     "light": "┌┐│─└┘",
@@ -16,24 +17,34 @@ def refresh_after(method):
     This decorator provides a `refresh` parameter to these methods that can be set to
     False to disable the automatic refresh.
     """
-    @wraps(method)
     def wrapper(self, *args, refresh=True, **kwargs):
         method(self, *args, **kwargs)
         if refresh:
             self.refresh()
+    wrapper.__name__ = method.__name__
+    wrapper.__doc__ = method.__doc__
     return wrapper
 
+@contextmanager
+def disable_method(obj, methodname):
+    old = getattr(obj, methodname)
+    try:
+        setattr(obj, methodname, lambda:None)
+        yield
+    finally:
+        setattr(obj, methodname, old)
 
-class Widget:
+
+class Widget(WidgetBase):
     """
     A wrapper over a curses.window.
 
     Parameters
     ----------
-    top, left
-        upper and left-most coordinates of widget relative to screen
-    height, width
-        dimensions of the widget
+    top, left, height, width: optional
+        Upper and left-most coordinates of widget relative to parent, and dimensions of the widget. Fractional arguments
+        are interpreted as percentage of parent, and parent width or height will be added to negative arguments.
+        (the defaults are 0, 0, parent's max height, parent's max width)
     color: optional
        A curses color_pair, the default color of this widget. (the default is `curses.color_pair(0)`)
 
@@ -65,28 +76,19 @@ class Widget:
         if not cls.on_press.__doc__:
             cls.on_press.__doc__ = Widget.on_press.__doc__
 
-    def __init__(self, top, left, height, width, color=None, **kwargs):
-        self.top = top
-        self.left = left
-        self._height = height
-        self._width = width
+    def __init__(self, top=0, left=0, height=None, width=None, color=None, **kwargs):
+        with disable_method(self, "_resize"):  # We're not ready for our properties to call this method
+            super().__init__(top, left, height, width, bool(kwargs.get("transparent")))
 
-        self._buffer = np.full((height, width), " ")
+        h, w = self.height, self.width
+        self._buffer = np.full((h, w), " ")
 
-        self.color = curses.color_pair(0) if color is None else color
+        self.color = sm.ScreenManager().colors.WHITE_ON_BLACK if color is None else color
 
         if colors := kwargs.get("colors"):
             self._colors = colors
         else:
-            self._colors = np.full((height, width), self.color)
-
-        self.is_transparent = bool(kwargs.get("transparent"))
-
-        # Curses will return ERR if creating a window wider or taller than our screen.
-        # We can get around this by creating a tiny window and then resizing to be as large as we'd like.
-        # TODO: Test this hack on linux.
-        self.window = curses.newwin(1, 1)
-        self.window.resize(height, width + 1)
+            self._colors = np.full((h, w), self.color)
 
         if border := kwargs.get("border"):
             self.border(border, kwargs.get("border_color"))
