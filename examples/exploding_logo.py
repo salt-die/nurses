@@ -22,6 +22,8 @@ MAX_VELOCITY = 4  # Limits how fast particles can travel.
 FRICTION = .97  # Friction decreases the closer this value is to `1`.
 HEIGHT, WIDTH = 27, 56  # Size of the Python logo, found through inspection.
 COLORS = 20  # Number of different rainbow colors -- If this changes the start color of the logo will also change.
+COLOR_LERP = 5  # This will speed up return to start color on reset
+COLOR_CHANGE = 5  # The higher this is the faster colors will change due to velocity
 FAST_DIVISION = tuple(i / 100 for i in range(1, 101))  # Used when lerping in Particle.reset
 
 def rainbow_rgbs(n=COLORS):
@@ -54,7 +56,10 @@ class Particle:
     """This class fits the Widget api without inheriting from Widget: we don't need numpy array buffers for single character windows!
     """
     # We create a lot of particles, if we can get any speed up from this, we'll take it!
-    __slots__ = "height", "width", "top", "left",  "start", "pos", "vel", "current_color", "character", "cursor", "window", "is_transparent"
+    __slots__ = (
+        "height", "width", "top", "left",  "start", "pos", "vel",
+        "start_color", "current_color", "character", "cursor", "window", "is_transparent"
+    )
 
     def __init__(self, top, left, cursor, current_color, character):
         self.height = self.width = 1
@@ -66,14 +71,15 @@ class Particle:
 
         self.vel = 0j # velocity
 
-        self.current_color = current_color
+        self.start_color = self.current_color = current_color
         self.character = character
 
         self.cursor = cursor
         self.window = curses.newwin(1, 2)
-        self.window.addstr(0, 0, self.character, sm.colors.palette["rainbow"][int(self.current_color)])
 
         self.is_transparent = False  # Needed to convince ScreenManager we're a Widget
+
+        self.refresh()
         sm.schedule(self.step)
 
     def on_press(self, key):
@@ -108,18 +114,23 @@ class Particle:
         self.left = round(self.pos.imag)
         self.vel *= FRICTION
 
-        self.current_color = (self.current_color + min(mag, MAX_VELOCITY)) % COLORS
-        self.window.addstr(0, 0, self.character, sm.colors.palette["rainbow"][int(self.current_color)])
+        self.current_color = (self.current_color + min(mag, MAX_VELOCITY) * COLOR_CHANGE) % COLORS
+        self.refresh()
 
     async def reset(self):
         self.vel = 0j
         for a in FAST_DIVISION:
             self.pos = a * self.start + (1 - a) * self.pos
+            self.current_color = COLOR_LERP * a * self.start_color + (1 - COLOR_LERP * a) * self.current_color
             self.top = round(self.pos.real)
             self.left = round(self.pos.imag)
-            if self.top == self.start.real and self.left == self.start.imag:
+            self.refresh()
+            if self.top == self.start.real and self.left == self.start.imag and self.start_color == self.current_color:
                 return
             await next_task()
+
+    def refresh(self):
+        self.window.addstr(0, 0, self.character, sm.colors.palette["rainbow"][int(self.current_color)])
 
 
 if __name__ == "__main__":
