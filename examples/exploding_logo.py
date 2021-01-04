@@ -7,23 +7,26 @@ Directions:
     arrow-keys to move
     space to poke
 """
+import curses
 from math import hypot, pi, sin
 from pathlib import Path
 
+import numpy as np
 from nurses import ScreenManager
 from nurses.widget import Widget
-import numpy as np
+from nurses.scheduler import next_task
 
-UP, RIGHT, DOWN, LEFT = 259, 261, 258, 260
-SPACE, RESET = 32, 114
+UP, RIGHT, DOWN, LEFT, SPACE, RESET = 259, 261, 258, 260, 32, 114  # Keybindings
 POKE_POWER = 2  # Increase this for more powerful pokes
-MAX_VELOCITY = 4
-FRICTION = .97
-HEIGHT, WIDTH = 27, 56
-PARTICLE_DELAY = .01
-COLORS = 20
+MAX_VELOCITY = 4  # Limits how fast particles can travel.
+FRICTION = .97  # Friction decreases the closer this value is to `1`.
+HEIGHT, WIDTH = 27, 56  # Size of the Python logo, found through inspection.
+COLORS = 20  # Number of different rainbow colors -- If this changes the start color of the logo will also change.
+FAST_DIVISION = tuple(i / 100 for i in range(1, 101))  # Used when lerping in Particle.reset
 
 def rainbow_rgbs(n=COLORS):
+    """This creates the rgb-tuples that make up the rainbow gradient.  It's what I refer to as the "lolcat"-function.
+    """
     offsets = 0, 2 * pi / 3, 4 * pi / 3
     for i in range(n):
         yield tuple(int(sin(2 * pi / n * i + offset) * 127 + 128) for offset in offsets)
@@ -47,16 +50,31 @@ class Cursor(Widget):
         return True
 
 
-class Pokable(Widget):
-    def __init__(self, *args, cursor, current_color, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.cursor = cursor
-        self.vy = self.vx = 0  # velocity
-        self.y = self.sy = self.top
-        self.x = self.sx = self.left
+class Particle:
+    """This class fits the Widget api without inheriting from Widget: we don't need numpy array buffers for single character windows!
+    """
+    # We create a lot of particles, if we can get any speed up from this, we'll take it!
+    __slots__ = "height", "width", "top", "left",  "start", "pos", "vel", "current_color", "character", "cursor", "window", "is_transparent"
+
+    def __init__(self, top, left, cursor, current_color, character):
+        self.height = self.width = 1
+
+        self.top = top
+        self.left = left
+
+        self.start = self.pos = complex(top, left)
+
+        self.vel = 0j # velocity
+
         self.current_color = current_color
-        self.colors[:] = sm.colors.palette["rainbow"][current_color]
-        sm.schedule(self.step, delay=PARTICLE_DELAY)
+        self.character = character
+
+        self.cursor = cursor
+        self.window = curses.newwin(1, 2)
+        self.window.addstr(0, 0, self.character, sm.colors.palette["rainbow"][int(self.current_color)])
+
+        self.is_transparent = False  # Needed to convince ScreenManager we're a Widget
+        sm.schedule(self.step)
 
     def on_press(self, key):
         if key == SPACE:
@@ -65,55 +83,43 @@ class Pokable(Widget):
             sm.run_soon(self.reset())
 
     def poke(self):
-        dy = self.y - self.cursor.top - 1
-        dx = self.x - self.cursor.left - 1
-        hyp = dx**2 + dy**2
-        if not hyp:
-            return
-        power = POKE_POWER / hyp
-        self.vx += power * dx
-        self.vy += power * dy
+        dyx = self.pos - complex(self.cursor.top - 1, self.cursor.left - 1)
+        if dyx != 0:
+            self.vel += POKE_POWER / (dyx.real**2 + dyx.imag**2) * dyx
 
     def step(self):
-        vy, vx = self.vy, self.vx
-        if vy == vx == 0:
+        if self.vel == 0:
             return
 
-        if (mag := hypot(vy, vx)) > MAX_VELOCITY:
-            normal = MAX_VELOCITY / mag
-            vx *= normal
-            vy *= normal
+        if (mag := abs(self.vel)) > MAX_VELOCITY:
+            self.vel *= MAX_VELOCITY / mag
 
-        self.y += vy
-        self.x += vx
+        self.pos += self.vel
 
-        if not 0 <= self.y <= HEIGHT:
-            vy *= -1
-            self.y += vy
-        if not 0 <= self.x <= WIDTH:
-            vx *= -1
-            self.x += vx
+        if not 0 <= self.pos.real <= HEIGHT:
+            self.vel = -self.vel.conjugate()
+            self.pos += self.vel.real
 
-        self.top = round(self.y)
-        self.left = round(self.x)
-        self.vy = vy * FRICTION
-        self.vx = vx * FRICTION
+        if not 0 <= self.pos.imag <= WIDTH:
+            self.vel = self.vel.conjugate()
+            self.pos += self.vel.imag
+
+        self.top = round(self.pos.real)
+        self.left = round(self.pos.imag)
+        self.vel *= FRICTION
 
         self.current_color = (self.current_color + min(mag, MAX_VELOCITY)) % COLORS
-        self.colors[:] = sm.colors.palette["rainbow"][int(self.current_color)]
-        self.refresh()
+        self.window.addstr(0, 0, self.character, sm.colors.palette["rainbow"][int(self.current_color)])
 
     async def reset(self):
-        self.vy = self.vx = 0
-        async for i in sm.delayed(range(1, 101), PARTICLE_DELAY):
-            a = i / 100
-            b = 1 - a
-            self.y = a * self.sy + b * self.y
-            self.x = a * self.sx + b * self.x
-            self.top = round(self.y)
-            self.left = round(self.x)
-            if self.top == self.sy and self.left == self.sx:
+        self.vel = 0j
+        for a in FAST_DIVISION:
+            self.pos = a * self.start + (1 - a) * self.pos
+            self.top = round(self.pos.real)
+            self.left = round(self.pos.imag)
+            if self.top == self.start.real and self.left == self.start.imag:
                 return
+            await next_task()
 
 
 if __name__ == "__main__":
@@ -137,8 +143,7 @@ if __name__ == "__main__":
         for char, color in it:
             y, x = it.multi_index
             if char != " ":
-                particle = sm.new_widget(y, x, 1, 1, current_color=color, cursor=cursor, create_with=Pokable)
-                particle[:] = str(char)
+                particle = sm.add_widget(Particle(y, x, character=str(char), current_color=color, cursor=cursor))
 
         sm.top(cursor)
         sm.schedule(sm.refresh)
