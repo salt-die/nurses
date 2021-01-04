@@ -101,12 +101,9 @@ class Scheduler:
             loop=f"for _ in range({n})" if n else "while True",
             awaitable=f"self.sleep({delay})" if delay > 0 else "self.next_task()",
         )
-        loc = { }
-        exec(dedent(code), locals(), loc)
 
-        coro = loc["wrapped"]()
-        self.run_soon(coro)
-        return self.tasks[coro]
+        exec(dedent(code), locals(), loc := { })
+        return self.new_task(loc["wrapped"]())
 
     @staticmethod
     @coroutine
