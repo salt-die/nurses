@@ -4,6 +4,7 @@ from textwrap import dedent
 from time import sleep, time
 from types import coroutine
 
+
 @coroutine
 def next_task():
     yield
@@ -24,8 +25,9 @@ class Task:
 
 
 class Scheduler:
+    next_task = next_task
+
     def __init__(self):
-        self.next_task = next_task
         self.tasks = { }
         self.ready = deque()
         self.sleeping = [ ]
