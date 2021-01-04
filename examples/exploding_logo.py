@@ -8,7 +8,7 @@ Directions:
     space to poke
 """
 import curses
-from math import hypot, pi, sin
+from math import pi, sin
 from pathlib import Path
 
 import numpy as np
