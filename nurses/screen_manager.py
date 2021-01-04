@@ -21,6 +21,8 @@ class Singleton(type):
 class ScreenManager(Scheduler, metaclass=Singleton):
     """ScreenManager manages widgets and handles drawing to screen.
     """
+    __slots__ = "screen", "colors", "widgets", "_groups"
+
     def __init__(self):
         self.screen = screen = curses.initscr()
         screen.keypad(True)
@@ -50,7 +52,7 @@ class ScreenManager(Scheduler, metaclass=Singleton):
             if widget.on_press(key):
                 break
 
-    async def getch(self):
+    async def getch(self, delay):
         while True:
             if not self.ready and not self.sleeping:
                 return
@@ -65,11 +67,11 @@ class ScreenManager(Scheduler, metaclass=Singleton):
             if key != -1:
                 self.dispatch(key)
 
-            await self.sleep(GETCH_DELAY)
+            await self.sleep(delay)
 
-    def run(self, *coros, getch=True):
+    def run(self, *coros, getch=True, getch_delay=GETCH_DELAY):
         if getch:
-            self.run_soon(self.getch())
+            self.run_soon(self.getch(GETCH_DELAY))
         super().run(*coros)
 
     def refresh(self):

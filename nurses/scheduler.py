@@ -20,6 +20,8 @@ class Task:
 
 
 class Scheduler:
+    __slots__ = "tasks", "ready", "sleeping", "current"
+
     def __init__(self):
         self.tasks = { }
         self.ready = deque()
@@ -40,7 +42,7 @@ class Scheduler:
             self.new_task(coro)
 
     def new_task(self, coro):
-        """Schedule a given coroutine and return a task.  `task.cancel()` will unschedule the coroutine.
+        """Schedule a given coroutine and return a :class: Task.  `task.cancel()` will unschedule the coroutine.
         """
         self.tasks[coro] = task = Task(coro)
         self.ready.append(task)
@@ -84,7 +86,7 @@ class Scheduler:
     def schedule(self, callable, *args, delay=0, n=0, **kwargs):
         """
         Schedule `callable(*args, **kwargs)` every `delay` seconds.
-        Returns a task (task.cancel() can be used to unschedule `callable`).
+        Returns a :class: Task (task.cancel() can be used to unschedule `callable`).
 
         If `n` is non-zero, `callable` is only scheduled `n` times.
         """
