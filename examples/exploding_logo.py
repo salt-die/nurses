@@ -27,7 +27,7 @@ COLOR_CHANGE = 5  # The higher this is the faster colors will change due to velo
 FAST_DIVISION = tuple(i / 100 for i in range(1, 101))  # Used when lerping in Particle.reset
 
 def rainbow_rgbs(n=COLORS):
-    """This creates the rgb-tuples that make up the rainbow gradient.  It's what I refer to as the "lolcat"-function.
+    """This creates the rgb-tuples that make up the rainbow gradient.  It's what I refer to as the "lolcat" function.
     """
     offsets = 0, 2 * pi / 3, 4 * pi / 3
     for i in range(n):
