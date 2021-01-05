@@ -19,3 +19,7 @@ Notes
 -----
 I'd like it if importing widget module would import subclasses too (so they can be added to class registry).
 Same with Layouts.
+
+I hate the name ArrayWin.
+
+We may re-add Layout auto-updating on some attribute change.
