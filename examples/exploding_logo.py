@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 from nurses import ScreenManager
 from nurses.widget import Widget
-from nurses.arraywin import ArrayWin
+from nurses.widget.arraywin import ArrayWin
 
 UP, RIGHT, DOWN, LEFT, SPACE, RESET = 259, 261, 258, 260, 32, 114  # Keybindings
 POKE_POWER = 2  # Increase this for more powerful pokes

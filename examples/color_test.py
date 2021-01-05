@@ -1,8 +1,6 @@
 from math import sin, pi
-import time
 
 from nurses import ScreenManager
-from nurses.arraywin import ArrayWin
 
 with ScreenManager() as sm:
     # Define some new colors:
@@ -11,7 +9,7 @@ with ScreenManager() as sm:
     sm.colors.ORANGE = 224, 132, 33
     sm.colors.TEAL = 17, 163, 112
 
-    widget = sm.root.new_widget(10, 10, 10, 11, create_with=ArrayWin)
+    widget = sm.root.new_widget(10, 10, 10, 11, create_with="ArrayWin")
     widget.colors[0::4] = sm.colors.PURPLE_ON_BLACK
     widget.colors[1::4] = sm.colors.FUCHSIA_ON_YELLOW
     widget.colors[2::4] = sm.colors.ORANGE_ON_PURPLE

@@ -4,9 +4,7 @@ from textwrap import dedent
 from lark import Lark, Transformer
 from lark.indenter import Indenter
 
-from .layout import Layout
 from .widget import Widget
-from .arraywin import ArrayWin
 from .screen_manager import ScreenManager
 
 
@@ -41,17 +39,15 @@ class LayoutIndenter(Indenter):
 class LayoutBuilder(Transformer):
     def __init__(self):
         self.widgets = {}
-        self.locals = ChainMap(Layout.layouts, Widget.types, {"sm": ScreenManager()})
+        self.locals = ChainMap(Widget.types, Widget.types["Layout"].layouts, {"sm": ScreenManager()})
 
     def eval_python(self, args):
-        obj = eval(str(args[0]), globals(), self.locals)
-        if len(args) > 1:
-            if isinstance(args[1], str):
-                self.widgets[str(args[1])] = obj
-                start = 2
-            else:
-                start = 1
-            for child in args[start:]:
+        obj, *rest = args
+        obj = eval(str(obj), globals(), self.locals)
+        if rest:
+            if isinstance(rest[0], str):
+                self.widgets[str(rest.pop(0))] = obj
+            for child in rest:
                 obj.add_widget(child)
         return obj
 

@@ -1,8 +1,6 @@
 from collections import defaultdict
 import curses
 
-from . import screen_manager as sm
-
 
 class Widget:
     types = { }  # Registry of subclasses of Widget
@@ -26,7 +24,9 @@ class Widget:
         elif parent:
             h, w = parent.height, parent.width
         else:
-            h, w = sm.ScreenManager().screen.getmaxyx()
+            from nurses import ScreenManager
+            h, w = ScreenManager().screen.getmaxyx()
+            w -= 1
 
         convert = self.convert
         self.top    = convert( top, h)
@@ -131,6 +131,3 @@ class Widget:
         A press is handled when a widget's `on_press` method returns True.
         """
         pass
-
-
-Widget.types["Widget"] = Widget

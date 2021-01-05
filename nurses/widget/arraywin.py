@@ -1,8 +1,8 @@
 from contextlib import contextmanager
+import curses
 
 import numpy as np
-from .widget import Widget
-from . import screen_manager as sm  # Avoiding circular import
+from . import Widget
 
 BORDER_STYLES = {
     "light": "┌┐│─└┘",
@@ -76,7 +76,7 @@ class ArrayWin(Widget):
         h, w = self.height, self.width
         self._buffer = np.full((h, w), " ")
 
-        self.color = color or sm.ScreenManager().colors.WHITE_ON_BLACK
+        self.color = color or curses.color_pair(0)
 
         self._colors = colors or np.full((h, w), self.color)
 
