@@ -4,7 +4,7 @@ from textwrap import dedent
 from lark import Lark, Transformer
 from lark.indenter import Indenter
 
-from .widget import Widget
+from .widgets import Widget
 from .screen_manager import ScreenManager
 
 

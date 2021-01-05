@@ -2,7 +2,7 @@ import curses
 
 from ._colors import ColorManager
 from .scheduler import Scheduler
-from .widget import Widget
+from .widgets import Widget
 
 GETCH_DELAY = .1
 EXIT = ord('q')

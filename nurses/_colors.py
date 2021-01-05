@@ -31,7 +31,7 @@ class ColorManager:
     These are your terminal default colors, don't necessarily correspond to black, blue, green, etc.
     """
     def __init__(self):
-        self._names_to_rgb = dict(zip(DEFAULT_COLORS, DEFAULT_RGBS))
+        self.names_to_rgb = dict(zip(DEFAULT_COLORS, DEFAULT_RGBS))
         self._rgb_to_curses = defaultdict(count(INIT_COLOR_START).__next__, zip(DEFAULT_RGBS, count()))
         self._pair_to_curses = defaultdict(count(1).__next__, {(DEFAULT_RGBS[-1], DEFAULT_RGBS[0]): 0})
         self.palette = defaultdict(list)
@@ -63,7 +63,7 @@ class ColorManager:
     def __getattr__(self, attr):
         """Fetch the color pair (FOREGROUND, BACKGROUND) with attribute FOREGROUND_ON_BACKGROUND.
         """
-        names = self._names_to_rgb
+        names = self.names_to_rgb
 
         if match := COLOR_PAIR_RE.fullmatch(attr):
             fore, back = match.groups()
@@ -88,4 +88,4 @@ class ColorManager:
         if any(component < 0 or component > 255 for component in rgb):
             raise ValueError(f"invalid components {rgb}")
 
-        self._names_to_rgb[color] = rgb
+        self.names_to_rgb[color] = rgb

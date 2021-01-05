@@ -11,9 +11,7 @@ from math import pi, sin
 from pathlib import Path
 
 import numpy as np
-from nurses import ScreenManager
-from nurses.widget import Widget
-from nurses.widget.arraywin import ArrayWin
+from nurses import ScreenManager, Widget
 
 UP, RIGHT, DOWN, LEFT, SPACE, RESET = 259, 261, 258, 260, 32, 114  # Keybindings
 POKE_POWER = 2  # Increase this for more powerful pokes
@@ -34,7 +32,7 @@ def rainbow_rgbs(n=COLORS):
         yield tuple(int(sin(2 * pi / n * i + offset) * 127 + 128) for offset in offsets)
 
 
-class Cursor(ArrayWin):
+class Cursor(Widget):
     def on_press(self, key):
         if key == UP:
             self.top -= 2
@@ -58,7 +56,7 @@ class Particle(Widget):
         "start", "pos", "vel", "start_color", "current_color", "character", "cursor"
     )
 
-    def __init__(self, top, left, cursor, current_color, character):
+    def __init__(self, top, left, cursor, current_color, character, **kwargs):
         super().__init__(top, left, 1, 1)
         self.start = self.pos = complex(top, left)
 
@@ -125,11 +123,10 @@ if __name__ == "__main__":
 
     with ScreenManager() as sm:
         for rgb in rainbow_rgbs():
-            sm.colors.pair(rgb, sm.colors._names_to_rgb["BLACK"], palette="rainbow")
+            sm.colors.pair(rgb, sm.colors.names_to_rgb["BLACK"], palette="rainbow")
 
         cursor = sm.root.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
-        cursor[(0, -1), 1] = "|"
-        cursor[1] = "-+-"
+        cursor.window.addstr(0, 0, " | "); cursor.window.addstr(1, 0, "-+-"); cursor.window.addstr(2, 0, " |")
 
         logo = np.array([list(line + (WIDTH - len(line)) * " ") for line in logo.splitlines()])
         colors = np.full((HEIGHT, WIDTH), BLUE)
@@ -139,7 +136,7 @@ if __name__ == "__main__":
         for char, color in it:
             y, x = it.multi_index
             if char != " ":
-                particle = sm.root.add_widget(Particle(y, x, character=str(char), current_color=color, cursor=cursor))
+                sm.root.new_widget(y, x, character=str(char), current_color=color, cursor=cursor, create_with=Particle)
 
         sm.root.on_top(cursor)
         sm.schedule(sm.root.refresh)
