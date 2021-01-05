@@ -93,16 +93,14 @@ class Scheduler:
             loop = "for i in iterable"
             body = "yield i"
 
-        code = """
-        async def wrapped():
-            {loop}:
-                {body}
-                await {awaitable}
-        """.format(
-            loop=loop,
-            body=body,
-            awaitable=f"self.sleep({delay})" if delay > 0 else "self.next_task()",
-        )
+        awaitable=f"self.sleep({delay})" if delay > 0 else "self.next_task()"
+
+        code = f"""
+            async def wrapped():
+                {loop}:
+                    {body}
+                    await {awaitable}
+        """
 
         exec(dedent(code), locals(), loc := { })
         return loc["wrapped"]()
