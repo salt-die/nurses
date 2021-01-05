@@ -1,4 +1,3 @@
-from abc import ABCMeta
 from collections import defaultdict
 import curses
 
@@ -39,11 +38,8 @@ class Widget:
         # We can get around this by creating a tiny window and then resizing to be as large as we'd like.
         # We may use pads in the future instead.
         # TODO: Test this hack on linux.
-        if window is None:
-            self.window = curses.newwin(1, 1)
-            self.window.resize(self.height, self.width + 1)
-        else:
-            self.window = window
+        self.window = window or curses.newwin(1, 1)
+        self.window.resize(self.height, self.width + 1)
 
         self.is_transparent = transparent
 
@@ -98,6 +94,7 @@ class Widget:
         """
         # Notably, we don't use curses.panels as they aren't available for windows-curses...
         # ...upside is we don't error when moving a widget off-screen.
+
         if self.parent is None:
             self.window.erase()
 
@@ -105,10 +102,8 @@ class Widget:
         for widget in self.children:
             widget.refresh()
             y, x = widget.top, widget.left
-            src_t = max(0, -y)
-            src_l = max(0, -x)
-            des_t = max(0, y)
-            des_l = max(0, x)
+            src_t, des_t = (-y, 0) if y < 0 else (0, y)
+            src_l, des_l = (-x, 0) if x < 0 else (0, x)
             des_h = min(h - 1, des_t + widget.height)
             des_w = min(w - 1, des_l + widget.width - 1)  # -1 compensates for the extra width of widget's window
 
