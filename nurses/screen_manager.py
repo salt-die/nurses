@@ -20,7 +20,7 @@ class Singleton(type):
 class ScreenManager(Scheduler, metaclass=Singleton):
     """ScreenManager starts and closes curses, manages colors, and handles the event loop.
     """
-    __slots__ = "colors", "root", "screen"
+    __slots__ = "screen", "colors", "root"
 
     def __init__(self):
         self.screen = screen = curses.initscr()
@@ -66,13 +66,6 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         if getch:
             self.run_soon(self.getch(GETCH_DELAY))
         super().run(*coros)
-
-    async def delayed(self, iterable, delay):
-        """Utility method: return an async iterator over iterable with delay.
-        """
-        for i in iterable:
-            yield i
-            await self.sleep(delay)
 
     def __enter__(self):
         return self

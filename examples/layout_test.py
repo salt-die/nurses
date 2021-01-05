@@ -21,12 +21,12 @@ with ScreenManager() as sm:
     right.border("double", sm.colors.MAGENTA_ON_BLACK)
 
     async def scroll_up():
-        async for i in sm.delayed(range(50), .2):
+        async for i in sm.aiter(range(50), delay=.2):
             left.scroll()
             left[-1, :12] = f"Scroll up {i:02}"
 
     async def scroll_down():
-        async for i in sm.delayed(range(33), .3):
+        async for i in sm.aiter(range(33), delay=.3):
             right.scroll(-1)
             right[0, :14] = f"Scroll down {i:02}"
 

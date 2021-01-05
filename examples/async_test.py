@@ -28,7 +28,7 @@ with ScreenManager() as sm:
         resize_widget.width -= 1
 
     async def scroll():
-        async for i in sm.delayed(range(15), 1):
+        async for i in sm.aiter(range(15), delay=1):
             scroll_widget.scroll()
             scroll_widget[-1] = f"New Text{i:02}"
 

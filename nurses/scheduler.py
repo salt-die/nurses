@@ -83,6 +83,30 @@ class Scheduler:
                 ready.append(self.current)
                 tasks[self.current.coro] = self.current
 
+    def aiter(self, iterable, *args, delay=0, n=0, **kwargs):
+        """Utility function: wraps a callable in a coroutine or creates an async iterator.
+        """
+        if callable(iterable):
+            loop = f"for _ in range({n})" if n else "while True"
+            body = "iterable(*args, **kwargs)"
+        else:
+            loop = "for i in iterable"
+            body = "yield i"
+
+        code = """
+        async def wrapped():
+            {loop}:
+                {body}
+                await {awaitable}
+        """.format(
+            loop=loop,
+            body=body,
+            awaitable=f"self.sleep({delay})" if delay > 0 else "self.next_task()",
+        )
+
+        exec(dedent(code), locals(), loc := { })
+        return loc["wrapped"]()
+
     def schedule(self, callable, *args, delay=0, n=0, **kwargs):
         """
         Schedule `callable(*args, **kwargs)` every `delay` seconds.
@@ -90,20 +114,7 @@ class Scheduler:
 
         If `n` is non-zero, `callable` is only scheduled `n` times.
         """
-        # We could avoid the exec with conditionals leading to each version of the
-        # following function, but I find this more readable. - salt
-        code = """
-        async def wrapped():
-            {loop}:
-                callable(*args, **kwargs)
-                await {awaitable}
-        """.format(
-            loop=f"for _ in range({n})" if n else "while True",
-            awaitable=f"self.sleep({delay})" if delay > 0 else "self.next_task()",
-        )
-
-        exec(dedent(code), locals(), loc := { })
-        return self.new_task(loc["wrapped"]())
+        return self.new_task(self.aiter(callable, *args, delay=delay, n=n, **kwargs))
 
     @staticmethod
     @coroutine

@@ -20,7 +20,8 @@ POKE_POWER = 2  # Increase this for more powerful pokes
 MAX_VELOCITY = 4  # Limits how fast particles can travel.
 FRICTION = .97  # Friction decreases the closer this value is to `1`.
 HEIGHT, WIDTH = 27, 56  # Size of the Python logo, found through inspection.
-COLORS = 20  # Number of different rainbow colors -- If this changes the start color of the logo will also change.
+COLORS = 20 # Number of different rainbow colors
+BLUE, YELLOW = 13, 2 # If COLORS changes, starting color of logo will change (BLUE will no longer be blue, etc.)
 COLOR_LERP = 5  # This will speed up return to start color on reset
 COLOR_CHANGE = 5  # The higher this is the faster colors will change due to velocity
 FAST_DIVISION = tuple(i / 100 for i in range(1, 101))  # Used when lerping in Particle.reset
@@ -105,7 +106,7 @@ class Particle(Widget):
 
     async def reset(self):
         self.vel = 0j
-        for a in FAST_DIVISION:
+        async for a in sm.aiter(FAST_DIVISION):
             self.pos = a * self.start + (1 - a) * self.pos
             self.current_color = COLOR_LERP * a * self.start_color + (1 - COLOR_LERP * a) * self.current_color
             self.top = round(self.pos.real)
@@ -113,7 +114,6 @@ class Particle(Widget):
             self.refresh()
             if self.top == self.start.real and self.left == self.start.imag and self.start_color == self.current_color:
                 return
-            await sm.next_task()
 
     def refresh(self):
         self.window.chgat(0, 0, sm.colors.palette["rainbow"][int(self.current_color)])
@@ -123,10 +123,6 @@ if __name__ == "__main__":
     with open(Path(__file__).parent / "python_logo.txt") as f:
         logo = f.read()
 
-    logo = np.array([list(line + (WIDTH - len(line)) * " ") for line in logo.splitlines()])
-    colors = np.full((HEIGHT, WIDTH), 13)
-    colors[-7:] = colors[-13: -7, -41:] = colors[-14, -17:] = colors[-20: -14, -15:] = 2
-
     with ScreenManager() as sm:
         for rgb in rainbow_rgbs():
             sm.colors.pair(rgb, sm.colors._names_to_rgb["BLACK"], palette="rainbow")
@@ -135,6 +131,9 @@ if __name__ == "__main__":
         cursor[(0, -1), 1] = "|"
         cursor[1] = "-+-"
 
+        logo = np.array([list(line + (WIDTH - len(line)) * " ") for line in logo.splitlines()])
+        colors = np.full((HEIGHT, WIDTH), BLUE)
+        colors[-7:] = colors[-13: -7, -41:] = colors[-14, -17:] = colors[-20: -14, -15:] = YELLOW
         # Setup the "particles"
         it = np.nditer((logo, colors), ["multi_index"])
         for char, color in it:

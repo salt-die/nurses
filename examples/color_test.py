@@ -31,7 +31,7 @@ with ScreenManager() as sm:
         sm.colors.pair(rgb, (0, 0, 0), palette="rainbow")
 
     async def rainbow():
-        async for i in sm.delayed(range(200), .1):
+        async for i in sm.aiter(range(200), delay=.1):
             widget.colors[:] = sm.colors.palette["rainbow"][i % COLORS]
             widget.push()
             sm.root.refresh()
