@@ -84,7 +84,7 @@ class Scheduler:
                 tasks[self.current.coro] = self.current
 
     def aiter(self, iterable, *args, delay=0, n=0, **kwargs):
-        """Utility function: wraps a callable in a coroutine or creates an async iterator.
+        """Utility function: wraps a callable in a coroutine or creates an async iterator from an iterable.
         """
         if callable(iterable):
             loop = f"for _ in range({n})" if n else "while True"
