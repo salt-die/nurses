@@ -8,7 +8,7 @@ from .builder import load_string
 
 __all__ = "ScreenManager", "Widget", "Layout", "load_string"
 
-def loader(path, base):
+def _loader(path, base):
     """
     HERE BE DRAGONS.
 
@@ -17,13 +17,9 @@ def loader(path, base):
     subclassed layouts.
     """
     for f in path.iterdir():
-        module_name = f.stem
-        if module_name != "__init__":
-            import_module("." + module_name, base)
+        if not f.is_file() or f.suffix == ".py":
+            if not (module_name := f.stem).startswith("__"):
+                import_module("." + module_name, base)
 
-loader(Path(__file__).parent / "widget", "nurses.widget")
-loader(Path(__file__).parent / "widget" / "layout", "nurses.widget.layout")
-
-del import_module
-del Path
-del loader
+_loader(Path(__file__).parent / "widget", "nurses.widget")
+_loader(Path(__file__).parent / "widget" / "layout", "nurses.widget.layout")
