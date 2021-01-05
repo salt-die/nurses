@@ -1,10 +1,10 @@
 from abc import abstractmethod
 
-from .widget_base import WidgetBase
+from .widget import Widget
 from .screen_manager import ScreenManager
 
 
-class Layout(WidgetBase):
+class Layout(Widget):
     """
     Layouts are used to assign position and dimensions of contained widgets/sub-layouts.
 
@@ -38,7 +38,6 @@ class HSplit(Layout):
         super().__init__()
         self.row = row
         self.min_height = min_height
-        self.children = [None, None]
 
     def update(self):
         row = self.convert(self.row, self.height)
@@ -53,14 +52,14 @@ class HSplit(Layout):
                 continue
 
             child.width = self.width
-            child.left = self.left
+            child.left = 0
 
             if i == 0:
                 child.height = row
-                child.top = self.top
+                child.top = 0
             else:
                 child.height = self.height - row
-                child.top = self.top + row
+                child.top = row
 
             if isinstance(child, Layout):
                 child.update()
@@ -78,7 +77,6 @@ class VSplit(Layout):
         super().__init__()
         self.col = col
         self.min_width = min_width
-        self.children = [None, None]
 
     def update(self):
         col = self.convert(self.col, self.width)
@@ -93,14 +91,14 @@ class VSplit(Layout):
                 continue
 
             child.height = self.height
-            child.top = self.top
+            child.top = 0
 
             if i == 0:
                 child.width = col
-                child.left = self.left
+                child.left = 0
             else:
                 child.width = self.width - col
-                child.left = self.left + col
+                child.left = col
 
             if isinstance(child, Layout):
                 child.update()

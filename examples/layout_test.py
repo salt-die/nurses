@@ -4,19 +4,16 @@ with ScreenManager() as sm:
     # Define a widget layout with a TAML-like string
     # load_string will return a dictionary of named widgets
     widgets = load_string("""
-    HSplit(3)
-        # valid python creates widget, `as NAME` will name the widget
-        # `sm` refers to ScreenManager()
-        sm.new_widget(color=sm.colors.YELLOW_ON_BLACK, border="curved", border_color=sm.colors.CYAN_ON_BLACK) as title
+    HSplit(3) as top
+        ArrayWin(color=sm.colors.YELLOW_ON_BLACK, border="curved", border_color=sm.colors.CYAN_ON_BLACK) as title
         HSplit(-3)
             VSplit(.5)
-                # can just use `new_widget` without the preceding "sm."
-                new_widget(color=sm.colors.RED_ON_BLACK, border="heavy", border_color=sm.colors.GREEN_ON_BLACK) as left
-                right  # can create a default widget with just a name
-            # names aren't necessary, widgets will be omitted from the returned dictionary
-            new_widget(border="light", border_color=sm.colors.GREEN_ON_BLACK)
+                ArrayWin(color=sm.colors.RED_ON_BLACK, border="heavy", border_color=sm.colors.GREEN_ON_BLACK) as left
+                ArrayWin() as right
+            ArrayWin(border="light", border_color=sm.colors.GREEN_ON_BLACK)
     """)
-    globals().update(widgets)  # add widgets to this namespace
+    globals().update(widgets)
+    sm.root.add_widget(top)
 
     title[0, :5] = "Title"
 
@@ -33,6 +30,6 @@ with ScreenManager() as sm:
             right.scroll(-1)
             right[0, :14] = f"Scroll down {i:02}"
 
-    sm.schedule(sm.refresh, delay=.1, n=100)
+    sm.schedule(sm.root.refresh, delay=.1, n=100)
     sm.schedule(title.roll, delay=.1, n=100)
     sm.run(scroll_up(), scroll_down())

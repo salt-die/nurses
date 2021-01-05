@@ -3,16 +3,17 @@ from textwrap import dedent
 
 from lark import Lark, Transformer
 from lark.indenter import Indenter
+
 from .layout import Layout
 from .widget import Widget
+from .arraywin import ArrayWin
 from .screen_manager import ScreenManager
 
 
 GRAMMAR = r"""
     ?start: _NL* python
 
-    python: PYTHON _NL [_INDENT (widget | python)+ _DEDENT] -> eval_python
-    widget: (NAME | PYTHON "as" NAME) _NL -> add_widget
+    python: PYTHON ("as" CNAME)? _NL [_INDENT python+ _DEDENT] -> eval_python
 
     %import common.CNAME
     %import common.WS_INLINE
@@ -40,19 +41,19 @@ class LayoutIndenter(Indenter):
 class LayoutBuilder(Transformer):
     def __init__(self):
         self.widgets = {}
-        self._locals = ChainMap(Layout.layouts, Widget.types, {"sm": ScreenManager(), "new_widget": ScreenManager().new_widget})
+        self.locals = ChainMap(Layout.layouts, Widget.types, {"sm": ScreenManager()})
 
     def eval_python(self, args):
-        obj = eval(str(args[0]), globals(), self._locals)
-        if isinstance(obj, Layout):
-            obj.children = args[1:]
+        obj = eval(str(args[0]), globals(), self.locals)
+        if len(args) > 1:
+            if isinstance(args[1], str):
+                self.widgets[str(args[1])] = obj
+                start = 2
+            else:
+                start = 1
+            for child in args[start:]:
+                obj.add_widget(child)
         return obj
-
-    def add_widget(self, args):
-        name = str(args[-1])
-        self.widgets[name] = ScreenManager().new_widget() if len(args) == 1 else self.eval_python(args)
-        return self.widgets[name]
-
 
 def load_string(build_string):
     """
@@ -66,19 +67,18 @@ def load_string(build_string):
     -----
     Indentation indicates a widget or layout belongs to an outer Layout.
     Each line is expected to be valid python for a Layout or a Widget (possibly followed by `as NAME`,
-    where NAME is the name of the widget in the returned dict) or a name for a new widget.
-    `ScreenManager()` is given the alias `sm`. `sm.new_widget` can be shortened to just `new_widget`.
+    where NAME is the name of the widget in the returned dict).
 
     Examples
     --------
     >>> load_string(\"\"\"
     HSplit(3)
-        title
+        ArrayWin() as title
         HSplit(-3)
             VSplit(.5)
-                left
-                right
-            bottom
+                ArrayWin() as left
+                ArrayWin() as right
+            ArrayWin() as bottom
     \"\"\")
 
     This would return a dictionary of widgets with keys ("title", "left", "right", "bottom").

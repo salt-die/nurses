@@ -1,7 +1,8 @@
 from nurses import ScreenManager
+from nurses.arraywin import ArrayWin
 
 with ScreenManager() as sm:
-    widget = sm.new_widget(5, 25, 3, 15, sm.colors.YELLOW_ON_BLACK)
+    widget = sm.root.new_widget(5, 25, 3, 15, color=sm.colors.YELLOW_ON_BLACK, create_with=ArrayWin)
     widget[0, :13] = "Hello, World!"
 
     # Here we demonstrate how to use numpy indexing to simplify animating text marching around a border.
@@ -16,8 +17,8 @@ with ScreenManager() as sm:
         b[ 1, -1] = tr
         b[-1, -2] = br
         b[-2,  0] = bl
-        widget.refresh()
-        sm.refresh()
+        widget.push()
+        sm.root.refresh()
 
     sm.schedule(marching_border, delay=.1, n=120)
     sm.run()
