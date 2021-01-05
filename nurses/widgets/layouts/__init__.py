@@ -1,9 +1,9 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 
 from .. import Widget
 
 
-class Layout(Widget):
+class Layout(Widget, metaclass=ABCMeta):
     """
     Layouts are used to assign position and dimensions of contained widgets/sub-layouts.
 
