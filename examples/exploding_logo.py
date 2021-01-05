@@ -64,11 +64,9 @@ class Particle(Widget):
         self.vel = 0j # velocity
 
         self.start_color = self.current_color = current_color
-        self.character = character
+        self.window.addstr(0, 0, character, sm.colors.palette["rainbow"][current_color])
 
         self.cursor = cursor
-
-        self.refresh()
         sm.schedule(self.step)
 
     def on_press(self, key):
@@ -104,7 +102,6 @@ class Particle(Widget):
         self.vel *= FRICTION
 
         self.current_color = (self.current_color + min(mag, MAX_VELOCITY) * COLOR_CHANGE) % COLORS
-        self.refresh()
 
     async def reset(self):
         self.vel = 0j
@@ -119,8 +116,7 @@ class Particle(Widget):
             await sm.next_task()
 
     def refresh(self):
-        self.window.addstr(0, 0, self.character, sm.colors.palette["rainbow"][int(self.current_color)])
-        # self.window.chgat(0, 0, sm.colors.palette["rainbow"][int(self.current_color)])
+        self.window.chgat(0, 0, sm.colors.palette["rainbow"][int(self.current_color)])
 
 
 if __name__ == "__main__":
