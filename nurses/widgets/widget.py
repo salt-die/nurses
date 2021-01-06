@@ -1,7 +1,7 @@
 from collections import defaultdict
 import curses
 
-from .. import screen_manager as sm  # Avoiding circular import.
+from .. import managers  # Avoiding circular import.
 
 
 class Widget:
@@ -26,7 +26,7 @@ class Widget:
         elif parent:
             h, w = parent.height, parent.width
         else:
-            h, w = sm.ScreenManager().screen.getmaxyx()
+            h, w = managers.ScreenManager().screen.getmaxyx()
             w -= 1
 
         convert = self.convert

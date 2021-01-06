@@ -1,4 +1,4 @@
 from .screen_manager import ScreenManager
-from .colors import ColorManager
+from .color_manager import ColorManager
 
 colors = ColorManager()
