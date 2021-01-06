@@ -9,7 +9,9 @@ EXIT = ord('q')
 
 
 class ScreenManager(Scheduler, metaclass=Singleton):
-    """ScreenManager starts and closes curses, manages colors, and handles the event loop.
+    """
+    ScreenManager starts and closes curses, handles events (getching for now, hopefully mouse
+    input in the future), and schedules and runs coroutines.
     """
 
     __slots__ = "screen", "root"
