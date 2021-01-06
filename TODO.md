@@ -4,7 +4,6 @@ TODO
     * Textpad -- difficulty will be implementing a non-blocking text pad
 
 * Mix-Ins for Widgets:
-    * Selectable (Tab bring-to-front selectable widgets)
     * Scrollable (Scroll contents up or down with arrow-keys)
     * Movable
     * Resizable

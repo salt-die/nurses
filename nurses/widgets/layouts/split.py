@@ -1,4 +1,4 @@
-from . import Layout
+from .layout import Layout
 
 # One can exploit a symmetry in the update functions of HSplit and VSplit to write a single function
 # for both, but it's less readable.  We've chosen the more verbose option:

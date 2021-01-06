@@ -221,9 +221,8 @@ class ArrayWin(Widget):
         b[-1,  0] = ll
         b[-1, -1] = lr
 
-        if color is not None:
-            c = self._colors
-            c[0] = c[-1] = c[:, 0] = c[:, -1] = color
+        c = self._colors
+        c[0] = c[-1] = c[:, 0] = c[:, -1] = color or self.color
 
     @push_buffer
     def roll(self, shift=1, vertical=False):

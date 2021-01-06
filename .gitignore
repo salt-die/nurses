@@ -1,2 +1,3 @@
 *.pyc
 /nurses/queue.py
+/examples/key_printer.py
