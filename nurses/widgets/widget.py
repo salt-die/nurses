@@ -131,4 +131,7 @@ class Widget:
         Called when a key is pressed and no widgets above this widget have handled the press.
         A press is handled when a widget's `on_press` method returns True.
         """
-        pass
+        try:
+            return super().on_press(key)
+        except AttributeError:
+            pass
