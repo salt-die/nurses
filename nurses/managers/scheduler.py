@@ -19,6 +19,11 @@ class Task:
     def __call__(self, delay=0):
         """Reschedule this task in `delay` seconds.
         """
+        if not self.is_canceled:
+            raise RuntimeError("task already scheduled")
+
+        self.is_canceled = False
+
         if delay:
             self.deadline = time() + delay
             heappush(self.scheduler.sleeping, self)
