@@ -2,14 +2,17 @@ from contextlib import contextmanager
 import curses
 
 import numpy as np
+
 from . import Widget
 
+
 BORDER_STYLES = {
-    "light": "┌┐│─└┘",
-    "heavy": "┏┓┃━┗┛",
+    "light" : "┌┐│─└┘",
+    "heavy" : "┏┓┃━┗┛",
     "double": "╔╗║═╚╝",
-    "curved": "╭╮│─╰╯"
+    "curved": "╭╮│─╰╯",
 }
+
 
 def push_buffer(method):
     """
@@ -24,6 +27,7 @@ def push_buffer(method):
     wrapper.__name__ = method.__name__
     wrapper.__doc__ = method.__doc__
     return wrapper
+
 
 @contextmanager
 def disable_method(obj, methodname):

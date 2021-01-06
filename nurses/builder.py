@@ -4,8 +4,8 @@ from textwrap import dedent
 from lark import Lark, Transformer
 from lark.indenter import Indenter
 
+from .screen_manager import colors
 from .widgets import Widget
-from .screen_manager import ScreenManager
 
 
 GRAMMAR = r"""
@@ -37,13 +37,14 @@ class LayoutIndenter(Indenter):
 
 
 class LayoutBuilder(Transformer):
-    def __init__(self):
+    def __init__(self, globals):
         self.widgets = {}
-        self.locals = ChainMap(Widget.types, Widget.types["Layout"].layouts, {"sm": ScreenManager()})
+        self.globals = globals
+        self.locals = ChainMap(Widget.types, Widget.types["Layout"].layouts, {"colors": colors})
 
     def eval_python(self, args):
         obj, *rest = args
-        obj = eval(str(obj), globals(), self.locals)
+        obj = eval(str(obj), self.globals, self.locals)
         if rest:
             if isinstance(rest[0], str):
                 self.widgets[str(rest.pop(0))] = obj
@@ -51,9 +52,11 @@ class LayoutBuilder(Transformer):
                 obj.add_widget(child)
         return obj
 
-def load_string(build_string):
+
+def load_string(build_string, globals={ }):
     """
     Returns dict of widgets whose positions and dimensions are set by the layouts in the TAML-like build string.
+    `globals` is an optional dictionary that provides context to code executed in the build string.
 
     See Also
     --------
@@ -91,7 +94,7 @@ def load_string(build_string):
     +-----------------+
     """
     # Alternatively, we could cache the builder and parser and just reset the builder's widgets for each new call to `load_string`
-    builder = LayoutBuilder()
+    builder = LayoutBuilder(globals)
     parser = Lark(GRAMMAR, parser='lalr', postlex=LayoutIndenter(), transformer=builder)
     layout = parser.parse(dedent(build_string))
     layout.update()

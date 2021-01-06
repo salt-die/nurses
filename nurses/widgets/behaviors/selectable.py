@@ -1,9 +1,8 @@
-TAB = 9
-
-
 class Selectable:
+    SELECT_KEY = 9  # Tab
+
     def on_press(self, key):
-        if key == TAB and not self.is_selected:
+        if key == self.SELECT_KEY and not self.is_selected:
             self.parent.on_bottom(-1)
             self.parent.on_top(self)
             return True

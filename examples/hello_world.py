@@ -1,7 +1,7 @@
-from nurses import ScreenManager
+from nurses import ScreenManager, colors
 
 with ScreenManager() as sm:
-    widget = sm.root.new_widget(5, 25, 3, 15, color=sm.colors.YELLOW_ON_BLACK, create_with="ArrayWin")
+    widget = sm.root.new_widget(5, 25, 3, 15, color=colors.YELLOW_ON_BLACK, create_with="ArrayWin")
     widget[0, :13] = "Hello, World!"
 
     # Here we demonstrate how to use numpy indexing to simplify animating text marching around a border.

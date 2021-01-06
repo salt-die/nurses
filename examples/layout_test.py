@@ -1,24 +1,24 @@
-from nurses import ScreenManager, load_string
+from nurses import ScreenManager, colors, load_string
 
 with ScreenManager() as sm:
     # Define a widget layout with a TAML-like string
     # load_string will return a dictionary of named widgets
     widgets = load_string("""
     HSplit(3) as top
-        ArrayWin(color=sm.colors.YELLOW_ON_BLACK, border="curved", border_color=sm.colors.CYAN_ON_BLACK) as title
+        ArrayWin(color=colors.YELLOW_ON_BLACK, border="curved", border_color=colors.CYAN_ON_BLACK) as title
         HSplit(-3)
             VSplit(.5)
-                ArrayWin(color=sm.colors.RED_ON_BLACK, border="heavy", border_color=sm.colors.GREEN_ON_BLACK) as left
+                ArrayWin(color=colors.RED_ON_BLACK, border="heavy", border_color=colors.GREEN_ON_BLACK) as left
                 ArrayWin() as right
-            ArrayWin(border="light", border_color=sm.colors.GREEN_ON_BLACK)
+            ArrayWin(border="light", border_color=colors.GREEN_ON_BLACK)
     """)
     globals().update(widgets)
     sm.root.add_widget(top)
 
     title[0, :5] = "Title"
 
-    right.colors[:] = right.color = sm.colors.BLUE_ON_BLACK
-    right.border("double", sm.colors.MAGENTA_ON_BLACK)
+    right.colors[:] = right.color = colors.BLUE_ON_BLACK
+    right.border("double", colors.MAGENTA_ON_BLACK)
 
     async def scroll_up():
         async for i in sm.aiter(range(50), delay=.2):

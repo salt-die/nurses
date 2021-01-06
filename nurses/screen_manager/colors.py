@@ -3,11 +3,15 @@ import curses
 from itertools import count, product
 import re
 
+from .meta import Singleton
+
+
 DEFAULT_COLORS = "BLACK", "BLUE", "GREEN", "CYAN", "RED", "MAGENTA", "YELLOW", "WHITE"
 DEFAULT_RGBS = tuple(product((-1, -2), repeat=3))  # Default colors are set by the terminal and could be anything; these tuples are just placeholders.
 COLOR_RE = re.compile(r"[A-Z_]+")
 COLOR_PAIR_RE = re.compile(r"([A-Z_]+)_ON_([A-Z_]+)")
 INIT_COLOR_START = 16  # Colors 0 - 15 are already init on windows terminal and can't be re-init
+
 
 def scale(components):
     """This scales rgb values in the range 0-255 to be in the range 0-1000.
@@ -15,13 +19,13 @@ def scale(components):
     return (round(component / 255 * 1000) for component in components)
 
 
-class ColorManager:
+class ColorManager(metaclass=Singleton):
     """
     :class: ColorManager manages curses color inits and color pair inits for nurses. There are two ways to get a
     curses color pair from this class.  The simplest way is to first define a color alias with
-    `cm.COLOR = r, g, b' where `COLOR` can be any name consisting of capital letters and underscores and r, g, b
-    are the color components between 0 - 255. Once aliases are defined one can retrieve a color pair by name:
-    `cm.FOREGROUND_ON_BACKGROUND`.
+    `colors.COLOR = r, g, b' where `COLOR` can be any name consisting of capital letters and underscores and r, g, b
+    are the color components between 0 - 255, then once aliases are defined one can retrieve a color pair by name:
+    `colors.FOREGROUND_ON_BACKGROUND`.
 
     An alternative way to get a curses color pair is the `pair` method which expects a pair of rgb 3-tuples.
 
@@ -89,3 +93,6 @@ class ColorManager:
             raise ValueError(f"invalid components {rgb}")
 
         self.names_to_rgb[color] = rgb
+
+    def __str__(self):
+        return f"Current aliases: {', '.join(self.names_to_rgb) or 'None'}\nCurrent palettes: {', '.join(self.palette) or 'None'}"

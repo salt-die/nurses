@@ -11,7 +11,7 @@ from math import pi, sin
 from pathlib import Path
 
 import numpy as np
-from nurses import ScreenManager, Widget
+from nurses import ScreenManager, colors, Widget
 
 UP, RIGHT, DOWN, LEFT, SPACE, RESET = 259, 261, 258, 260, 32, 114  # Keybindings
 POKE_POWER = 2  # Increase this for more powerful pokes
@@ -61,7 +61,7 @@ class Particle(Widget):
         self.vel = 0j # velocity
 
         self.start_color = self.color = color
-        self.window.addstr(0, 0, character, sm.colors.palette["rainbow"][color])
+        self.window.addstr(0, 0, character, colors.palette["rainbow"][color])
 
         sm.schedule(self.step)
 
@@ -110,7 +110,7 @@ class Particle(Widget):
                 return
 
     def refresh(self):
-        self.window.chgat(0, 0, sm.colors.palette["rainbow"][int(self.color)])
+        self.window.chgat(0, 0, colors.palette["rainbow"][int(self.color)])
 
 
 if __name__ == "__main__":
@@ -119,18 +119,18 @@ if __name__ == "__main__":
 
     with ScreenManager() as sm:
         for rgb in rainbow_rgbs():
-            sm.colors.pair(rgb, sm.colors.names_to_rgb["BLACK"], palette="rainbow")
+            colors.pair(rgb, colors.names_to_rgb["BLACK"], palette="rainbow")
 
         cursor = sm.root.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
         cursor.window.addstr(0, 0, " | \n-+-\n | ")
 
         # Logo and its colors:
         logo = np.array([list(line + (WIDTH - len(line)) * " ") for line in logo.splitlines()])
-        colors = np.full((HEIGHT, WIDTH), BLUE)
-        colors[-7:] = colors[-13: -7, -41:] = colors[-14, -17:] = colors[-20: -14, -15:] = YELLOW
+        c = np.full((HEIGHT, WIDTH), BLUE)
+        c[-7:] = c[-13: -7, -41:] = c[-14, -17:] = c[-20: -14, -15:] = YELLOW
 
         # Create a Particle for each non-space character in the logo
-        it = np.nditer((logo, colors), ["multi_index"])
+        it = np.nditer((logo, c), ["multi_index"])
         for char, color in it:
             y, x = it.multi_index
             if char != " ":
