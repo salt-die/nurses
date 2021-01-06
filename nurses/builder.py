@@ -93,7 +93,6 @@ def load_string(build_string, globals={ }):
     | bottom          |
     +-----------------+
     """
-    # Alternatively, we could cache the builder and parser and just reset the builder's widgets for each new call to `load_string`
     builder = LayoutBuilder(globals)
     parser = Lark(GRAMMAR, parser='lalr', postlex=LayoutIndenter(), transformer=builder)
     layout = parser.parse(dedent(build_string))
