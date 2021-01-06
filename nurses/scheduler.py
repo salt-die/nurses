@@ -20,10 +20,9 @@ class Task:
 
 
 class Scheduler:
-    __slots__ = "tasks", "ready", "sleeping", "current"
+    __slots__ = "ready", "sleeping", "current"
 
     def __init__(self):
-        self.tasks = { }
         self.ready = deque()
         self.sleeping = [ ]
         self.current = None
@@ -31,7 +30,6 @@ class Scheduler:
     async def sleep(self, delay):
         self.current.deadline = time() + delay
         heappush(self.sleeping, self.current)
-        self.tasks[self.current.coro] = self.current
         self.current = None
         await self.next_task()
 
@@ -44,9 +42,8 @@ class Scheduler:
     def new_task(self, coro):
         """Schedule a given coroutine and return a :class: Task.  `task.cancel()` will unschedule the coroutine.
         """
-        self.tasks[coro] = task = Task(coro)
-        self.ready.append(task)
-        return task
+        self.ready.append(Task(coro))
+        return self.ready[-1]
 
     def run(self, *coros):
         """Start the event loop. All of `coros` will be scheduled with `run_soon` before the loop starts.
@@ -55,7 +52,6 @@ class Scheduler:
 
         ready = self.ready
         sleeping = self.sleeping
-        tasks = self.tasks
 
         while ready or sleeping:
             now = time()
@@ -69,8 +65,6 @@ class Scheduler:
                 self.current = heappop(sleeping)
                 sleep(self.current.deadline - now)
 
-            del tasks[self.current.coro]
-
             if self.current.is_canceled:
                 continue
 
@@ -81,7 +75,6 @@ class Scheduler:
 
             if self.current:
                 ready.append(self.current)
-                tasks[self.current.coro] = self.current
 
     def aiter(self, iterable, *args, delay=0, n=0, **kwargs):
         """Utility function: wraps a callable in a coroutine or creates an async iterator from an iterable.

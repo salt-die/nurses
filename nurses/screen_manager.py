@@ -54,7 +54,6 @@ class ScreenManager(Scheduler, metaclass=Singleton):
             if key == EXIT:
                 self.ready.clear()
                 self.sleeping.clear()
-                self.tasks.clear()
                 return
 
             if key != -1:
