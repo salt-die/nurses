@@ -6,14 +6,24 @@ from types import coroutine
 
 
 class Task:
-    __slots__ = "coro", "is_canceled", "deadline"
+    __slots__ = "scheduler", "coro", "is_canceled", "deadline"
 
-    def __init__(self, coro):
+    def __init__(self, scheduler, coro):
+        self.scheduler = scheduler
         self.coro = coro
         self.is_canceled = False
 
     def cancel(self):
         self.is_canceled = True
+
+    def __call__(self, delay=0):
+        """Reschedule this task in `delay` seconds.
+        """
+        if delay:
+            self.deadline = time() + delay
+            heappush(self.scheduler.sleeping, self)
+        else:
+            self.scheduler.ready.append(self)
 
     def __lt__(self, other):
         return self.deadline < other.deadline
@@ -42,7 +52,7 @@ class Scheduler:
     def new_task(self, coro):
         """Schedule a given coroutine and return a :class: Task.  `task.cancel()` will unschedule the coroutine.
         """
-        self.ready.append(Task(coro))
+        self.ready.append(Task(self, coro))
         return self.ready[-1]
 
     def run(self, *coros):
