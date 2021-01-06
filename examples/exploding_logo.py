@@ -52,20 +52,17 @@ class Cursor(Widget):
 
 class Particle(Widget):
     # We create a lot of particles, if we can get any speed up from this, we'll take it!
-    __slots__ = (
-        "start", "pos", "vel", "start_color", "current_color", "character", "cursor"
-    )
+    __slots__ = "start", "pos", "vel", "start_color", "color"
 
-    def __init__(self, top, left, cursor, current_color, character, **kwargs):
+    def __init__(self, top, left, color, character, **kwargs):
         super().__init__(top, left, 1, 1)
         self.start = self.pos = complex(top, left)
 
         self.vel = 0j # velocity
 
-        self.start_color = self.current_color = current_color
-        self.window.addstr(0, 0, character, sm.colors.palette["rainbow"][current_color])
+        self.start_color = self.color = color
+        self.window.addstr(0, 0, character, sm.colors.palette["rainbow"][color])
 
-        self.cursor = cursor
         sm.schedule(self.step)
 
     def on_press(self, key):
@@ -75,7 +72,7 @@ class Particle(Widget):
             sm.run_soon(self.reset())
 
     def poke(self):
-        dyx = self.pos - complex(self.cursor.top - 1, self.cursor.left - 1)
+        dyx = self.pos - complex(cursor.top - 1, cursor.left - 1)
         if dyx != 0:
             self.vel += POKE_POWER / (dyx.real**2 + dyx.imag**2) * dyx
 
@@ -100,21 +97,20 @@ class Particle(Widget):
         self.left = round(self.pos.imag)
         self.vel *= FRICTION
 
-        self.current_color = (self.current_color + min(mag, MAX_VELOCITY) * COLOR_CHANGE) % COLORS
+        self.color = (self.color + min(mag, MAX_VELOCITY) * COLOR_CHANGE) % COLORS
 
     async def reset(self):
         self.vel = 0j
         async for a in sm.aiter(FAST_DIVISION):
             self.pos = a * self.start + (1 - a) * self.pos
-            self.current_color = COLOR_LERP * a * self.start_color + (1 - COLOR_LERP * a) * self.current_color
+            self.color = COLOR_LERP * a * self.start_color + (1 - COLOR_LERP * a) * self.color
             self.top = round(self.pos.real)
             self.left = round(self.pos.imag)
-            self.refresh()
-            if self.top == self.start.real and self.left == self.start.imag and self.start_color == self.current_color:
+            if self.top == self.start.real and self.left == self.start.imag and self.start_color == self.color:
                 return
 
     def refresh(self):
-        self.window.chgat(0, 0, sm.colors.palette["rainbow"][int(self.current_color)])
+        self.window.chgat(0, 0, sm.colors.palette["rainbow"][int(self.color)])
 
 
 if __name__ == "__main__":
@@ -126,17 +122,19 @@ if __name__ == "__main__":
             sm.colors.pair(rgb, sm.colors.names_to_rgb["BLACK"], palette="rainbow")
 
         cursor = sm.root.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
-        cursor.window.addstr(0, 0, " | "); cursor.window.addstr(1, 0, "-+-"); cursor.window.addstr(2, 0, " |")
+        cursor.window.addstr(0, 0, " | \n-+-\n | ")
 
+        # Logo and its colors:
         logo = np.array([list(line + (WIDTH - len(line)) * " ") for line in logo.splitlines()])
         colors = np.full((HEIGHT, WIDTH), BLUE)
         colors[-7:] = colors[-13: -7, -41:] = colors[-14, -17:] = colors[-20: -14, -15:] = YELLOW
-        # Setup the "particles"
+
+        # Create a Particle for each non-space character in the logo
         it = np.nditer((logo, colors), ["multi_index"])
         for char, color in it:
             y, x = it.multi_index
             if char != " ":
-                sm.root.new_widget(y, x, character=str(char), current_color=color, cursor=cursor, create_with=Particle)
+                sm.root.add_widget(Particle(y, x, character=str(char), color=color, cursor=cursor))
 
         sm.root.on_top(cursor)
         sm.schedule(sm.root.refresh)
