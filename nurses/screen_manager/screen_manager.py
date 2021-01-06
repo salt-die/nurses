@@ -1,14 +1,16 @@
 import curses
 
-from ._colors import ColorManager
+from .colors import ColorManager
 from .scheduler import Scheduler
-from .widgets import Widget
+from ..widgets import Widget
 
 GETCH_DELAY = .1
 EXIT = ord('q')
 
 
 class Singleton(type):
+    """There can be only one...
+    """
     instance = None
 
     def __call__(cls):
@@ -20,6 +22,7 @@ class Singleton(type):
 class ScreenManager(Scheduler, metaclass=Singleton):
     """ScreenManager starts and closes curses, manages colors, and handles the event loop.
     """
+
     __slots__ = "screen", "colors", "root"
 
     def __init__(self):
@@ -32,7 +35,7 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         curses.start_color()
 
         self.colors = ColorManager()
-        self.root = Widget(window=screen)
+        self.root = Widget(window=screen)  # Top-level widget: getch dispatching will start here.
 
         super().__init__()
 
