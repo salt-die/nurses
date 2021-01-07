@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     with ScreenManager() as sm:
         for rgb in rainbow_rgbs():
-            colors.pair(rgb, colors.names_to_rgb["BLACK"], palette="rainbow")
+            colors.pair(rgb, colors.BLACK, palette="rainbow")
 
         cursor = sm.root.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
         cursor.window.addstr(0, 0, " | \n-+-\n | ")

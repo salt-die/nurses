@@ -26,7 +26,7 @@ with ScreenManager() as sm:
             yield tuple(int(sin(2 * pi / n * i + offset) * 127 + 128) for offset in offsets)
 
     for rgb in rainbow_rgbs():
-        colors.pair(rgb, (0, 0, 0), palette="rainbow")
+        colors.pair(rgb, colors.BLACK, palette="rainbow")
 
     async def rainbow():
         async for i in sm.aiter(range(200), delay=.1):
