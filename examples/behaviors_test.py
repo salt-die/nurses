@@ -2,7 +2,7 @@ from itertools import product
 
 import numpy as np
 
-from nurses import ScreenManager, load_string, colors
+from nurses import ScreenManager, colors
 from nurses.widgets.arraywin import ArrayWin, push_buffer
 from nurses.widgets.behaviors import Selectable, Movable
 
