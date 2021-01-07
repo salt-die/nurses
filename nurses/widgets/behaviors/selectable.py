@@ -1,32 +1,26 @@
-from collections import deque
+from ...managers import ScreenManager
+
+def selector():
+    while True:
+        for widget in ScreenManager().root.walk_widget_tree():
+            if isinstance(widget, Selectable):
+                Selectable._Selectable__selected = widget
+                yield
 
 
 class Selectable:
     __selected = None
-    __selectables = deque()
+    __selector = selector()
 
     SELECT_KEY = 9  # Tab
-
-    def __new__(cls, *args, selected=False, **kwargs):
-        instance = super().__new__(cls, *args, **kwargs)
-
-        if Selectable.__selected is None or selected:
-            Selectable.__selected = instance
-
-        Selectable.__selectables.append(instance)
-
-        return instance
 
     @property
     def is_selected(self):
         return Selectable.__selected is self
 
     def on_press(self, key):
-        if key == self.SELECT_KEY and self.is_selected:
-            while Selectable.__selectables[0] is not self:
-                Selectable.__selectables.rotate(-1)
-            Selectable.__selectables.rotate(-1)
-            Selectable.__selected = Selectable.__selectables[0]
+        if key == self.SELECT_KEY:
+            next(Selectable.__selector)
             return True
 
         return super().on_press(key)

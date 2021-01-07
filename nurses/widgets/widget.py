@@ -62,7 +62,7 @@ class Widget:
         if start is None:
             start = self.root
 
-        for child in start.chilren:
+        for child in start.children:
             yield from self.walk_widget_tree(child)
         yield start
 
