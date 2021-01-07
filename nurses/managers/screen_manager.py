@@ -4,7 +4,7 @@ from .meta import Singleton
 from .scheduler import Scheduler
 from ..widgets import Widget
 
-GETCH_DELAY = .1
+GETCH_DELAY = .05
 EXIT = ord('q')
 
 
