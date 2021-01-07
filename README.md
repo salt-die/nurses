@@ -11,3 +11,7 @@ numpy arrays and typical GUI widgets.
 # /examples/exploding_logo.py:
 
 ![exploding python logo](exploding_python.gif)
+
+# /examples/behaviors_test.py:
+
+![moving and selectable widgets](behaviors.gif)
