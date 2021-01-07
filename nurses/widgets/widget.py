@@ -44,6 +44,28 @@ class Widget:
 
         self.is_transparent = transparent
 
+    @property
+    def root(self):
+        if not self.parent:
+            return self
+        return self.parent.root
+
+    @property
+    def is_on_top(self):
+        return self.parent and self.parent.children[-1] is self
+
+    @property
+    def is_on_bottom(self):
+        return self.parent and self.parent.children[0] is self
+
+    def walk_widget_tree(self, start=None):
+        if start is None:
+            start = self.root
+
+        for child in start.chilren:
+            yield from self.walk_widget_tree(child)
+        yield start
+
     def add_widget(self, widget):
         self.children.append(widget)
         widget.parent = self
