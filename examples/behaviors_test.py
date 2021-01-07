@@ -51,11 +51,9 @@ class Notepad(ArrayWin, Movable, Selectable):
             if self.has_border[0] != "heavy":
                 self.border("heavy", colors.BLUE_ON_BLACK, push=False)
                 self.update_cursor()
-                super().refresh()
         elif self.has_border[0] != "light":
             self.border(push=False)
             self.update_cursor()
-            super().refresh()
 
 
 with ScreenManager() as sm:
