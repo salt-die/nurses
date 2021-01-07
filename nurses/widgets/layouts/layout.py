@@ -17,6 +17,10 @@ class Layout(Widget, metaclass=ABCMeta):
         if not cls.update.__doc__:
             cls.update.__doc__ = Layout.update.__doc__
 
+    def refresh(self):
+        self.window.erase()
+        super().refresh()
+
     @abstractmethod
     def update(self):
         """Set the positions and dimensions of sub-layouts and contained widgets, and call `update` on sub-layouts.

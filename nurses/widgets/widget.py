@@ -13,10 +13,7 @@ class Widget:
         if not cls.on_press.__doc__:
             cls.on_press.__doc__ = Widget.on_press.__doc__
 
-    def __init__(self,
-        top=0, left=0, height=None, width=None, *,
-        parent=None, transparent=False, window=None, **kwargs
-    ):
+    def __init__(self, *args, window=None, parent=None, transparent=False, **kwargs):
         self.parent = parent
         self.children = [ ]
         self.group = defaultdict(list)
@@ -29,6 +26,7 @@ class Widget:
             h, w = managers.ScreenManager().screen.getmaxyx()
             w -= 1
 
+        top, left, height, width, *rest = args or (0, 0, None, None)
         convert = self.convert
         self.top    = convert( top, h)
         self.left   = convert(left, w)
@@ -43,6 +41,8 @@ class Widget:
         self.window.resize(self.height, self.width + 1)
 
         self.is_transparent = transparent
+
+        super().__init__(*rest, **kwargs)
 
     @property
     def root(self):

@@ -4,7 +4,7 @@ from textwrap import dedent
 from lark import Lark, Transformer
 from lark.indenter import Indenter
 
-from .managers import colors
+from .managers import colors, ScreenManager
 from .widgets import Widget
 
 
@@ -53,7 +53,7 @@ class LayoutBuilder(Transformer):
         return obj
 
 
-def load_string(build_string, globals={ }):
+def load_string(build_string, globals={ }, *, root=True):
     """
     Returns dict of widgets whose positions and dimensions are set by the layouts in the TAML-like build string.
     `globals` is an optional dictionary that provides context to code executed in the build string.
@@ -97,4 +97,6 @@ def load_string(build_string, globals={ }):
     parser = Lark(GRAMMAR, parser='lalr', postlex=LayoutIndenter(), transformer=builder)
     layout = parser.parse(dedent(build_string))
     layout.update()
+    if root:
+        ScreenManager().root.add_widget(layout)
     return builder.widgets

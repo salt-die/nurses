@@ -1,18 +1,16 @@
-from ...managers import ScreenManager
+from collections import deque
+from weakref import ref
 
-def selector():
-    while True:
-        for widget in ScreenManager().root.walk_widget_tree():
-            if isinstance(widget, Selectable):
-                Selectable._Selectable__selected = widget
-                yield
-
+selectables = deque()
 
 class Selectable:
     __selected = None
-    __selector = selector()
 
     SELECT_KEY = 9  # Tab
+
+    def __init__(self, *args, **kwargs):
+        selectables.append(ref(self))
+        super().__init__(*args, **kwargs)
 
     @property
     def is_selected(self):
@@ -20,7 +18,12 @@ class Selectable:
 
     def on_press(self, key):
         if key == self.SELECT_KEY:
-            next(Selectable.__selector)
+            while selectables[0]() is None:
+                selectables.popleft()
+            Selectable.__selected = selectables[0]()
+            selectables.rotate(-1)
+
+            Selectable.__selected.parent.on_top(Selectable.__selected)
             return True
 
         return super().on_press(key)

@@ -1,14 +1,14 @@
 TODO
 ====
 * Widgets
-    * Textpad -- difficulty will be implementing a non-blocking text pad
+    * Textpad
 
 * Mix-Ins for Widgets:
     * Scrollable (Scroll contents up or down with arrow-keys)
-    * Movable
     * Resizable
 
 * Layouts
+    * call .update when `width` or `height` changes.
     * Grid - a `n * m` layout of widgets
     * Stack  - a row or column of widgets
     * Scrolling - a row or column of widgets that extends off-screen and can be scrolled
@@ -17,5 +17,3 @@ TODO
 Notes
 -----
 I hate the name ArrayWin.
-
-We may re-add Layout auto-updating on some attribute change.

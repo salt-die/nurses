@@ -1,11 +1,13 @@
+from itertools import product
+
 import numpy as np
 
 from nurses import ScreenManager, load_string, colors
 from nurses.widgets.arraywin import ArrayWin, push_buffer
-from nurses.widgets.behaviors import Selectable
+from nurses.widgets.behaviors import Selectable, Movable
 
 
-class Printer(ArrayWin, Selectable):
+class Notepad(ArrayWin, Movable, Selectable):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, border="light", **kwargs)
         self._col = 0
@@ -22,10 +24,13 @@ class Printer(ArrayWin, Selectable):
         self.colors[-1, self._col] = self.cursor_color if self.is_selected else self.color
 
     def on_press(self, key):
-        if super().on_press(key):
-            return True
+        if key == self.SELECT_KEY:
+            return super().on_press(key)
 
         if self.is_selected:
+            if super().on_press(key):
+                return True
+
             if key == 10:  # Enter
                 self.scroll()
                 self._col = 0
@@ -46,21 +51,15 @@ class Printer(ArrayWin, Selectable):
             if self.has_border[0] != "heavy":
                 self.border("heavy", colors.BLUE_ON_BLACK, push=False)
                 self.update_cursor()
+                super().refresh()
         elif self.has_border[0] != "light":
             self.border(push=False)
             self.update_cursor()
+            super().refresh()
 
 
 with ScreenManager() as sm:
-    widgets = load_string("""
-    HSplit(.5) as top
-        VSplit(.5)
-            Printer()
-            Printer()
-        VSplit(.5)
-            Printer()
-            Printer()
-    """)
-    sm.root.add_widget(widgets["top"])
+    for y, x in product((0, .5), repeat=2):
+        sm.root.new_widget(y, x, .5, .5, create_with=Notepad)
     sm.schedule(sm.root.refresh)
     sm.run()
