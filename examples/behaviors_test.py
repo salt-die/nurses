@@ -58,6 +58,6 @@ class Notepad(ArrayWin, Movable, Selectable):
 
 with ScreenManager() as sm:
     for y, x in product((0, .5), repeat=2):
-        sm.root.new_widget(y, x, .5, .5, create_with=Notepad)
+        sm.root.add_widget(Notepad(y, x, .5, .5))
     sm.schedule(sm.root.refresh)
     sm.run()
