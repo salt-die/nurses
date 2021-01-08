@@ -41,15 +41,15 @@ j888888888888888888888888888888888888888'  8888888888888
                 `^888888888888888888888^
                   `'"^^V888888888V^^'
 """
-SPACE, RESET = 32, 114                                 # Keybindings
-POKE_POWER = 2                                         # Increase this for more powerful pokes
-MAX_VELOCITY = 10                                      # Limits how fast particles can travel.
-FRICTION = .97                                         # Friction decreases the closer this value is to `1`.
-HEIGHT, WIDTH = 28, 56                                 # Size of the Python logo, found through inspection.
-COLORS = 20                                            # Number of different rainbow colors
-BLUE, YELLOW = 13, 2                                   # If COLORS changes, starting color of logo will change (BLUE will no longer be blue, etc.)
-COLOR_LERP = 5                                         # Increase to speed up return to start color on reset
-COLOR_CHANGE = 5                                       # The higher this is the faster colors will change due to velocity
+SPACE, RESET = 32, 114  # Keybindings
+POKE_POWER = 2          # Increase this for more powerful pokes
+MAX_VELOCITY = 10       # Limits how fast particles can travel.
+FRICTION = .97          # Friction decreases the closer this value is to `1`.
+HEIGHT, WIDTH = 28, 56  # Size of the Python logo
+COLORS = 20             # Number of different rainbow colors
+BLUE, YELLOW = round(13/20 * COLORS), round(1/10 * COLORS)
+COLOR_LERP = 4          # Increase to speed up return to start color on reset
+COLOR_CHANGE = 5        # The higher this is the faster colors will change due to velocity
 FAST_DIVISION = tuple(i / 100 for i in range(1, 101))  # Used when lerping in Particle.reset
 
 
@@ -117,7 +117,7 @@ class Particle(Widget):
             self.color = COLOR_LERP * a * self.start_color + (1 - COLOR_LERP * a) * self.color
             self.top = round(self.pos.real)
             self.left = round(self.pos.imag)
-            if self.top == self.start.real and self.left == self.start.imag and self.start_color == self.color:
+            if self.top == self.start.real and self.left == self.start.imag and self.start_color == int(self.color):
                 return
 
     def refresh(self):
@@ -130,17 +130,15 @@ with ScreenManager() as sm:
     cursor = sm.root.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
     cursor.window.addstr(0, 0, " | \n-+-\n | ")
 
-    # Logo and its colors:
-    logo = np.array([list(line + (WIDTH - len(line)) * " ") for line in LOGO.splitlines()])
+    #Starting colors of LOGO:
     c = np.full((HEIGHT, WIDTH), BLUE)
     c[-7:] = c[-13: -7, -41:] = c[-14, -17:] = c[-20: -14, -15:] = YELLOW
 
     # Create a Particle for each non-space character in the logo
-    it = np.nditer((logo, c), ["multi_index"])
-    for char, color in it:
-        y, x = it.multi_index
-        if char != " ":
-            sm.root.add_widget(Particle(y, x, character=str(char), color=color, cursor=cursor))
+    for y, row in enumerate(LOGO.splitlines()):
+        for x, char in enumerate(row):
+            if char != " ":
+                sm.root.add_widget(Particle(y, x, character=char, color=c[y, x]))
 
     sm.root.on_top(cursor)
     sm.schedule(sm.root.refresh)
