@@ -127,9 +127,6 @@ class Particle(Widget):
 with ScreenManager() as sm:
     colors.rainbow_gradient(COLORS)
 
-    cursor = sm.root.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
-    cursor.window.addstr(0, 0, " | \n-+-\n | ")
-
     #Starting colors of LOGO:
     c = np.full((HEIGHT, WIDTH), BLUE)
     c[-7:] = c[-13: -7, -41:] = c[-14, -17:] = c[-20: -14, -15:] = YELLOW
@@ -140,6 +137,8 @@ with ScreenManager() as sm:
             if char != " ":
                 sm.root.add_widget(Particle(y, x, character=char, color=c[y, x]))
 
-    sm.root.on_top(cursor)
+    cursor = sm.root.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
+    cursor.window.addstr(0, 0, " | \n-+-\n | ")
+
     sm.schedule(sm.root.refresh)
     sm.run()
