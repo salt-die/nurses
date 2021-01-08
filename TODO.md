@@ -18,4 +18,6 @@ TODO
 
 Notes
 -----
+Possible bug if one cancels and immediately calls a task.  Task could be on queue multiple times.  This needs to be rectified asap.
+
 I hate the name ArrayWin.
