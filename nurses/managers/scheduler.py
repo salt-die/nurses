@@ -1,34 +1,44 @@
 from collections import deque
 from heapq import heappop, heappush
 from textwrap import dedent
-from time import sleep, time
+from time import sleep, monotonic
 from types import coroutine
 
 
 class Task:
-    __slots__ = "scheduler", "coro", "is_canceled", "deadline"
+    __slots__ = "scheduler", "coro", "is_canceled", "deadline", "is_rescheduled"
 
     def __init__(self, scheduler, coro):
         self.scheduler = scheduler
         self.coro = coro
         self.is_canceled = False
+        self.is_rescheduled = False
 
     def cancel(self):
         self.is_canceled = True
 
-    def __call__(self, delay=0):
-        """Reschedule this task in `delay` seconds.
+    def __call__(self):
+        """
+        Reschedule this task as a new task. Returns the new task.
+
+        Notes
+        -----
+        To reschedule a task, the task must be canceled. A task can only be rescheduled once.
+        (use the returned task to cancel and reschedule the wrapped coroutine again)
+
+        Raises
+        ------
+        RuntimeError
+            If the task isn't canceled or if task has already been rescheduled.
         """
         if not self.is_canceled:
             raise RuntimeError("task already scheduled")
 
-        self.is_canceled = False
+        if self.is_rescheduled:
+            raise RuntimeError("task already rescheduled")
 
-        if delay:
-            self.deadline = time() + delay
-            heappush(self.scheduler.sleeping, self)
-        else:
-            self.scheduler.ready.append(self)
+        self.is_rescheduled = True
+        return self.scheduler.new_task(self.coro)
 
     def __lt__(self, other):
         return self.deadline < other.deadline
@@ -43,7 +53,7 @@ class Scheduler:
         self.current = None
 
     async def sleep(self, delay):
-        self.current.deadline = time() + delay
+        self.current.deadline = monotonic() + delay
         heappush(self.sleeping, self.current)
         self.current = None
         await self.next_task()
@@ -69,7 +79,7 @@ class Scheduler:
         sleeping = self.sleeping
 
         while ready or sleeping:
-            now = time()
+            now = monotonic()
 
             while sleeping and sleeping[0].deadline <= now:
                 ready.append(heappop(sleeping))
