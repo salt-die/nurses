@@ -101,7 +101,7 @@ class Scheduler:
             loop = "for i in iterable"
             body = "yield i"
 
-        awaitable=f"self.sleep({delay})" if delay > 0 else "self.next_task()"
+        awaitable = f"self.sleep({delay})" if delay > 0 else "self.next_task()"
 
         code = f"""
             async def wrapped():
