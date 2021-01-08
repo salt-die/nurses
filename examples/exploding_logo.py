@@ -7,17 +7,45 @@ Directions:
     arrow-keys to move
     space to poke
 """
-from pathlib import Path
-
 import numpy as np
 from nurses import ScreenManager, colors, Widget
 from nurses.widgets.behaviors import Movable
 
+
+LOGO = """
+                   _.gj8888888lkoz.,_
+                d888888888888888888888b,
+               j88P""V8888888888888888888
+               888    8888888888888888888
+               888baed8888888888888888888
+               88888888888888888888888888
+                            8888888888888
+    ,ad8888888888888888888888888888888888  888888be,
+   d8888888888888888888888888888888888888  888888888b,
+  d88888888888888888888888888888888888888  8888888888b,
+ j888888888888888888888888888888888888888  88888888888p,
+j888888888888888888888888888888888888888'  8888888888888
+8888888888888888888888888888888888888^"   ,8888888888888
+88888888888888^'                        .d88888888888888
+8888888888888"   .a8888888888888888888888888888888888888
+8888888888888  ,888888888888888888888888888888888888888^
+^888888888888  888888888888888888888888888888888888888^
+ V88888888888  88888888888888888888888888888888888888Y
+  V8888888888  8888888888888888888888888888888888888Y
+   `"^8888888  8888888888888888888888888888888888^"'
+               8888888888888
+               88888888888888888888888888
+               8888888888888888888P""V888
+               8888888888888888888    888
+               8888888888888888888baed88V
+                `^888888888888888888888^
+                  `'"^^V888888888V^^'
+"""
 SPACE, RESET = 32, 114                                 # Keybindings
 POKE_POWER = 2                                         # Increase this for more powerful pokes
-MAX_VELOCITY = 4                                       # Limits how fast particles can travel.
+MAX_VELOCITY = 10                                      # Limits how fast particles can travel.
 FRICTION = .97                                         # Friction decreases the closer this value is to `1`.
-HEIGHT, WIDTH = 27, 56                                 # Size of the Python logo, found through inspection.
+HEIGHT, WIDTH = 28, 56                                 # Size of the Python logo, found through inspection.
 COLORS = 20                                            # Number of different rainbow colors
 BLUE, YELLOW = 13, 2                                   # If COLORS changes, starting color of logo will change (BLUE will no longer be blue, etc.)
 COLOR_LERP = 5                                         # Increase to speed up return to start color on reset
@@ -28,12 +56,8 @@ FAST_DIVISION = tuple(i / 100 for i in range(1, 101))  # Used when lerping in Pa
 class Cursor(Widget, Movable):
     UD_STEP = 2
     LR_STEP = 4
-
-    def on_press(self, key):
-        if super().on_press(key):
-            self.top %= HEIGHT + 1
-            self.left %= WIDTH + 1
-            return True
+    WRAP_HEIGHT = HEIGHT + 1
+    WRAP_WIDTH = WIDTH + 1
 
 
 class Particle(Widget):
@@ -100,28 +124,24 @@ class Particle(Widget):
         self.window.chgat(0, 0, colors.palette["rainbow"][int(self.color)])
 
 
-if __name__ == "__main__":
-    with open(Path(__file__).parent / "python_logo.txt") as f:
-        logo = f.read()
+with ScreenManager() as sm:
+    colors.rainbow_gradient(COLORS)
 
-    with ScreenManager() as sm:
-        colors.rainbow_gradient(COLORS)
+    cursor = sm.root.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
+    cursor.window.addstr(0, 0, " | \n-+-\n | ")
 
-        cursor = sm.root.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
-        cursor.window.addstr(0, 0, " | \n-+-\n | ")
+    # Logo and its colors:
+    logo = np.array([list(line + (WIDTH - len(line)) * " ") for line in LOGO.splitlines()])
+    c = np.full((HEIGHT, WIDTH), BLUE)
+    c[-7:] = c[-13: -7, -41:] = c[-14, -17:] = c[-20: -14, -15:] = YELLOW
 
-        # Logo and its colors:
-        logo = np.array([list(line + (WIDTH - len(line)) * " ") for line in logo.splitlines()])
-        c = np.full((HEIGHT, WIDTH), BLUE)
-        c[-7:] = c[-13: -7, -41:] = c[-14, -17:] = c[-20: -14, -15:] = YELLOW
+    # Create a Particle for each non-space character in the logo
+    it = np.nditer((logo, c), ["multi_index"])
+    for char, color in it:
+        y, x = it.multi_index
+        if char != " ":
+            sm.root.add_widget(Particle(y, x, character=str(char), color=color, cursor=cursor))
 
-        # Create a Particle for each non-space character in the logo
-        it = np.nditer((logo, c), ["multi_index"])
-        for char, color in it:
-            y, x = it.multi_index
-            if char != " ":
-                sm.root.add_widget(Particle(y, x, character=str(char), color=color, cursor=cursor))
-
-        sm.root.on_top(cursor)
-        sm.schedule(sm.root.refresh)
-        sm.run()
+    sm.root.on_top(cursor)
+    sm.schedule(sm.root.refresh)
+    sm.run()

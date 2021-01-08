@@ -7,6 +7,9 @@ class Movable:
     LR_STEP = 1
     UD_STEP = 1
 
+    WRAP_HEIGHT = None
+    WRAP_WIDTH = None
+
     def __init__(self, *args, bounded=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.bounded = bounded
@@ -31,4 +34,8 @@ class Movable:
         else:
             return super().on_press(key)
 
+        if self.WRAP_HEIGHT:
+            self.top %= self.WRAP_HEIGHT
+        if self.WRAP_WIDTH:
+            self.left %= self.WRAP_WIDTH
         return True
