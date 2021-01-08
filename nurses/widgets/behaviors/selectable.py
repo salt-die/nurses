@@ -6,7 +6,7 @@ selectables = deque()
 class Selectable:
     __selected = None
 
-    SELECT_KEY = 9  # Tab
+    select_key = 9  # Tab
 
     def __init__(self, *args, **kwargs):
         selectables.append(ref(self))
@@ -17,7 +17,7 @@ class Selectable:
         return Selectable.__selected is self
 
     def on_press(self, key):
-        if key == self.SELECT_KEY:
+        if key == self.select_key:
             while selectables[0]() is None:
                 selectables.popleft()
             Selectable.__selected = selectables[0]()

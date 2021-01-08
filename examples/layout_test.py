@@ -3,17 +3,15 @@ from nurses import ScreenManager, colors, load_string
 with ScreenManager() as sm:
     # Define a widget layout with a TAML-like string
     # load_string will return a dictionary of named widgets
-    widgets = load_string("""
-    HSplit(3) as top
+    globals().update(load_string("""
+    HSplit(3)
         ArrayWin(color=colors.YELLOW_ON_BLACK, border="curved", border_color=colors.CYAN_ON_BLACK) as title
         HSplit(-3)
             VSplit(.5)
                 ArrayWin(color=colors.RED_ON_BLACK, border="heavy", border_color=colors.GREEN_ON_BLACK) as left
                 ArrayWin() as right
             ArrayWin(border="light", border_color=colors.GREEN_ON_BLACK)
-    """)
-    globals().update(widgets)
-    sm.root.add_widget(top)
+    """))
 
     title[0, :5] = "Title"
 

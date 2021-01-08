@@ -54,10 +54,10 @@ FAST_DIVISION = tuple(i / 100 for i in range(1, 101))  # Used when lerping in Pa
 
 
 class Cursor(Widget, Movable):
-    UD_STEP = 2
-    LR_STEP = 4
-    WRAP_HEIGHT = HEIGHT + 1
-    WRAP_WIDTH = WIDTH + 1
+    ud_step = 2
+    lr_step = 4
+    wrap_height = HEIGHT + 1
+    wrap_width = WIDTH + 1
 
 
 class Particle(Widget):

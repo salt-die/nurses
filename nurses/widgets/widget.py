@@ -42,6 +42,10 @@ class Widget:
 
         self.is_transparent = transparent
 
+        for attr in tuple(kwargs):
+            if hasattr(self, attr):
+                setattr(self, attr, kwargs.pop(attr))
+
         super().__init__(*rest, **kwargs)
 
     @property

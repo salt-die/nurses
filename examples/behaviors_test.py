@@ -24,7 +24,7 @@ class Notepad(ArrayWin, Movable, Selectable):
         self.colors[-1, self._col] = self.cursor_color if self.is_selected else self.color
 
     def on_press(self, key):
-        if key == self.SELECT_KEY:
+        if key == self.select_key:
             return super().on_press(key)
 
         if self.is_selected:

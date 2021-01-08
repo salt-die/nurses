@@ -1,41 +1,39 @@
 class Movable:
-    MOVE_UP = 259  # Up-arrow
-    MOVE_DOWN = 258  # Down-arrow
-    MOVE_LEFT = 260  # Left-arrow
-    MOVE_RIGHT = 261  # Right-arrow
+    move_up = 259  # Up-arrow
+    move_down = 258  # Down-arrow
+    move_left = 260  # Left-arrow
+    move_right = 261  # Right-arrow
 
-    LR_STEP = 1
-    UD_STEP = 1
+    lr_step = 1
+    ud_step = 1
 
-    WRAP_HEIGHT = None
-    WRAP_WIDTH = None
+    wrap_height = None
+    wrap_width = None
 
-    def __init__(self, *args, bounded=False, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.bounded = bounded
+    bounded = False
 
     def on_press(self, key):
         top, left = self.top, self.left
         height, width = self.height, self.width
         bounded = self.bounded
 
-        if key == self.MOVE_UP:
+        if key == self.move_up:
             if not bounded or top > 0:
-                self.top -= self.UD_STEP
-        elif key == self.MOVE_DOWN:
+                self.top -= self.ud_step
+        elif key == self.move_down:
             if not bounded or top + height < self.parent.height:
-                self.top += self.UD_STEP
-        elif key == self.MOVE_LEFT:
+                self.top += self.ud_step
+        elif key == self.move_left:
             if not bounded or left > 0:
-                self.left -= self.LR_STEP
-        elif key == self.MOVE_RIGHT:
+                self.left -= self.lr_step
+        elif key == self.move_right:
             if not bounded or left + width < self.parent.width:
-                self.left += self.LR_STEP
+                self.left += self.lr_step
         else:
             return super().on_press(key)
 
-        if self.WRAP_HEIGHT:
-            self.top %= self.WRAP_HEIGHT
-        if self.WRAP_WIDTH:
-            self.left %= self.WRAP_WIDTH
+        if self.wrap_height:
+            self.top %= self.wrap_height
+        if self.wrap_width:
+            self.left %= self.wrap_width
         return True
