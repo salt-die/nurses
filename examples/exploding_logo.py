@@ -7,47 +7,33 @@ Directions:
     arrow-keys to move
     space to poke
 """
-from math import pi, sin
 from pathlib import Path
 
 import numpy as np
 from nurses import ScreenManager, colors, Widget
+from nurses.widgets.behaviors import Movable
 
-UP, RIGHT, DOWN, LEFT, SPACE, RESET = 259, 261, 258, 260, 32, 114  # Keybindings
-POKE_POWER = 2  # Increase this for more powerful pokes
-MAX_VELOCITY = 4  # Limits how fast particles can travel.
-FRICTION = .97  # Friction decreases the closer this value is to `1`.
-HEIGHT, WIDTH = 27, 56  # Size of the Python logo, found through inspection.
-COLORS = 20 # Number of different rainbow colors
-BLUE, YELLOW = 13, 2 # If COLORS changes, starting color of logo will change (BLUE will no longer be blue, etc.)
-COLOR_LERP = 5  # This will speed up return to start color on reset
-COLOR_CHANGE = 5  # The higher this is the faster colors will change due to velocity
+SPACE, RESET = 32, 114                                 # Keybindings
+POKE_POWER = 2                                         # Increase this for more powerful pokes
+MAX_VELOCITY = 4                                       # Limits how fast particles can travel.
+FRICTION = .97                                         # Friction decreases the closer this value is to `1`.
+HEIGHT, WIDTH = 27, 56                                 # Size of the Python logo, found through inspection.
+COLORS = 20                                            # Number of different rainbow colors
+BLUE, YELLOW = 13, 2                                   # If COLORS changes, starting color of logo will change (BLUE will no longer be blue, etc.)
+COLOR_LERP = 5                                         # Increase to speed up return to start color on reset
+COLOR_CHANGE = 5                                       # The higher this is the faster colors will change due to velocity
 FAST_DIVISION = tuple(i / 100 for i in range(1, 101))  # Used when lerping in Particle.reset
 
-def rainbow_rgbs(n=COLORS):
-    """This creates the rgb-tuples that make up the rainbow gradient.  It's what I refer to as the "lolcat" function.
-    """
-    offsets = 0, 2 * pi / 3, 4 * pi / 3
-    for i in range(n):
-        yield tuple(int(sin(2 * pi / n * i + offset) * 127 + 128) for offset in offsets)
 
+class Cursor(Widget, Movable):
+    UD_STEP = 2
+    LR_STEP = 4
 
-class Cursor(Widget):
     def on_press(self, key):
-        if key == UP:
-            self.top -= 2
-        elif key == LEFT:
-            self.left -= 4
-        elif key == DOWN:
-            self.top += 2
-        elif key == RIGHT:
-            self.left += 4
-        else:
-            return None
-
-        self.top %= HEIGHT + 1
-        self.left %= WIDTH + 1
-        return True
+        if super().on_press(key):
+            self.top %= HEIGHT + 1
+            self.left %= WIDTH + 1
+            return True
 
 
 class Particle(Widget):
@@ -85,6 +71,7 @@ class Particle(Widget):
 
         self.pos += self.vel
 
+        # These two conditionals will cause particles to bounce off the edges
         if not 0 <= self.pos.real <= HEIGHT:
             self.vel = -self.vel.conjugate()
             self.pos += self.vel.real
@@ -118,8 +105,7 @@ if __name__ == "__main__":
         logo = f.read()
 
     with ScreenManager() as sm:
-        for rgb in rainbow_rgbs():
-            colors.pair(rgb, colors.BLACK, palette="rainbow")
+        colors.rainbow_gradient(COLORS)
 
         cursor = sm.root.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
         cursor.window.addstr(0, 0, " | \n-+-\n | ")

@@ -1,7 +1,9 @@
 from collections import defaultdict
 import curses
 from itertools import count, product
+from math import pi, sin
 import re
+from warnings import warn
 
 from .meta import Singleton
 
@@ -40,6 +42,38 @@ class ColorManager(metaclass=Singleton):
         self._pair_to_curses = defaultdict(count(1).__next__, {(DEFAULT_RGBS[-1], DEFAULT_RGBS[0]): 0})
         self.palette = defaultdict(list)
 
+    def rainbow_gradient(self, n=20, background="BLACK", palette="rainbow"):
+        """
+        Create an `n` color rainbow gradient.
+
+        Other Parameters
+        ----------
+        background: optional
+            The background color for the gradient. Can be a string ("COLOR_NAME") or rgb-tuple. (the default is "BLACK")
+
+        palette: optional
+            Save the gradient to a list in the palette dictionary with the given name. (the default is "rainbow")
+            If the palette already exists the user is warned and the existing palette is cleared.
+        """
+        if self.palette[palette]:
+            warn(f"{palette} already exists; clearing")
+            self.palette[palette].clear()
+
+        back = getattr(self, background) if isinstance(background, str) else self.color(background)
+
+        offsets = 0, 2 * pi / 3, 4 * pi / 3
+
+        for i in range(n):
+            self.pair(tuple(int(sin(2 * pi / n * i + offset) * 127 + 128) for offset in offsets), back, palette)
+
+    def color(self, rgb):
+        rgbs = self._rgb_to_curses
+
+        if rgb not in rgbs:
+            curses.init_color(rgbs[rgb], *scale(rgb))
+
+        return rgbs[rgb]
+
     def pair(self, fore, back, palette=None):
         """
         Return a curses color pair from a pair of rgb-tuples. If `palette` is provided, the color
@@ -47,22 +81,17 @@ class ColorManager(metaclass=Singleton):
         """
         pair = fore, back
         pairs = self._pair_to_curses
-        rgbs = self._rgb_to_curses
-
-        if fore not in rgbs:
-            curses.init_color(rgbs[fore], *scale(fore))
-        if back not in rgbs:
-            curses.init_color(rgbs[back], *scale(back))
+        color = self.color
 
         if pair not in pairs:
-            curses.init_pair(pairs[pair], rgbs[fore], rgbs[back])
+            curses.init_pair(pairs[pair], color(fore), color(back))
 
-        color = curses.color_pair(pairs[pair])
+        color_pair = curses.color_pair(pairs[pair])
 
         if palette is not None:
-            self.palette[palette].append(color)
+            self.palette[palette].append(color_pair)
 
-        return color
+        return color_pair
 
     def __getattr__(self, attr):
         """

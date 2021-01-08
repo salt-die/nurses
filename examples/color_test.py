@@ -1,5 +1,3 @@
-from math import sin, pi
-
 from nurses import ScreenManager, colors
 
 with ScreenManager() as sm:
@@ -19,18 +17,11 @@ with ScreenManager() as sm:
     sm.root.refresh()
     sm.pause()
 
-    COLORS = 20
-    def rainbow_rgbs(n=COLORS):
-        offsets = 0, 2 * pi / 3, 4 * pi / 3
-        for i in range(n):
-            yield tuple(int(sin(2 * pi / n * i + offset) * 127 + 128) for offset in offsets)
-
-    for rgb in rainbow_rgbs():
-        colors.pair(rgb, colors.BLACK, palette="rainbow")
+    colors.rainbow_gradient(20)  # Create a rainbow gradient with 20 colors
 
     async def rainbow():
         async for i in sm.aiter(range(200), delay=.1):
-            widget.colors[:] = colors.palette["rainbow"][i % COLORS]
+            widget.colors[:] = colors.palette["rainbow"][i % 20]
             widget.push()
             sm.root.refresh()
 
