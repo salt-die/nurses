@@ -1,7 +1,7 @@
 from collections import deque
 from heapq import heappop, heappush
 from textwrap import dedent
-from time import sleep, monotonic
+from time import monotonic, sleep
 from types import coroutine
 
 
