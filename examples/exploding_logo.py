@@ -127,7 +127,7 @@ class Particle(Widget):
 with ScreenManager() as sm:
     colors.rainbow_gradient(COLORS)
 
-    #Starting colors of LOGO:
+    # Starting colors of LOGO:
     c = np.full((HEIGHT, WIDTH), BLUE)
     c[-7:] = c[-13: -7, -41:] = c[-14, -17:] = c[-20: -14, -15:] = YELLOW
 
