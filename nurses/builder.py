@@ -40,7 +40,7 @@ class LayoutBuilder(Transformer):
     def __init__(self, globals):
         self.widgets = {}
         self.globals = globals
-        self.locals = ChainMap(Widget.types, Widget.types["Layout"].layouts, {"colors": colors})
+        self.locals = ChainMap(Widget.types, {"colors": colors})
 
     def eval_python(self, args):
         obj, *rest = args
@@ -64,8 +64,8 @@ def load_string(build_string, globals={ }, *, root=True):
 
     Notes
     -----
-    Indentation indicates a widget or layout belongs to an outer Layout.
-    Each line is expected to be valid python for a Layout or a Widget (possibly followed by `as NAME`,
+    Each indented block demarcates children of the above widget.
+    Each line is expected to be valid python for a Widget (possibly followed by `as NAME`,
     where NAME is the name of the widget in the returned dict).
 
     Examples

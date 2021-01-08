@@ -1,8 +1,8 @@
-from .layout import Layout
+from .layout_base import LayoutBase
 
 # One can exploit a symmetry in the update functions of HSplit and VSplit to write a single function
 # for both, but it's less readable.  We've chosen the more verbose option:
-class HSplit(Layout):
+class HSplit(LayoutBase):
     """
     Split the screen horizontally at `row` from top or bottom of the screen (depending on the sign of `row`).
     If `row` is a float, it's taken to be percentage of the screen (i.e., HSplit(.33) will split the screen
@@ -37,11 +37,11 @@ class HSplit(Layout):
                 child.height = self.height - row
                 child.top = row
 
-            if isinstance(child, Layout):
+            if isinstance(child, LayoutBase):
                 child.update()
 
 
-class VSplit(Layout):
+class VSplit(LayoutBase):
     """
     Split the screen vertically at `col` from left or right of the screen (depending on the sign of `col`).
     If `col` is a float, it's taken to be percentage of the screen (i.e., VSplit(.33) will split the screen
@@ -76,5 +76,5 @@ class VSplit(Layout):
                 child.width = self.width - col
                 child.left = col
 
-            if isinstance(child, Layout):
+            if isinstance(child, LayoutBase):
                 child.update()
