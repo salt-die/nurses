@@ -4,69 +4,69 @@ from . import Widget
 
 
 ZERO = (
-    " _ \n"
-    "| |\n"
-    "|_|"
+    " _ ",
+    "| |",
+    "|_|",
 )
 
 ONE = (
-    "   \n"
-    "  |\n"
-    "  |"
+    "   ",
+    "  |",
+    "  |",
 )
 
 TWO = (
-    " _ \n"
-    " _|\n"
-    "|_ "
+    " _ ",
+    " _|",
+    "|_ ",
 )
 
 THREE = (
-    " _ \n"
-    " _|\n"
-    " _|"
+    " _ ",
+    " _|",
+    " _|",
 )
 
 FOUR = (
-    "   \n"
-    "|_|\n"
-    "  |"
+    "   ",
+    "|_|",
+    "  |",
 )
 
 FIVE = (
-    " _ \n"
-    "|_ \n"
-    " _|"
+    " _ ",
+    "|_ ",
+    " _|",
 )
 
 SIX = (
-    " _ \n"
-    "|_ \n"
-    "|_|"
+    " _ ",
+    "|_ ",
+    "|_|",
 )
 
 SEVEN = (
-    " _ \n"
-    "  |\n"
-    "  |"
+    " _ ",
+    "  |",
+    "  |",
 )
 
 EIGHT = (
-    " _ \n"
-    "|_|\n"
-    "|_|"
+    " _ ",
+    "|_|",
+    "|_|",
 )
 
 NINE = (
-    " _ \n"
-    "|_|\n"
-    " _|"
+    " _ ",
+    "|_|",
+    " _|",
 )
 
 COLON = (
-    "   \n"
-    " . \n"
-    " . "
+    "   ",
+    " . ",
+    " . ",
 )
 
 DIGITS = ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE
@@ -78,11 +78,14 @@ def digital_time():
     hours, minutes, seconds = map(format, time.localtime()[3:6])
     return *hours, COLON, *minutes, COLON, *seconds
 
+
 class DigitalClock(Widget):
+    """A digital clock widget.  Dimensions of this widget are (3, 24).
+    """
     def __init__(self, top, left, *args, **kwargs):
         super().__init__(top, left, 3, 24)
 
     def refresh(self):
         for x, digit in enumerate(digital_time()):
-            for y, line in enumerate(digit.splitlines()):
+            for y, line in enumerate(digit):
                 self.window.addstr(y, x * 3, line)
