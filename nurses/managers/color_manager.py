@@ -48,7 +48,7 @@ class ColorManager(metaclass=Singleton):
 
     def rainbow_gradient(self, n=20, background="BLACK", palette="rainbow"):
         """
-        Create an `n` color rainbow gradient.
+        Returns an `n` color rainbow gradient.
 
         Other Parameters
         ----------
@@ -70,10 +70,12 @@ class ColorManager(metaclass=Singleton):
         for i in range(n):
             self.pair(tuple(int(sin(2 * pi / n * i + offset) * 127 + 128) for offset in offsets), back, palette)
 
+        return self.palette[palette]
+
     def pair_gradient(self, n, start_pair, end_pair, palette):
         """
         Create a gradient from `start_pair` to `end_pair` with `n` colors.  `n` should greater or equal to 2.
-        The color pairs are saved to`self.palette[palette]`.
+        The color pairs are appended to`self.palette[palette]`.  Returns `self.palette[palette]`.
         """
         self.pair(*start_pair, palette)
 
@@ -84,11 +86,12 @@ class ColorManager(metaclass=Singleton):
             self.pair(fore, back, palette)
 
         self.pair(*end_pair, palette)
+        return self.palette[palette]
 
     def gradient(self, n, start_color, end_color, palette, background="BLACK"):
         """
         Create a gradient of `n` color pairs from `start_color` to `end_color` with a given background color.
-        The color pairs are saved to`self.palette[palette]`.
+        The color pairs are appended to`self.palette[palette]`.  Returns `self.palette[palette]`.
 
         Other Parameters
         ----------
@@ -96,7 +99,7 @@ class ColorManager(metaclass=Singleton):
             The background color for the gradient. Can be a string ("COLOR_NAME") or rgb-tuple. (the default is "BLACK")
         """
         back = getattr(self, background) if isinstance(background, str) else self.color(background)
-        self.pair_gradient(n, (start_color, back), (end_color, back), palette)
+        return self.pair_gradient(n, (start_color, back), (end_color, back), palette)
 
     def color(self, rgb):
         rgbs = self._rgb_to_curses

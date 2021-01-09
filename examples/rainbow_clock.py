@@ -7,14 +7,13 @@ from nurses.widgets import DigitalClock
 class MovableClock(DigitalClock, Movable):
     ...
 
+
 with ScreenManager() as sm:
     widget = sm.root.new_widget(0, 0, create_with=MovableClock)
 
-    colors.rainbow_gradient(20)
-    rainbow = colors.palette["rainbow"]
+    rainbow = colors.rainbow_gradient(20)
 
     async def rainbow_time():
-
         i = 0
         while True:
             widget.update_color(rainbow[i])
