@@ -1,6 +1,4 @@
-from itertools import cycle, product
-
-import numpy as np
+from itertools import cycle
 
 from nurses import colors, ScreenManager
 from nurses.widgets import ArrayWin, DigitalClock
@@ -85,7 +83,7 @@ class Notepad(Window):
             # Presumably, would need to handle other non-character keypresses, e.g., delete, backspace, tab, etc.
             else:
                 if self._col == self.width - 3:  # End of a line, we'll roll it
-                    self[-1] = np.roll(self[-1], -1)
+                    self[-1, :-1] = self[-1, 1:]
                     self[-1, -1] = " "
                 else:
                     self._col += 1
