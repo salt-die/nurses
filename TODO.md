@@ -2,6 +2,7 @@ TODO
 ====
 * Widgets
     * Textpad
+    * Graph
 
 * Mix-Ins for Widgets:
     * Scrollable (Scroll contents up or down with arrow-keys)
