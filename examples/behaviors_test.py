@@ -103,10 +103,7 @@ with ScreenManager() as sm:
     sm.root.add_widget(Notepad(0, 0, .5, .5))
     sm.root.add_widget(Notepad(0, .5, .5, .5))
     sm.root.add_widget(Notepad(.5, 0, .5, .5))
-
-    br = Window(.5, .5, .5, .5)
-    br.add_widget(MovingClock(1, 1))
-    sm.root.add_widget(br)
+    sm.root.new_widget(.5, .5, .5, .5, create_with=Window).add_widget(MovingClock(1, 1))
 
     sm.schedule(sm.root.refresh)
     sm.run()
