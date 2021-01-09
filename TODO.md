@@ -13,9 +13,6 @@ TODO
     * Stack  - a row or column of widgets
     * Scrolling - a row or column of widgets that extends off-screen and can be scrolled
 
-* Color Manager
-    * utility function to create gradients by providing just a start and end color (and number of colors)
-
 Notes
 -----
 I hate the name ArrayWin.

@@ -1,6 +1,6 @@
 from collections import defaultdict
 import curses
-from itertools import count, product
+from itertools import count, product, repeat
 from math import pi, sin
 import re
 from warnings import warn
@@ -14,6 +14,10 @@ COLOR_RE = re.compile(r"[A-Z_]+")
 COLOR_PAIR_RE = re.compile(r"([A-Z_]+)_ON_([A-Z_]+)")
 INIT_COLOR_START = 16  # Colors 0 - 15 are already init on windows terminal and can't be re-init
 
+def lerp(start, end, percent):
+    """Linear interpolation between `start` and `end`.
+    """
+    return percent * end + (1 - percent) * start
 
 def scale(components):
     """This scales rgb values in the range 0-255 to be in the range 0-1000.
@@ -65,6 +69,34 @@ class ColorManager(metaclass=Singleton):
 
         for i in range(n):
             self.pair(tuple(int(sin(2 * pi / n * i + offset) * 127 + 128) for offset in offsets), back, palette)
+
+    def pair_gradient(self, n, start_pair, end_pair, palette):
+        """
+        Create a gradient from `start_pair` to `end_pair` with `n` colors.  `n` should greater or equal to 2.
+        The color pairs are saved to`self.palette[palette]`.
+        """
+        self.pair(*start_pair, palette)
+
+        for i in range(n - 2):
+            percent = (i + 1) / (n - 1)
+            fore = tuple(map(lerp, start_pair[0], end_pair[0], repeat(percent)))
+            back = tuple(map(lerp, start_pair[1], end_pair[1], repeat(percent)))
+            self.pair(fore, back, palette)
+
+        self.pair(*end_pair, palette)
+
+    def gradient(self, n, start_color, end_color, palette, background="BLACK"):
+        """
+        Create a gradient of `n` color pairs from `start_color` to `end_color` with a given background color.
+        The color pairs are saved to`self.palette[palette]`.
+
+        Other Parameters
+        ----------
+        background: optional
+            The background color for the gradient. Can be a string ("COLOR_NAME") or rgb-tuple. (the default is "BLACK")
+        """
+        back = getattr(self, background) if isinstance(background, str) else self.color(background)
+        self.pair_gradient(n, (start_color, back), (end_color, back), palette)
 
     def color(self, rgb):
         rgbs = self._rgb_to_curses

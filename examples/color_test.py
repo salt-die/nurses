@@ -18,10 +18,12 @@ with ScreenManager() as sm:
     sm.pause()
 
     colors.rainbow_gradient(20)  # Create a rainbow gradient with 20 colors
+    colors.gradient(20, (103, 15, 215), (17, 163, 112), "purple to teal")
 
     async def rainbow():
         async for i in sm.aiter(range(200), delay=.1):
-            widget.colors[:] = colors.palette["rainbow"][i % 20]
+            widget.colors[:, :5] = colors.palette["rainbow"][i % 20]
+            widget.colors[:, 5:] = colors.palette["purple to teal"][i % 20]
             widget.push()
             sm.root.refresh()
 
