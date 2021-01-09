@@ -3,7 +3,7 @@ from itertools import product
 import numpy as np
 
 from nurses import ScreenManager, colors
-from nurses.widgets.arraywin import ArrayWin, push_buffer
+from nurses.widgets.arraywin import ArrayWin
 from nurses.widgets.behaviors import Selectable, Movable
 
 
@@ -14,7 +14,6 @@ class Notepad(ArrayWin, Movable, Selectable):
         self.cursor_color = colors.BLACK_ON_WHITE
         self.update_cursor()
 
-    @push_buffer
     def update_cursor(self):
         if self._col == 0:
             self.colors[-2] = self.color
@@ -22,6 +21,7 @@ class Notepad(ArrayWin, Movable, Selectable):
             self.colors[-1, self._col - 1] = self.color
 
         self.colors[-1, self._col] = self.cursor_color if self.is_selected else self.color
+        self.push()
 
     def on_press(self, key):
         if key == self.select_key:
@@ -49,10 +49,10 @@ class Notepad(ArrayWin, Movable, Selectable):
     def refresh(self):
         if self.is_selected:
             if self.has_border[0] != "heavy":
-                self.border("heavy", colors.BLUE_ON_BLACK, push=False)
+                self.border("heavy", colors.BLUE_ON_BLACK)
                 self.update_cursor()
         elif self.has_border[0] != "light":
-            self.border(push=False)
+            self.border()
             self.update_cursor()
 
 

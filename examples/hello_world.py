@@ -8,15 +8,13 @@ with ScreenManager() as sm:
     def marching_border():
         # Move each edge clockwise then place the 3 values that got overwritten.
         tr, bl, br = widget[0, -1], widget[-1, 0], widget[-1, -1]
-        b = widget.buffer
-        b[0, 1:] = widget[0, :-1]
-        b[1:, -1] = widget[:-1, -1]
-        b[-1, :-1] = widget[-1, 1:]
-        b[:-1, 0] = widget[1:, 0]
-        b[ 1, -1] = tr
-        b[-1, -2] = br
-        b[-2,  0] = bl
-        widget.push()
+        widget[0, 1:] = widget[0, :-1]
+        widget[1:, -1] = widget[:-1, -1]
+        widget[-1, :-1] = widget[-1, 1:]
+        widget[:-1, 0] = widget[1:, 0]
+        widget[ 1, -1] = tr
+        widget[-1, -2] = br
+        widget[-2,  0] = bl
         sm.root.refresh()
 
     sm.schedule(marching_border, delay=.1, n=120)

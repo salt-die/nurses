@@ -14,21 +14,6 @@ BORDER_STYLES = {
 }
 
 
-def push_buffer(method):
-    """
-    Most methods that modify the buffer will automatically write the buffer to the window afterwards.
-    This decorator provides a `push` parameter to these methods that can be set to False to disable
-    this behavior.
-    """
-    def wrapper(self, *args, push=True, **kwargs):
-        method(self, *args, **kwargs)
-        if push:
-            self.push()
-    wrapper.__name__ = method.__name__
-    wrapper.__doc__ = method.__doc__
-    return wrapper
-
-
 @contextmanager
 def disable_method(obj, methodname):
     old = getattr(obj, methodname)
@@ -145,9 +130,10 @@ class ArrayWin(Widget):
 
         self._buffer = new_buffer
         self._colors = new_colors
-        self.window.erase()
         self.window.resize(height, width + 1)
-        self.border(*self.has_border) if self.has_border else self.push()
+
+        if self.has_border:
+            self.border(*self.has_border)
 
     def push(self):
         """Write the buffers to the window.
@@ -194,9 +180,6 @@ class ArrayWin(Widget):
         except ValueError:
             self.buffer[key] = np.rot90(text if len(text.shape) == 2 else text[None, ], -1)  # Try to fit the text vertically
 
-        self.push()
-
-    @push_buffer
     def border(self, style="light", color=None, *, read_only=True):
         """
         Draw a border on the edges of the widget.
@@ -232,7 +215,6 @@ class ArrayWin(Widget):
         c = self._colors
         c[0] = c[-1] = c[:, 0] = c[:, -1] = color or self.color
 
-    @push_buffer
     def roll(self, shift=1, vertical=False):
         """
         Roll the contents of the widget. Items that roll beyond the last position are re-introduced at the first.
@@ -249,7 +231,6 @@ class ArrayWin(Widget):
         self.buffer = np.roll(self.buffer, axis, (0, 1))
         self.colors = np.roll(self.colors, axis, (0, 1))
 
-    @push_buffer
     def scroll(self, lines=1):
         """
         Scroll the contents of the buffer upwards or downwards, erasing the last/first lines.
