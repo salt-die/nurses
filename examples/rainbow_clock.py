@@ -1,3 +1,5 @@
+from itertools import cycle
+
 from nurses import colors, ScreenManager
 from nurses.widgets import ArrayWin, DigitalClock
 from nurses.widgets.behaviors import Movable
@@ -41,14 +43,11 @@ class ClockHolder(ArrayWin, Movable):
 with ScreenManager() as sm:
     widget = sm.root.new_widget(0, 0, 15, 40, create_with=ClockHolder)
 
-    rainbow = colors.rainbow_gradient(20)
+    rainbow = cycle(colors.rainbow_gradient(20))
 
-    async def rainbow_time():
-        i = 0
-        while True:
-            widget.children[0].update_color(rainbow[i])
-            i = (i + 1) % 20
-            sm.root.refresh()
-            await sm.sleep(.1)
+    def update_color():
+        widget.children[0].update_color(next(rainbow))
+        sm.root.refresh()
 
-    sm.run(rainbow_time())
+    sm.schedule(update_color, delay=.1)
+    sm.run()
