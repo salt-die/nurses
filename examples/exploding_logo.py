@@ -98,11 +98,11 @@ class Particle(Widget):
         # These two conditionals will cause particles to bounce off the edges
         if not 0 <= self.pos.real <= HEIGHT:
             self.vel = -self.vel.conjugate()
-            self.pos += self.vel.real
+            self.pos += 2 * self.vel.real
 
         if not 0 <= self.pos.imag <= WIDTH:
             self.vel = self.vel.conjugate()
-            self.pos += self.vel.imag
+            self.pos += 2j * self.vel.imag
 
         self.top = round(self.pos.real)
         self.left = round(self.pos.imag)
