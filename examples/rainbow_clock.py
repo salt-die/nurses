@@ -32,22 +32,19 @@ class MovingClock(DigitalClock):
         self.top = round(self.pos.real)
         self.left = round(self.pos.imag)
 
+        self.update_color(next(rainbow))
+        sm.root.refresh()
+
 
 class ClockHolder(ArrayWin, Movable):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.add_widget(MovingClock(1, 1))
-        self.border("curved", colors.BLUE_ON_BLACK)
+    ...
 
 
 with ScreenManager() as sm:
-    widget = sm.root.new_widget(0, 0, 15, 40, create_with=ClockHolder)
-
     rainbow = cycle(colors.rainbow_gradient(20))
 
-    def update_color():
-        widget.children[0].update_color(next(rainbow))
-        sm.root.refresh()
+    outer = ClockHolder(0, 0, 15, 40, border="curved", border_color=colors.BLUE_ON_BLACK)
+    outer.add_widget(MovingClock(1, 1))
 
-    sm.schedule(update_color, delay=.1)
+    sm.root.add_widget(outer)
     sm.run()
