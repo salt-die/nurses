@@ -13,7 +13,7 @@ class Widget:
         if not cls.on_press.__doc__:
             cls.on_press.__doc__ = Widget.on_press.__doc__
 
-    def __init__(self, *args, window=None, parent=None, transparent=False, **kwargs):
+    def __init__(self, *args, color=None, window=None, parent=None, transparent=False, **kwargs):
         self.parent = parent
         self.children = [ ]
         self.group = defaultdict(list)
@@ -39,6 +39,9 @@ class Widget:
         # TODO: Test this hack on linux.
         self.window = window or curses.newwin(1, 1)
         self.window.resize(self.height, self.width + 1)
+
+        if color:
+            self.window.setattr(color)
 
         self.is_transparent = transparent
 
@@ -161,3 +164,6 @@ class Widget:
             return super().on_press(key)
         except AttributeError:
             pass
+
+    def update_color(self, color):
+        self.window.attrset(color)

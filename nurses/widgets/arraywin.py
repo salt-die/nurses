@@ -259,3 +259,6 @@ class ArrayWin(Widget):
         slice_ = slice(-lines, None) if lines > 0 else slice(None, -lines)
         self.buffer[slice_] = " "
         self.colors[slice_] = self.color
+
+    def update_color(self, color):
+        self.colors[:] = color
