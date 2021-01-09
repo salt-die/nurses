@@ -1,15 +1,67 @@
-from itertools import product
+from itertools import cycle, product
 
 import numpy as np
 
-from nurses import ScreenManager, colors
-from nurses.widgets.arraywin import ArrayWin
+from nurses import colors, ScreenManager
+from nurses.widgets import ArrayWin, DigitalClock
 from nurses.widgets.behaviors import Selectable, Movable
 
 
-class Notepad(ArrayWin, Movable, Selectable):
+VELOCITY = .5
+
+
+class MovingClock(DigitalClock):
+    def __init__(self, top, left, *args, **kwargs):
+        super().__init__(top, left, *args, **kwargs)
+
+        self.pos = complex(top, left)
+        self.vel = 1 + 1j
+        self.vel *= VELOCITY / abs(self.vel)  # Normalize
+
+        sm.schedule(self.update, delay=.1)
+
+    def update(self):
+        self.pos += self.vel
+
+        if not 1 <= self.pos.real <= self.parent.height - self.height - 1:
+            self.vel = -self.vel.conjugate()
+            self.pos += 2 * self.vel.real
+
+        if not 1 <= self.pos.imag <= self.parent.width - self.width - 1:
+            self.vel = self.vel.conjugate()
+            self.pos += 2j * self.vel.imag
+
+        self.top = round(self.pos.real)
+        self.left = round(self.pos.imag)
+
+        self.update_color(next(rainbow))
+
+
+class Window(ArrayWin, Movable, Selectable):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, border="light", **kwargs)
+
+    def refresh(self):
+        if self.is_selected:
+            if self.has_border[0] != "heavy":
+                self.border("heavy", colors.BLUE_ON_BLACK)
+        elif self.has_border[0] != "light":
+            self.border()
+
+        super().refresh()
+
+    def on_press(self, key):
+        if key == self.select_key:
+            return super().on_press(key)
+
+        if self.is_selected:
+            if super().on_press(key):
+                return True
+
+
+class Notepad(Window):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._col = 0
         self.cursor_color = colors.BLACK_ON_WHITE
         self.update_cursor()
@@ -21,16 +73,12 @@ class Notepad(ArrayWin, Movable, Selectable):
             self.colors[-1, self._col - 1] = self.color
 
         self.colors[-1, self._col] = self.cursor_color if self.is_selected else self.color
-        self.push()
 
     def on_press(self, key):
-        if key == self.select_key:
-            return super().on_press(key)
+        if super().on_press(key):
+            return True
 
         if self.is_selected:
-            if super().on_press(key):
-                return True
-
             if key == 10:  # Enter
                 self.scroll()
                 self._col = 0
@@ -47,17 +95,20 @@ class Notepad(ArrayWin, Movable, Selectable):
             return True
 
     def refresh(self):
-        if self.is_selected:
-            if self.has_border[0] != "heavy":
-                self.border("heavy", colors.BLUE_ON_BLACK)
-                self.update_cursor()
-        elif self.has_border[0] != "light":
-            self.border()
-            self.update_cursor()
+        self.update_cursor()
+        super().refresh()
 
 
 with ScreenManager() as sm:
-    for y, x in product((0, .5), repeat=2):
-        sm.root.add_widget(Notepad(y, x, .5, .5))
+    rainbow = cycle(colors.rainbow_gradient(20))
+
+    sm.root.add_widget(Notepad(0, 0, .5, .5))
+    sm.root.add_widget(Notepad(0, .5, .5, .5))
+    sm.root.add_widget(Notepad(.5, 0, .5, .5))
+
+    br = Window(.5, .5, .5, .5)
+    br.add_widget(MovingClock(1, 1))
+    sm.root.add_widget(br)
+
     sm.schedule(sm.root.refresh)
     sm.run()
