@@ -157,6 +157,10 @@ class ArrayWin(Widget):
             y, x = it.multi_index
             self.window.addstr(y, x, str(char), color)
 
+    def refresh(self):
+        self.push()
+        super().refresh()
+
     def __getitem__(self, key):
         """
         `buffer.__getitem__` except offset if `self.has_border` is truth-y
