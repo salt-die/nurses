@@ -65,12 +65,12 @@ class Widget:
     def is_on_bottom(self):
         return self.parent and self.parent.children[0] is self
 
-    def walk_widget_tree(self, start=None):
+    def walk(self, start=None):
         if start is None:
             start = self.root
 
         for child in start.children:
-            yield from self.walk_widget_tree(child)
+            yield from self.walk(child)
         yield start
 
     def add_widget(self, widget):
