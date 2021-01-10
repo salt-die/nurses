@@ -84,7 +84,12 @@ def digital_time(twelve_hour=False):
 
 
 class DigitalClock(Widget):
-    """A digital clock widget.  Dimensions of this widget are (3, 24).
+    """
+    A digital clock widget.
+
+    Notes
+    -----
+    Dimensions of this widget are (3, 24). Changing the dimensions not recommended.
     """
     def __init__(self, top, left, *args, twelve_hour=False, **kwargs):
         super().__init__(top, left, 3, 24, *args, **kwargs)

@@ -63,7 +63,7 @@ class AnalogClock(Widget):
             Angle of the segment in radians. An angle of 0 corresponds to 12 o' clock. (angles are rotated by `3 * pi / 2`)
 
         start, stop:
-            Between 0 and 1, a percentage of max_radius
+            Between 0 and 1, a percentage of the radius
         """
         if color is None:
             color = self.color
