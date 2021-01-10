@@ -87,7 +87,7 @@ class DigitalClock(Widget):
     """A digital clock widget.  Dimensions of this widget are (3, 24).
     """
     def __init__(self, top, left, *args, twelve_hour=False, **kwargs):
-        super().__init__(top, left, 3, 24)
+        super().__init__(top, left, 3, 24, *args, **kwargs)
         self.twelve_hour = twelve_hour
 
     def refresh(self):

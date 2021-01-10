@@ -40,8 +40,7 @@ class Widget:
         self.window = window or curses.newwin(1, 1)
         self.window.resize(self.height, self.width + 1)
 
-        if color:
-            self.window.setattr(color)
+        self.update_color(color or curses.color_pair(0))
 
         self.is_transparent = transparent
 
@@ -166,4 +165,5 @@ class Widget:
             pass
 
     def update_color(self, color):
+        self.color = color
         self.window.attrset(color)

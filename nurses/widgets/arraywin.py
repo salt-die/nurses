@@ -58,14 +58,12 @@ class ArrayWin(Widget):
     Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
     and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
     """
-    def __init__(self, *args, color=None, colors=None, border=None, border_color=None, **kwargs):
+    def __init__(self, *args, colors=None, border=None, border_color=None, **kwargs):
         with disable_method(self, "_resize"):  # We're not ready for our properties to call this method
             super().__init__(*args, **kwargs)
 
         h, w = self.height, self.width
         self._buffer = np.full((h, w), " ")
-
-        self.color = color or curses.color_pair(0)
 
         self._colors = colors or np.full((h, w), self.color)
 
