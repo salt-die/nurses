@@ -52,7 +52,7 @@ class Widget:
 
     @property
     def root(self):
-        if not self.parent:
+        if self.parent is None:
             return self
         return self.parent.root
 
