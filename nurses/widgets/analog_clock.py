@@ -4,7 +4,6 @@ from math import pi, e
 from . import Widget
 
 TAU = 2 * pi
-RESOLUTION = 100
 
 def sgn(n):
     return 1 if n >= 0 else -1
@@ -14,16 +13,19 @@ def safe_div(n):
 
 
 class AnalogClock(Widget):
+
     boundary = True
     boundary_color = None
-    boundary_character = "."
+    boundary_character = "'"
     boundary_thickness = .1
+    boundary_resolution = 100
+
 
     ticks = True
     tick_color = None
     tick_character = "#"
-    short_tick_length = .1
-    long_tick_length = .15
+    short_tick_length = .05
+    long_tick_length = .1
 
     hours = True
     hours_color = None
@@ -41,7 +43,7 @@ class AnalogClock(Widget):
     seconds_length = .65
 
     def __init__(self, top, left, radius, *args, **kwargs):
-        super().__init__(top, left, 2 * radius + 1, 2 * radius + 1, *args, **kwargs)
+        super().__init__(top, left, 2 * radius + 1, 4 * radius + 1, *args, **kwargs)
         self.radius = radius
 
     def line_segment(self, angle, start, stop, character, color=None):
@@ -68,9 +70,14 @@ class AnalogClock(Widget):
         step = complex(sgn(angle.real), sgn(angle.imag))
         side_dis = 0j
 
-        pos = center = self.radius * (1 + 1j)
+        pos = center = self.radius * (2 + 1j)
 
-        while (length := abs(pos - center)) < stop:
+        while True:
+            dif = pos - center
+            length = (dif.real**2 / 4 + dif.imag**2)**.5  # `/ 4`: We actually draw an ellipse twice as wide as it is tall so it looks circular on screen.
+            if stop < length:
+                break
+
             if side_dis.real < side_dis.imag:
                 side_dis += delta.real
                 pos += step.real
@@ -85,9 +92,9 @@ class AnalogClock(Widget):
         self.window.erase()
 
         if self.boundary:
-            for theta in range(RESOLUTION):
+            for theta in range(self.boundary_resolution):
                 self.line_segment(
-                    theta * TAU / RESOLUTION,
+                    theta * TAU / self.boundary_resolution,
                     1 - self.boundary_thickness,
                     1,
                     self.boundary_character,
