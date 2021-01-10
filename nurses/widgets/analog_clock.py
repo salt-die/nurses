@@ -13,6 +13,13 @@ def safe_div(n):
 
 
 class AnalogClock(Widget):
+    """
+    An analog clock.
+
+    Notes
+    -----
+    :class: AnalogClock's height will be `2 * radius + 1` and it's width will be `4 * radius + 1`
+    """
 
     boundary = True
     boundary_color = None
