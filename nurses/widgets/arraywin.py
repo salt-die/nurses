@@ -18,7 +18,7 @@ BORDER_STYLES = {
 def disable_method(obj, methodname):
     old = getattr(obj, methodname)
     try:
-        setattr(obj, methodname, lambda:None)
+        setattr(obj, methodname, lambda *args, **kwargs:None)
         yield
     finally:
         setattr(obj, methodname, old)
@@ -59,7 +59,7 @@ class ArrayWin(Widget):
     and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
     """
     def __init__(self, *args, colors=None, border=None, border_color=None, **kwargs):
-        with disable_method(self, "_resize"):  # We're not ready for our properties to call this method
+        with disable_method(self, "_resize"):
             super().__init__(*args, **kwargs)
 
         h, w = self.height, self.width
@@ -242,6 +242,3 @@ class ArrayWin(Widget):
         slice_ = slice(-lines, None) if lines > 0 else slice(None, -lines)
         self.buffer[slice_] = " "
         self.colors[slice_] = self.color
-
-    def update_color(self, color):
-        self.colors[:] = color
