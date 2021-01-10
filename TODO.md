@@ -1,6 +1,8 @@
 TODO
 ====
 * Widgets
+    * Dispatch resize events; update widget geometries for any widgets using relative position / relative size.  If a size or position attribute is updated,
+      set the corresponding hint to None?  I'm not sure how I want to approach this yet.
     * Textpad
     * Graph
 
