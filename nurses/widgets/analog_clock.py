@@ -14,6 +14,7 @@ def safe_div(n):
 
 
 class AnalogClock(Widget):
+    boundary = True
     boundary_color = None
     boundary_character = "."
     boundary_thickness = .1
@@ -24,14 +25,17 @@ class AnalogClock(Widget):
     short_tick_length = .1
     long_tick_length = .15
 
-    hour_color = None
-    hour_character = "%"
-    hour_length = .4
+    hours = True
+    hours_color = None
+    hours_character = "%"
+    hours_length = .4
 
-    minute_color = None
-    minute_character = "!"
-    minute_length = .65
+    minutes = True
+    minutes_color = None
+    minutes_character = "!"
+    minutes_length = .65
 
+    seconds = True
     seconds_color = None
     seconds_character = ":"
     seconds_length = .65
@@ -78,15 +82,15 @@ class AnalogClock(Widget):
                 self.window.addstr(round(pos.imag), round(pos.real), character, color)
 
     def draw_face(self):
-        # Boundary
-        for theta in range(RESOLUTION):
-            self.line_segment(
-                theta * TAU / RESOLUTION,
-                1 - self.boundary_thickness,
-                1,
-                self.boundary_character,
-                self.boundary_color or self.color,
-            )
+        if self.boundary:
+            for theta in range(RESOLUTION):
+                self.line_segment(
+                    theta * TAU / RESOLUTION,
+                    1 - self.boundary_thickness,
+                    1,
+                    self.boundary_character,
+                    self.boundary_color or self.color,
+                )
 
         if self.ticks:
             # Long ticks
@@ -111,29 +115,35 @@ class AnalogClock(Widget):
 
     def draw_hands(self):
         hours, minutes, seconds = time.localtime()[3:6]
-        self.line_segment(
-            TAU * ((hours + minutes / 60) % 12) / 12,
-            0,
-            self.hour_length,
-            self.hour_character,
-            self.hour_color or self.color,
-        )
-        self.line_segment(
-            TAU * minutes / 60,
-            0,
-            self.minute_length,
-            self.minute_character,
-            self.minute_color or self.color,
-        )
-        self.line_segment(
-            TAU * seconds / 60,
-            0,
-            self.seconds_length,
-            self.seconds_character,
-            self.seconds_color or self.color,
-        )
+        if self.hours:
+            self.line_segment(
+                TAU * ((hours + minutes / 60) % 12) / 12,
+                0,
+                self.hours_length,
+                self.hours_character,
+                self.hours_color or self.color,
+            )
+
+        if self.minutes:
+            self.line_segment(
+                TAU * minutes / 60,
+                0,
+                self.minutes_length,
+                self.minutes_character,
+                self.minutes_color or self.color,
+            )
+
+        if self.seconds:
+            self.line_segment(
+                TAU * seconds / 60,
+                0,
+                self.seconds_length,
+                self.seconds_character,
+                self.seconds_color or self.color,
+            )
 
     def refresh(self):
         self.window.erase()
         self.draw_face()
         self.draw_hands()
+        super().refresh()
