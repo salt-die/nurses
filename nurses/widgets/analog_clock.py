@@ -81,7 +81,9 @@ class AnalogClock(Widget):
             if start <= length:
                 self.window.addstr(round(pos.imag), round(pos.real), character, color)
 
-    def draw_face(self):
+    def refresh(self):
+        self.window.erase()
+
         if self.boundary:
             for theta in range(RESOLUTION):
                 self.line_segment(
@@ -113,8 +115,8 @@ class AnalogClock(Widget):
                     self.tick_color or self.color,
                 )
 
-    def draw_hands(self):
         hours, minutes, seconds = time.localtime()[3:6]
+
         if self.hours:
             self.line_segment(
                 TAU * ((hours + minutes / 60) % 12) / 12,
@@ -142,8 +144,4 @@ class AnalogClock(Widget):
                 self.seconds_color or self.color,
             )
 
-    def refresh(self):
-        self.window.erase()
-        self.draw_face()
-        self.draw_hands()
         super().refresh()
