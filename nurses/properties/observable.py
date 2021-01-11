@@ -1,8 +1,11 @@
+from collections import defaultdict
+
 NO_DEFAULT = object()
 
 
 class Observable:
-    """:class: Observables are simple properties that one can bind methods to.
+    """
+    :class: Observables are simple properties that one can bind methods to.
 
     Notes
     -----
@@ -11,7 +14,7 @@ class Observable:
     """
     def __init__(self, default=NO_DEFAULT):
         self.default = default
-        self.methods = []
+        self.methods = defaultdict(list)
 
     def __set_name__(self, owner, name):
         self.name = name
@@ -33,8 +36,8 @@ class Observable:
         return self
 
     def dispatch(self, instance):
-        for method_name in self.methods:
+        for method_name in self.methods[type(instance).__name__]:
             getattr(instance, method_name)()
 
-    def bind(self, method_name):
-        self.methods.append(method_name)
+    def bind(self, class_name, method_name):
+        self.methods[class_name].append(method_name)

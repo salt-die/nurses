@@ -23,14 +23,21 @@ class WidgetMeta(type):
     def __new__(meta, name, bases, methods):
         methods = methods.maps[0]
 
+        # Any attributes that are bound to callbacks but aren't properties
+        # are made into properties.
         for attr, callbacks in _attr_to_callbacks.items():
             if attr not in methods:
-                methods[attr] = Observable()
+                for base in bases:
+                    if attr in base.__dict__:
+                        prop = base.__dict__[attr]
+                        break
+                else:
+                    prop = methods[attr] = Observable()
             elif not isinstance(methods[attr], Observable):
-                methods[attr] = Observable(methods[attr])
+                prop = methods[attr] = Observable(methods[attr])
 
             for callback in callbacks:
-                methods[attr].bind(callback)
+                prop.bind(name, callback)
 
         _attr_to_callbacks.clear()
 
@@ -101,11 +108,11 @@ class Widget(metaclass=WidgetMeta):
         super().__init__(*rest, **kwargs)
 
     @property
-    def bottom(self)
+    def bottom(self):
         return self.top + self.height
 
     @property
-    def right(self)
+    def right(self):
         return self.left + self.width
 
     @property
