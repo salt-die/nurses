@@ -29,11 +29,18 @@ class WidgetMeta(type):
             if attr not in methods:
                 for base in bases:
                     if attr in base.__dict__:
-                        prop = base.__dict__[attr]
+                        if not isinstance(base.__dict__[attr], Observable):
+                            # The attribute isn't bindable, so we make a bindable version in the class dict.
+                            # We probably don't want to touch base.__dict__
+                            prop = methods[attr] = Observable(base.__dict__[attr])
+                        else:
+                            prop = base.__dict__[attr]
                         break
                 else:
+                    # Attribute doesn't exist, so create it.
                     prop = methods[attr] = Observable()
             elif not isinstance(methods[attr], Observable):
+                # The attribute isn't bindable, replace it with an Observable
                 prop = methods[attr] = Observable(methods[attr])
 
             for callback in callbacks:
@@ -44,29 +51,7 @@ class WidgetMeta(type):
         return super().__new__(meta, name, bases, methods)
 
 
-class GeometryProperty(Observable):
-    def __set__(self, instance, value):
-        name = self.name
-
-        if isinstance(value, int) and value >= 0:
-            setattr(instance, name + "_hint", None)
-            instance.__dict__[name] = value
-        else:
-            setattr(instance, name + "_hint", value)
-            bounds = getattr(instance, name + "_bounds")
-            if isinstance(value, float):
-                value = round(value * bounds)
-            instance.__dict__[name] = value + bounds if value < 0 else value
-
-        super().dispatch(instance)
-
-
 class Widget(metaclass=WidgetMeta):
-    top = GeometryProperty()
-    left = GeometryProperty()
-    height = GeometryProperty()
-    width = GeometryProperty()
-
     types = { }  # Registry of subclasses of Widget
 
     def __init_subclass__(cls):
@@ -75,12 +60,12 @@ class Widget(metaclass=WidgetMeta):
         if not cls.on_press.__doc__:
             cls.on_press.__doc__ = Widget.on_press.__doc__
 
-    def __init__(self, *args, color=None, window=None, parent=None, transparent=False, **kwargs):
+    def __init__(self, *args, pos_hint=None, size_hint=None, color=None, window=None, parent=None, transparent=False, **kwargs):
         self.parent = parent
         self.children = [ ]
         self.group = defaultdict(list)
 
-        if window:  # Generally, only the root widget will get a window pass into the constructor.
+        if window:  # Generally, only the root widget will have a window passed into the constructor.
             h, w = window.getmaxyx()
         elif parent:
             h, w = parent.height, parent.width
@@ -88,10 +73,15 @@ class Widget(metaclass=WidgetMeta):
             h, w = managers.ScreenManager().screen.getmaxyx()
             w -= 1
 
-        self.top_bounds = self.height_bounds = h
-        self.left_bounds = self.width_bounds = w
+        top, left, height, width, *rest = args + (None, None) if len(args) == 2 else args or (0, 0, None, None)
 
-        self.top, self.left, height, width, *rest = args or (0, 0, None, None)
+        if pos_hint is not None:
+            top, left = map(self.convert, pos_hint, (h, w))
+        if size_hint is not None:
+            height, width = map(self.convert, size_hint, (h, w))
+
+        self.top = top
+        self.left = left
         self.height = height or h
         self.width  = width or w
 

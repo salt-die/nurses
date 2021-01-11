@@ -100,10 +100,10 @@ class Notepad(Window):
 with ScreenManager() as sm:
     rainbow = cycle(colors.rainbow_gradient(20))
 
-    sm.root.add_widget(Notepad(0, 0, .5, .5))
-    sm.root.add_widget(Notepad(0, .5, .5, .5))
-    sm.root.add_widget(Notepad(.5, 0, .5, .5))
-    sm.root.new_widget(.5, .5, .5, .5, create_with=Window).add_widget(MovingClock(1, 1))
+    sm.root.add_widget(Notepad(0, 0, size_hint=(.5, .5)))
+    sm.root.add_widget(Notepad(pos_hint=(0, .5), size_hint=(.5, .5)))
+    sm.root.add_widget(Notepad(pos_hint=(.5, 0), size_hint=(.5, .5)))
+    sm.root.new_widget(pos_hint=(.5, .5), size_hint=(.5, .5), create_with=Window).add_widget(MovingClock(1, 1))
 
     sm.schedule(sm.root.refresh)
     sm.run()
