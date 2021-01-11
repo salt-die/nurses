@@ -96,7 +96,6 @@ def load_string(build_string, globals={ }, *, root=True):
     builder = LayoutBuilder(globals)
     parser = Lark(GRAMMAR, parser='lalr', postlex=LayoutIndenter(), transformer=builder)
     layout = parser.parse(dedent(build_string))
-    layout.update()
     if root:
         ScreenManager().root.add_widget(layout)
     return builder.widgets

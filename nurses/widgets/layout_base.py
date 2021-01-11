@@ -1,9 +1,7 @@
-from abc import abstractmethod, ABCMeta
-
 from . import Widget
 
 
-class LayoutBase(Widget, metaclass=ABCMeta):
+class LayoutBase(Widget):
     """
     Layouts are used to assign position and dimensions of contained widgets/sub-layouts.
 
@@ -19,7 +17,11 @@ class LayoutBase(Widget, metaclass=ABCMeta):
         self.window.erase()
         super().refresh()
 
-    @abstractmethod
+    def add_widget(self, widget):
+        super().add_widget(widget)
+        self.update()
+
+    @bind_to("height", "width")
     def update(self):
         """Set the positions and dimensions of sub-layouts and contained widgets, and call `update` on sub-layouts.
         """

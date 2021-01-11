@@ -72,12 +72,6 @@ class ArrayWin(Widget):
         else:
             self.has_border = False
 
-    def on_height(self):
-        self._resize()
-
-    def on_width(self):
-        self._resize()
-
     @property
     def colors(self):
         return self._colors[1: -1, 1: -1] if self.has_border else self._colors
@@ -100,6 +94,7 @@ class ArrayWin(Widget):
         else:
             self._buffer = array
 
+    @bind_to("height", "width")
     def _resize(self):
         if self.has_border:
             self._buffer[:, -1] = self._buffer[-1] = " "  # Erase the right-most/bottom-most border in case widget expands

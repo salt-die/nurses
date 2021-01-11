@@ -1,13 +1,43 @@
-from collections import defaultdict
+from collections import ChainMap, defaultdict
 import curses
 
 from .. import managers  # Avoiding circular import.
+from ..properties import Observable
 
 
-class GeometryProperty:
-    def __set_name__(self, owner, name):
-        self.name = name
+_attr_to_callbacks = defaultdict(list)
+def bind_to(*attrs):
+    """Decorator that binds a method to attributes.
+    """
+    def decorator(func):
+        for attr in attrs:
+            _attr_to_callbacks[attr].append(func.__name__)
+        return func
+    return decorator
 
+
+class WidgetMeta(type):
+    def __prepare__(name, bases):
+        return ChainMap({ }, {"bind_to": bind_to})
+
+    def __new__(meta, name, bases, methods):
+        methods = methods.maps[0]
+
+        for attr, callbacks in _attr_to_callbacks.items():
+            if attr not in methods:
+                methods[attr] = Observable()
+            elif not isinstance(methods[attr], Observable):
+                methods[attr] = Observable(methods[attr])
+
+            for callback in callbacks:
+                methods[attr].bind(callback)
+
+        _attr_to_callbacks.clear()
+
+        return super().__new__(meta, name, bases, methods)
+
+
+class GeometryProperty(Observable):
     def __set__(self, instance, value):
         name = self.name
 
@@ -21,11 +51,10 @@ class GeometryProperty:
                 value = round(value * bounds)
             instance.__dict__[name] = value + bounds if value < 0 else value
 
-        if hasattr(instance, "on_" + name):
-            getattr(instance, "on_" + name)()
+        super().dispatch(instance)
 
 
-class Widget:
+class Widget(metaclass=WidgetMeta):
     top = GeometryProperty()
     left = GeometryProperty()
     height = GeometryProperty()
@@ -44,7 +73,7 @@ class Widget:
         self.children = [ ]
         self.group = defaultdict(list)
 
-        if window:
+        if window:  # Generally, only the root widget will get a window pass into the constructor.
             h, w = window.getmaxyx()
         elif parent:
             h, w = parent.height, parent.width
@@ -72,18 +101,18 @@ class Widget:
         super().__init__(*rest, **kwargs)
 
     @property
+    def bottom(self)
+        return self.top + self.height
+
+    @property
+    def right(self)
+        return self.left + self.width
+
+    @property
     def root(self):
         if self.parent is None:
             return self
         return self.parent.root
-
-    @property
-    def is_on_top(self):
-        return self.parent and self.parent.children[-1] is self
-
-    @property
-    def is_on_bottom(self):
-        return self.parent and self.parent.children[0] is self
 
     def walk(self, start=None):
         if start is None:
@@ -92,6 +121,34 @@ class Widget:
         for child in start.children:
             yield from self.walk(child)
         yield start
+
+    @property
+    def is_in_front(self):
+        return self.parent and self.parent.children[-1] is self
+
+    @property
+    def is_in_back(self):
+        return self.parent and self.parent.children[0] is self
+
+    def pull_to_front(self, widget):
+        """Given a widget or an index of a widget, widget is moved to top of widget stack (so it is drawn last).
+        """
+        widgets = self.children
+        if isinstance(widget, int):
+            widgets.append(widgets.pop(widget))
+        else:
+            widgets.remove(widget)
+            widgets.append(widget)
+
+    def push_to_back(self, widget):
+        """Given a widget or an index of a widget, widget is moved to bottom of widget stack (so it is drawn first).
+        """
+        widgets = self.children
+        if isinstance(widget, int):
+            widgets.insert(0, widgets.pop(widget))
+        else:
+            widgets.remove(widget)
+            widgets.insert(0, widget)
 
     def add_widget(self, widget):
         self.children.append(widget)
@@ -114,26 +171,6 @@ class Widget:
             self.group[group].append(widget)
 
         return widget
-
-    def pull_to_front(self, widget):
-        """Given a widget or an index of a widget, widget is moved to top of widget stack (so it is drawn last).
-        """
-        widgets = self.children
-        if isinstance(widget, int):
-            widgets.append(widgets.pop(widget))
-        else:
-            widgets.remove(widget)
-            widgets.append(widget)
-
-    def push_to_back(self, widget):
-        """Given a widget or an index of a widget, widget is moved to bottom of widget stack (so it is drawn first).
-        """
-        widgets = self.children
-        if isinstance(widget, int):
-            widgets.insert(0, widgets.pop(widget))
-        else:
-            widgets.remove(widget)
-            widgets.insert(0, widget)
 
     @property
     def overlay(self):
