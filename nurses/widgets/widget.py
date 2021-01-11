@@ -4,7 +4,33 @@ import curses
 from .. import managers  # Avoiding circular import.
 
 
+class GeometryProperty:
+    def __set_name__(self, owner, name):
+        self.name = name
+
+    def __set__(self, instance, value):
+        name = self.name
+
+        if isinstance(value, int) and value >= 0:
+            setattr(instance, name + "_hint", None)
+            instance.__dict__[name] = value
+        else:
+            setattr(instance, name + "_hint", value)
+            bounds = getattr(instance, name + "_bounds")
+            if isinstance(value, float):
+                value = round(value * bounds)
+            instance.__dict__[name] = value + bounds if value < 0 else value
+
+        if hasattr(instance, "on_" + name):
+            getattr(instance, "on_" + name)()
+
+
 class Widget:
+    top = GeometryProperty()
+    left = GeometryProperty()
+    height = GeometryProperty()
+    width = GeometryProperty()
+
     types = { }  # Registry of subclasses of Widget
 
     def __init_subclass__(cls):
@@ -26,19 +52,14 @@ class Widget:
             h, w = managers.ScreenManager().screen.getmaxyx()
             w -= 1
 
-        top, left, height, width, *rest = args or (0, 0, None, None)
-        convert = self.convert
-        self.top    = convert( top, h)
-        self.left   = convert(left, w)
-        self.height = convert(height or h, h)
-        self.width  = convert(width or w, w)
+        self.top_bounds = self.height_bounds = h
+        self.left_bounds = self.width_bounds = w
 
-        # Curses will return ERR if creating a window wider or taller than our screen.
-        # We can get around this by creating a tiny window and then resizing to be as large as we'd like.
-        # We may use pads in the future instead.
-        # TODO: Test this hack on linux.
-        self.window = window or curses.newwin(1, 1)
-        self.window.resize(self.height, self.width + 1)
+        self.top, self.left, height, width, *rest = args or (0, 0, None, None)
+        self.height = height or h
+        self.width  = width or w
+
+        self.window = window or curses.newwin(self.height, self.width + 1)
 
         self.update_color(color or curses.color_pair(0))
 
@@ -94,7 +115,7 @@ class Widget:
 
         return widget
 
-    def on_top(self, widget):
+    def pull_to_front(self, widget):
         """Given a widget or an index of a widget, widget is moved to top of widget stack (so it is drawn last).
         """
         widgets = self.children
@@ -104,7 +125,7 @@ class Widget:
             widgets.remove(widget)
             widgets.append(widget)
 
-    def on_bottom(self, widget):
+    def push_to_bottom(self, widget):
         """Given a widget or an index of a widget, widget is moved to bottom of widget stack (so it is drawn first).
         """
         widgets = self.children

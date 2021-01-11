@@ -21,7 +21,7 @@ with ScreenManager() as sm:
         for widget in sm.root.group["moving"]:
             widget.left += round(random())
             widget.top += round(random())
-        sm.root.on_top(choice(sm.root.group["moving"]))
+        sm.root.pull_to_front(choice(sm.root.group["moving"]))
 
     def resize():
         resize_widget.width -= 1

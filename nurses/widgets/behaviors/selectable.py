@@ -23,7 +23,7 @@ class Selectable:
             Selectable.__selected = selectables[0]()
             selectables.rotate(-1)
 
-            Selectable.__selected.parent.on_top(Selectable.__selected)
+            Selectable.__selected.parent.pull_to_front(Selectable.__selected)
             return True
 
         return super().on_press(key)

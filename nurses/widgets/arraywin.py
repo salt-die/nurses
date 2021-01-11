@@ -72,22 +72,10 @@ class ArrayWin(Widget):
         else:
             self.has_border = False
 
-    @property
-    def height(self):
-        return self._height
-
-    @height.setter
-    def height(self, val):
-        self._height = val
+    def on_height(self):
         self._resize()
 
-    @property
-    def width(self):
-        return self._width
-
-    @width.setter
-    def width(self, val):
-        self._width = val
+    def on_width(self):
         self._resize()
 
     @property
