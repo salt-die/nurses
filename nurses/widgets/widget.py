@@ -125,7 +125,7 @@ class Widget:
             widgets.remove(widget)
             widgets.append(widget)
 
-    def push_to_bottom(self, widget):
+    def push_to_back(self, widget):
         """Given a widget or an index of a widget, widget is moved to bottom of widget stack (so it is drawn first).
         """
         widgets = self.children
