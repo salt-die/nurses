@@ -21,3 +21,5 @@ TODO
 Notes
 -----
 I hate the name ArrayWin.
+
+Foresee a need to bind callbacks to properties:  This will simplify dispatching resize events at the very least.  Was trying to avoid this for simplicity's sake, but now I feel it's a good idea.  Most widget attributes will need to be remade into these properties, fortunately I have some code somewhere that should do the trick.
