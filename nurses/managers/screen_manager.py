@@ -2,7 +2,7 @@ import curses
 
 from .meta import Singleton
 from .scheduler import Scheduler
-from ..widgets import Widget
+from ..widgets import Root
 
 GETCH_DELAY = .05
 EXIT = ord('q')
@@ -25,7 +25,7 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         curses.curs_set(0)
         curses.start_color()
 
-        self.root = Widget(window=screen)  # Top-level widget: getch dispatching will start here.
+        self.root = Root(window=screen)  # Top-level widget: getch dispatching will start here.
 
         super().__init__()
 

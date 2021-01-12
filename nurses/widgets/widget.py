@@ -2,7 +2,7 @@ from collections import ChainMap, defaultdict
 import curses
 
 from .. import managers  # Avoiding circular import.
-from ..properties import Observable
+from ..observable import Observable
 
 
 _attr_to_callbacks = defaultdict(list)
@@ -178,10 +178,6 @@ class Widget(metaclass=WidgetMeta):
         """
         # Notably, we don't use curses.panels as they aren't available for windows-curses...
         # ...upside is we don't error when moving a widget off-screen.
-
-        if self.parent is None:
-            self.window.erase()
-
         h, w = self.height, self.width
         for widget in self.children:
             widget.refresh()
@@ -192,9 +188,6 @@ class Widget(metaclass=WidgetMeta):
             des_w = min(w - 1, des_l + widget.width - 1)  # -1 compensates for the extra width of widget's window
 
             widget.overlay(self.window, src_t, src_l, des_t, des_l, des_h, des_w)
-
-        if self.parent is None:
-            self.window.refresh()
 
     @staticmethod
     def convert(pos, bounds):
