@@ -1,4 +1,4 @@
-from collections import ChainMap, defaultdict
+from collections import defaultdict
 import curses
 
 from .. import managers  # Avoiding circular import.
