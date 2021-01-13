@@ -2,7 +2,6 @@ from collections import defaultdict
 import curses
 import os
 
-from .. import managers  # Avoiding circular import.
 from . import Widget
 
 

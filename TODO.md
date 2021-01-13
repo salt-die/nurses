@@ -1,7 +1,6 @@
 TODO
 ====
 * Widgets
-    * Dispatch resize events; update widget geometries for any widgets using relative position / relative size.
     * Textpad
     * Graph
 
