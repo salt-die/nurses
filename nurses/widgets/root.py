@@ -1,5 +1,6 @@
 from collections import defaultdict
 import curses
+import os
 
 from .. import managers  # Avoiding circular import.
 from . import Widget
@@ -17,12 +18,26 @@ class Root(Widget):
         self.window = window
 
     @property
+    def has_root(self):
+        return True
+
+    @property
     def root(self):
         return self
 
-    def update(self):
-        """If window is resized, update all children.
+    def update_geometry(self, resize=False):
+        """Called when widgets are added or window is resized.
         """
+        if resize:
+            try:  # linux
+                w, h = self.width, self.height = os.get_terminal_size()
+                curses.resizeterm(h, w)
+            except AttributeError:  # windows
+                h, w = self.height, self.width = self.window.getmaxyx()
+                os.system(f"mode con cols={w} lines={h}")
+
+        for child in self.children:
+            child.update_geometry()
 
     def refresh(self):
         """Redraw children's windows.

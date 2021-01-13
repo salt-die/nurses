@@ -28,49 +28,43 @@ class ArrayWin(Widget):
     """
     A Widget that uses a numpy array to store its state and uses a very numpy-ish api.
 
-    Parameters
-    ----------
-    top, left, height, width: optional
-        Upper and left-most coordinates of widget relative to parent, and dimensions of the widget. Fractional arguments
-        are interpreted as percentage of parent, and parent width or height will be added to negative arguments.
-        (the defaults are 0, 0, parent's max height, parent's max width)
-    color: optional
-       A curses color_pair, the default color of this widget. (the default is `curses.color_pair(0)`)
-
     Other Parameters
     ----------------
-    colors: optional
-        A ndarray of curses.color_pairs with same dimensions as widget. (the default is `np.full((height, width), color))`)
     border: optional
         The border type; one of `nurses.widget.BORDER_STYLES`. (by default a widget has no border)
     border_color: optional
         A curses color_pair.  If a border is given, border_color will be the color of the border. (the default is `color`)
-    transparent: optional
-        If true, widget will overlay other widgets instead of overwrite them (whitespace will be "see-through"). (the default is `False`)
 
     Notes
     -----
     __getitem__ and __setitem__ call the respective buffer functions directly, so one can slice
     and write to a Widget as if it was a numpy array.
-
-    If some part of the widget moves out-of-bounds of the screen only the part that overlaps the screen will be drawn.
-
-    Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
-    and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
     """
-    def __init__(self, *args, colors=None, border=None, border_color=None, **kwargs):
+    def __init__(self, *args, border=None, border_color=None, **kwargs):
         with disable_method(self, "_resize"):
             super().__init__(*args, **kwargs)
 
+        self._buffer = None
+        self._colors = None
+        self.has_border = border, border_color
+
+    def update_geometry(self):
+        if not self.has_root:
+            return
+
+        with disable_method(self, "_resize"):
+            super().update_geometry()
+
         h, w = self.height, self.width
-        self._buffer = np.full((h, w), " ")
-
-        self._colors = colors or np.full((h, w), self.color)
-
-        if border:
-            self.border(border, border_color)
+        if self._buffer is None:
+            self._buffer = np.full((h, w), " ")
+            self._colors = np.full((h, w), self.color)
+            if self.has_border and self.has_border[0]:
+                self.border(*self.has_border)
+            else:
+                self.has_border = False
         else:
-            self.has_border = False
+            self._resize()
 
     @property
     def colors(self):
@@ -111,7 +105,6 @@ class ArrayWin(Widget):
 
         self._buffer = new_buffer
         self._colors = new_colors
-        self.window.resize(height, width + 1)
 
         if self.has_border:
             self.border(*self.has_border)

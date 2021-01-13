@@ -62,7 +62,6 @@ class Notepad(Window):
         super().__init__(*args, **kwargs)
         self._col = 0
         self.cursor_color = colors.BLACK_ON_WHITE
-        self.update_cursor()
 
     def update_cursor(self):
         if self._col == 0:

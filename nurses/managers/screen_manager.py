@@ -49,7 +49,9 @@ class ScreenManager(Scheduler, metaclass=Singleton):
                 self.sleeping.clear()
                 return
 
-            if key != -1:
+            if key == curses.KEY_RESIZE:
+                self.root.update_geometry(resize=True)
+            elif key != -1:
                 self.root.dispatch(key)
 
             await self.sleep(delay)

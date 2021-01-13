@@ -1,8 +1,7 @@
-from .layout_base import LayoutBase
+from .layout import Layout
 
-# One can exploit a symmetry in the update functions of HSplit and VSplit to write a single function
-# for both, but it's less readable.  We've chosen the more verbose option:
-class HSplit(LayoutBase):
+
+class HSplit(Layout):
     """
     Split the screen horizontally at `row` from top or bottom of the screen (depending on the sign of `row`).
     If `row` is a float, it's taken to be percentage of the screen (i.e., HSplit(.33) will split the screen
@@ -15,7 +14,12 @@ class HSplit(LayoutBase):
         self.row = row
         self.min_height = min_height
 
-    def update(self):
+    def update_geometry(self):
+        if not self.has_root:
+            return
+
+        super().update_geometry()
+
         row = self.convert(self.row, self.height)
         min_height = self.convert(self.min_height, self.height)
         if row < min_height:
@@ -37,11 +41,10 @@ class HSplit(LayoutBase):
                 child.height = self.height - row
                 child.top = row
 
-            if isinstance(child, LayoutBase):
-                child.update()
+            child.update_geometry()
 
 
-class VSplit(LayoutBase):
+class VSplit(Layout):
     """
     Split the screen vertically at `col` from left or right of the screen (depending on the sign of `col`).
     If `col` is a float, it's taken to be percentage of the screen (i.e., VSplit(.33) will split the screen
@@ -54,7 +57,12 @@ class VSplit(LayoutBase):
         self.col = col
         self.min_width = min_width
 
-    def update(self):
+    def update_geometry(self):
+        if not self.has_root:
+            return
+
+        super().update_geometry()
+
         col = self.convert(self.col, self.width)
         min_width = self.convert(self.min_width, self.width)
         if col < min_width:
@@ -76,5 +84,4 @@ class VSplit(LayoutBase):
                 child.width = self.width - col
                 child.left = col
 
-            if isinstance(child, LayoutBase):
-                child.update()
+            child.update_geometry()

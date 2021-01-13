@@ -1,7 +1,6 @@
-from collections import ChainMap, defaultdict
+from collections import defaultdict
 import curses
 
-from .. import managers  # Avoiding circular import.
 from ..observable import Observable
 
 
@@ -16,32 +15,27 @@ def bind_to(*attrs):
     return decorator
 
 
-class WidgetMeta(type):
+class Observer(type):
     def __prepare__(name, bases):
         _attr_to_callbacks.clear()
-        return ChainMap({ }, {"bind_to": bind_to})
+        return {"bind_to": bind_to}
 
     def __new__(meta, name, bases, methods):
-        methods = methods.maps[0]
+        del methods["bind_to"]
 
-        # Any attributes that are bound to callbacks but aren't properties
-        # are made into properties.
+        # Attributes bound to callbacks that aren't `Observable` are made so:
         for attr, callbacks in _attr_to_callbacks.items():
             if attr not in methods:
                 for base in bases:
                     if attr in base.__dict__:
                         if not isinstance(base.__dict__[attr], Observable):
-                            # The attribute isn't bindable, so we make a bindable version in the class dict.
-                            # We probably don't want to touch base.__dict__
                             prop = methods[attr] = Observable(base.__dict__[attr])
                         else:
                             prop = base.__dict__[attr]
                         break
                 else:
-                    # Attribute doesn't exist, so create it.
                     prop = methods[attr] = Observable()
             elif not isinstance(methods[attr], Observable):
-                # The attribute isn't bindable, replace it with an Observable
                 prop = methods[attr] = Observable(methods[attr])
             else:
                 prop = methods[attr]
@@ -54,7 +48,33 @@ class WidgetMeta(type):
         return super().__new__(meta, name, bases, methods)
 
 
-class Widget(metaclass=WidgetMeta):
+class Widget(metaclass=Observer):
+    """
+    The base window for nurses.  A fancy wrapper around a curses window.
+
+    Parameters
+    ----------
+    top, left, height, width: optional
+        Upper and left-most coordinates of widget relative to parent, and dimensions of the widget. Fractional arguments
+        are interpreted as percentage of parent, and parent width or height will be added to negative arguments.
+        (the defaults are 0, 0, parent's max height, parent's max width)
+    color: optional
+       A curses color_pair, the default color of this widget. (the default is `curses.color_pair(0)`)
+
+    Other Parameters
+    ----------------
+    transparent: optional
+        If true, widget will overlay other widgets instead of overwrite them (whitespace will be "see-through"). (the default is `False`)
+
+    Notes
+    -----
+    Coordinates are (y, x) (both a curses and a numpy convention) with y being vertical and increasing as you move down
+    and x being horizontal and increasing as you move right.  Top-left corner is (0, 0)
+
+    If some part of the widget moves out-of-bounds of the screen only the part that overlaps the screen will be drawn.
+
+    Currently widget size is limited by screen size.
+    """
     types = { }  # Registry of subclasses of Widget
 
     def __init_subclass__(cls):
@@ -63,47 +83,86 @@ class Widget(metaclass=WidgetMeta):
         if not cls.on_press.__doc__:
             cls.on_press.__doc__ = Widget.on_press.__doc__
 
-    def __init__(self, *args, pos_hint=None, size_hint=None, color=None, parent=None, transparent=False, **kwargs):
-        self.parent = parent
+    def __init__(self, *args, pos_hint=(None, None), size_hint=(None, None), color=0, parent=None, transparent=False, **kwargs):
         self.children = [ ]
         self.group = defaultdict(list)
+        self.window = None
 
-        ###  vvv NEEDS TO BE MOVE TO UPDATE vvv
-        if parent:
-            h, w = parent.height, parent.width
-        else:
-            h, w = managers.ScreenManager().screen.getmaxyx()  # <- this can be removed altogether if we defer update until widget has a parent
-            w -= 1
+        self.parent = parent
+        self.is_transparent = transparent
+        self.color = color
 
         top, left, height, width, *rest = args + (None, None) if len(args) == 2 else args or (0, 0, None, None)
-
-        if pos_hint is not None:
-            top, left = map(self.convert, pos_hint, (h, w))
-        if size_hint is not None:
-            height, width = map(self.convert, size_hint, (h, w))
-
         self.top = top
         self.left = left
-        self.height = height or h
-        self.width  = width or w
-
-        self.window = curses.newwin(self.height, self.width + 1)
-        ### ^^^ NEEDS TO BE MOVED TO UPDATE ^^^
-        self.update_color(color or curses.color_pair(0))
-
-        self.is_transparent = transparent
+        self.height = height
+        self.width = width
+        self.pos_hint = pos_hint
+        self.size_hint = size_hint
 
         for attr in tuple(kwargs):
+            # This allows one to set class attributes with keyword-arguments. TODO: Document this.
             if hasattr(self, attr):
                 setattr(self, attr, kwargs.pop(attr))
 
         super().__init__(*rest, **kwargs)
 
-    def update(self):
+    bind_to("top")
+    def _set_pos_hint_y(self):
+        self.pos_hint = None, self.pos_hint[1]
+
+    bind_to("left")
+    def _set_pos_hint_x(self):
+        self.pos_hint = self.pos_hint[0], None
+
+    bind_to("height")
+    def _set_size_hint_y(self):
+        self.size_hint = None, self.size_hint[1]
+
+    bind_to("width")
+    def _set_size_hint_x(self):
+        self.size_hint = self.size_hint[0], None
+
+    def update_geometry(self):
         """Set or reset the widget's geometry based on size or pos hints if they exist.
         """
-        if self.parent is None:
+        if not self.has_root:
             return
+
+        h, w = self.parent.height, self.parent.width
+
+        top, left = self.pos_hint
+
+        if top is not None:
+            self.top = self.convert(top, h)
+
+        if left is not None:
+            self.left = self.convert(left, w)
+
+        self.pos_hint = top, left
+
+        height, width = self.size_hint
+
+        if height is not None:
+            self.height = self.convert(height, h)
+        if width is not None:
+            self.width = self.convert(width, w)
+
+        if self.height is None:
+            self.height = h
+        if self.width is None:
+            self.width = w - 1
+
+        self.size_hint = height, width
+
+        if self.window is None:
+            self.window = curses.newwin(self.height, self.width + 1)
+        else:
+            self.window.resize(self.height, self.width + 1)
+        self.update_color(self.color)
+
+        for child in self.children:
+            child.update_geometry()
 
     @property
     def bottom(self):
@@ -114,9 +173,15 @@ class Widget(metaclass=WidgetMeta):
         return self.left + self.width
 
     @property
+    def has_root(self):
+        if self.parent is None:
+            return False
+        return self.parent.has_root
+
+    @property
     def root(self):
         if self.parent is None:
-            return self
+            return None
         return self.parent.root
 
     def walk(self, start=None):
@@ -158,6 +223,7 @@ class Widget(metaclass=WidgetMeta):
     def add_widget(self, widget):
         self.children.append(widget)
         widget.parent = self
+        widget.update_geometry()
 
     def new_widget(self, *args, group=None, create_with=None, **kwargs):
         """

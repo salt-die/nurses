@@ -65,15 +65,22 @@ class Particle(Widget):
     __slots__ = "start", "pos", "vel", "start_color", "color"
 
     def __init__(self, top, left, color, character, **kwargs):
-        super().__init__(top, left, 1, 1)
+        super().__init__(top, left, 1, 1, color=color)
         self.start = self.pos = complex(top, left)
 
         self.vel = 0j # velocity
 
-        self.start_color = self.color = color
-        self.window.addstr(0, 0, character, colors.palette["rainbow"][color])
+        self.start_color = color
+        self.character = character
 
         sm.schedule(self.step)
+
+    def update_geometry(self):
+        if self.parent is None:
+            return
+
+        super().update_geometry()
+        self.window.addstr(0, 0, self.character, colors.palette["rainbow"][self.color])
 
     def on_press(self, key):
         if key == SPACE:
