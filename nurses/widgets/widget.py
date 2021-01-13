@@ -18,6 +18,7 @@ def bind_to(*attrs):
 
 class WidgetMeta(type):
     def __prepare__(name, bases):
+        _attr_to_callbacks.clear()
         return ChainMap({ }, {"bind_to": bind_to})
 
     def __new__(meta, name, bases, methods):
@@ -42,6 +43,8 @@ class WidgetMeta(type):
             elif not isinstance(methods[attr], Observable):
                 # The attribute isn't bindable, replace it with an Observable
                 prop = methods[attr] = Observable(methods[attr])
+            else:
+                prop = methods[attr]
 
             for callback in callbacks:
                 prop.bind(name, callback)
@@ -60,17 +63,16 @@ class Widget(metaclass=WidgetMeta):
         if not cls.on_press.__doc__:
             cls.on_press.__doc__ = Widget.on_press.__doc__
 
-    def __init__(self, *args, pos_hint=None, size_hint=None, color=None, window=None, parent=None, transparent=False, **kwargs):
+    def __init__(self, *args, pos_hint=None, size_hint=None, color=None, parent=None, transparent=False, **kwargs):
         self.parent = parent
         self.children = [ ]
         self.group = defaultdict(list)
 
-        if window:  # Generally, only the root widget will have a window passed into the constructor.
-            h, w = window.getmaxyx()
-        elif parent:
+        ###  vvv NEEDS TO BE MOVE TO UPDATE vvv
+        if parent:
             h, w = parent.height, parent.width
         else:
-            h, w = managers.ScreenManager().screen.getmaxyx()
+            h, w = managers.ScreenManager().screen.getmaxyx()  # <- this can be removed altogether if we defer update until widget has a parent
             w -= 1
 
         top, left, height, width, *rest = args + (None, None) if len(args) == 2 else args or (0, 0, None, None)
@@ -85,8 +87,8 @@ class Widget(metaclass=WidgetMeta):
         self.height = height or h
         self.width  = width or w
 
-        self.window = window or curses.newwin(self.height, self.width + 1)
-
+        self.window = curses.newwin(self.height, self.width + 1)
+        ### ^^^ NEEDS TO BE MOVED TO UPDATE ^^^
         self.update_color(color or curses.color_pair(0))
 
         self.is_transparent = transparent
@@ -96,6 +98,12 @@ class Widget(metaclass=WidgetMeta):
                 setattr(self, attr, kwargs.pop(attr))
 
         super().__init__(*rest, **kwargs)
+
+    def update(self):
+        """Set or reset the widget's geometry based on size or pos hints if they exist.
+        """
+        if self.parent is None:
+            return
 
     @property
     def bottom(self):

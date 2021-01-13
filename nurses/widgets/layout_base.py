@@ -21,7 +21,6 @@ class LayoutBase(Widget):
         super().add_widget(widget)
         self.update()
 
-    @bind_to("height", "width")
     def update(self):
         """Set the positions and dimensions of sub-layouts and contained widgets, and call `update` on sub-layouts.
         """

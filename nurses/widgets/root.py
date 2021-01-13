@@ -20,6 +20,10 @@ class Root(Widget):
     def root(self):
         return self
 
+    def update(self):
+        """If window is resized, update all children.
+        """
+
     def refresh(self):
         """Redraw children's windows.
         """

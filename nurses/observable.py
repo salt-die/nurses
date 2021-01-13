@@ -14,7 +14,8 @@ class Observable:
     """
     def __init__(self, default=NO_DEFAULT):
         self.default = default
-        self.methods = defaultdict(list)
+        self.methods = defaultdict(dict)
+        self.callbacks = { }
 
     def __set_name__(self, owner, name):
         self.name = name
@@ -36,8 +37,16 @@ class Observable:
         return self
 
     def dispatch(self, instance):
-        for method_name in self.methods[type(instance).__name__]:
-            getattr(instance, method_name)()
+        # Build list of dispatches from _mro_ if it doesn't exist
+        name = type(instance).__name__
+        if name not in self.callbacks:
+            d = { }
+            for base in reversed(type(instance).__mro__):
+                d.update(self.methods.get(base.__name__, { }))
+            self.callbacks[name] = list(d)
+
+        for callback in self.callbacks[name]:
+            getattr(instance, callback)()
 
     def bind(self, class_name, method_name):
-        self.methods[class_name].append(method_name)
+        self.methods[class_name][method_name] = None
