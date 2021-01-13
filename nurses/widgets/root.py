@@ -1,6 +1,5 @@
 from collections import defaultdict
 import curses
-import os
 
 from . import Widget
 
@@ -28,12 +27,9 @@ class Root(Widget):
         """Called when widgets are added or window is resized.
         """
         if resize:
-            try:  # linux
-                w, h = self.width, self.height = os.get_terminal_size()
-                curses.resizeterm(h, w)
-            except AttributeError:  # windows
-                h, w = self.height, self.width = self.window.getmaxyx()
-                os.system(f"mode con cols={w} lines={h}")
+            # TODO: If terminal isn't automatically resized on linux, fallback to `curses.resizeterm(h, w)`
+            #  ...: Windows curses automatically calls a resize on a resize event...
+            self.height, self.width = self.window.getmaxyx()
 
         for child in self.children:
             child.update_geometry()
