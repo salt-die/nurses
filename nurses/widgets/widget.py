@@ -22,7 +22,6 @@ class Observer(type):
 
     def __new__(meta, name, bases, methods):
         del methods["bind_to"]
-
         # Attributes bound to callbacks that aren't `Observable` are made so:
         for attr, callbacks in _attr_to_callbacks.items():
             if attr not in methods:
@@ -39,7 +38,6 @@ class Observer(type):
                 prop = methods[attr] = Observable(methods[attr])
             else:
                 prop = methods[attr]
-
             for callback in callbacks:
                 prop.bind(name, callback)
 
@@ -77,13 +75,16 @@ class Widget(metaclass=Observer):
     """
     types = { }  # Registry of subclasses of Widget
 
+    size_hint = None, None
+    pos_hint = None, None
+
     def __init_subclass__(cls):
         Widget.types[cls.__name__] = cls
 
         if not cls.on_press.__doc__:
             cls.on_press.__doc__ = Widget.on_press.__doc__
 
-    def __init__(self, *args, pos_hint=(None, None), size_hint=(None, None), color=0, parent=None, transparent=False, **kwargs):
+    def __init__(self, *args, color=0, parent=None, transparent=False, **kwargs):
         self.children = [ ]
         self.group = defaultdict(list)
         self.window = None
@@ -97,8 +98,6 @@ class Widget(metaclass=Observer):
         self.left = left
         self.height = height
         self.width = width
-        self.pos_hint = pos_hint
-        self.size_hint = size_hint
 
         for attr in tuple(kwargs):
             # This allows one to set class attributes with keyword-arguments. TODO: Document this.
@@ -107,19 +106,19 @@ class Widget(metaclass=Observer):
 
         super().__init__(*rest, **kwargs)
 
-    bind_to("top")
+    @bind_to("top")
     def _set_pos_hint_y(self):
         self.pos_hint = None, self.pos_hint[1]
 
-    bind_to("left")
+    @bind_to("left")
     def _set_pos_hint_x(self):
         self.pos_hint = self.pos_hint[0], None
 
-    bind_to("height")
+    @bind_to("height")
     def _set_size_hint_y(self):
         self.size_hint = None, self.size_hint[1]
 
-    bind_to("width")
+    @bind_to("width")
     def _set_size_hint_x(self):
         self.size_hint = self.size_hint[0], None
 

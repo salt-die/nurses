@@ -49,9 +49,8 @@ class AnalogClock(Widget):
     seconds_character = ":"
     seconds_length = .65
 
-    def __init__(self, top, left, radius, *args, **kwargs):
-        super().__init__(top, left, 2 * radius + 1, 4 * radius + 1, *args, **kwargs)
-        self.radius = radius
+    def __init__(self, top, left, height_hint, *args, **kwargs):
+        super().__init__(top, left, size_hint=(height_hint, None), *args, **kwargs)
 
     def line_segment(self, angle, start, stop, character, color=None):
         """
@@ -68,8 +67,9 @@ class AnalogClock(Widget):
         if color is None:
             color = self.color
 
-        start *= self.radius
-        stop *= self.radius
+        radius = self.height / 2 - 1
+        start *= radius
+        stop *= radius
 
         angle = e ** ((angle - pi / 2) * 1j)
 
@@ -77,7 +77,7 @@ class AnalogClock(Widget):
         step = complex(sgn(angle.real), sgn(angle.imag))
         side_dis = 0j
 
-        pos = center = self.radius * (2 + 1j)
+        pos = center = radius * (2 + 1j)
 
         while True:
             dif = pos - center
