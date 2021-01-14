@@ -166,7 +166,7 @@ class Widget(metaclass=Observer):
             if self.height is None:
                 self.height = h
             if self.width is None:
-                self.width = w - 1
+                self.width = w
 
         self.pos_hint = top, left
         self.size_hint = height, width

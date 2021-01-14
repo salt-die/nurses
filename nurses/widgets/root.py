@@ -15,8 +15,8 @@ class Root(Widget):
         self.group = defaultdict(list)
 
         self.top, self.left = 0, 0
-        self.height, self.width = window.getmaxyx()
         self.window = window
+        self.update_geometry()
 
     @property
     def has_root(self):
@@ -31,7 +31,9 @@ class Root(Widget):
         """
         # TODO: If terminal isn't automatically resized on linux, fallback to `curses.resizeterm(h, w)`
         #  ...: Windows curses automatically calls a resize on a resize event...
-        self.height, self.width = self.window.getmaxyx()
+        h, w = self.window.getmaxyx()
+        self.height = h
+        self.width = w - 1
 
         for child in self.children:
             child.update_geometry()
