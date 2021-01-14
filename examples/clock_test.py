@@ -16,7 +16,7 @@ with ScreenManager() as sm:
 
     def update_geometry(self):
         old_geom(self)
-        self.left = big_clock.height - self.width // 2
+        self.left = big_clock.height - self.width // 2 - 1
 
     DigitalClock.update_geometry = update_geometry
     ###
