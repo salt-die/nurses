@@ -38,6 +38,7 @@ class Observer(type):
                 prop = methods[attr] = Observable(methods[attr])
             else:
                 prop = methods[attr]
+
             for callback in callbacks:
                 prop.bind(name, callback)
 
