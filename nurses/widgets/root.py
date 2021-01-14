@@ -1,12 +1,15 @@
 from collections import defaultdict
 import curses
 
-from . import Widget
+from .widget import Widget
 
 
 class Root(Widget):
     """Only meant to be instantiated by the ScreenManager.
     """
+    height = None  # We don't want Widget's height, width properties
+    width = None
+
     def __init__(self, window=None):
         self.children = [ ]
         self.group = defaultdict(list)
@@ -23,13 +26,12 @@ class Root(Widget):
     def root(self):
         return self
 
-    def update_geometry(self, resize=False):
-        """Called when widgets are added or window is resized.
+    def update_geometry(self):
+        """Update geometry of child windows with size or position hints when screen is resized.
         """
-        if resize:
-            # TODO: If terminal isn't automatically resized on linux, fallback to `curses.resizeterm(h, w)`
-            #  ...: Windows curses automatically calls a resize on a resize event...
-            self.height, self.width = self.window.getmaxyx()
+        # TODO: If terminal isn't automatically resized on linux, fallback to `curses.resizeterm(h, w)`
+        #  ...: Windows curses automatically calls a resize on a resize event...
+        self.height, self.width = self.window.getmaxyx()
 
         for child in self.children:
             child.update_geometry()
