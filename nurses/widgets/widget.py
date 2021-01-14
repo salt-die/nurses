@@ -1,8 +1,18 @@
 from collections import defaultdict
+from contextlib import contextmanager
 import curses
 
 from ..observable import Observable
 
+
+@contextmanager
+def disable_method(obj, methodname):
+    old = getattr(obj, methodname)
+    try:
+        setattr(obj, methodname, lambda *args, **kwargs:None)
+        yield
+    finally:
+        setattr(obj, methodname, old)
 
 _attr_to_callbacks = defaultdict(list)
 def bind_to(*attrs):
@@ -95,10 +105,11 @@ class Widget(metaclass=Observer):
         self.color = color
 
         top, left, height, width, *rest = args + (None, None) if len(args) == 2 else args or (0, 0, None, None)
-        self.top = top
-        self.left = left
-        self.height = height
-        self.width = width
+        with disable_method(self, "_resize"):
+            self.top = top
+            self.left = left
+            self.height = height
+            self.width = width
 
         for attr in tuple(kwargs):
             # This allows one to set class attributes with keyword-arguments. TODO: Document this.
@@ -124,7 +135,13 @@ class Widget(metaclass=Observer):
         self.size_hint = self.size_hint[0], None
 
     def update_geometry(self):
-        """Set or reset the widget's geometry based on size or pos hints if they exist.
+        """
+        Set or reset the widget's geometry based on size or pos hints if they exist.
+
+        Notes
+        -----
+        This should only be called by the widget's parent (usually when calling the parent's `add_widget` method).
+        This will immediately return if there isn't a root widget, since screen size can't be determined yet.
         """
         if not self.has_root:
             return
@@ -132,37 +149,40 @@ class Widget(metaclass=Observer):
         h, w = self.parent.height, self.parent.width
 
         top, left = self.pos_hint
-
-        if top is not None:
-            self.top = self.convert(top, h)
-
-        if left is not None:
-            self.left = self.convert(left, w)
-
-        self.pos_hint = top, left
-
         height, width = self.size_hint
 
-        if height is not None:
-            self.height = self.convert(height, h)
-        if width is not None:
-            self.width = self.convert(width, w)
+        with disable_method(self, "_resize"):
+            if top is not None:
+                self.top = self.convert(top, h)
 
-        if self.height is None:
-            self.height = h
-        if self.width is None:
-            self.width = w - 1
+            if left is not None:
+                self.left = self.convert(left, w)
 
+            if height is not None:
+                self.height = self.convert(height, h)
+            if width is not None:
+                self.width = self.convert(width, w)
+
+            if self.height is None:
+                self.height = h
+            if self.width is None:
+                self.width = w - 1
+
+        self.pos_hint = top, left
         self.size_hint = height, width
 
         if self.window is None:
             self.window = curses.newwin(self.height, self.width + 1)
         else:
-            self.window.resize(self.height, self.width + 1)
+            self._resize()
         self.update_color(self.color)
 
         for child in self.children:
             child.update_geometry()
+
+    @bind_to("height", "width")
+    def _resize(self):
+        self.window.resize(self.height, self.width + 1)
 
     @property
     def bottom(self):
