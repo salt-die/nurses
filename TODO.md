@@ -4,9 +4,8 @@ TODO
     * Textpad
     * Graph
 
-* Mix-Ins for Widgets:
-    * Scrollable (Scroll contents up or down with arrow-keys)
-    * Resizable
+* Mix-in for Widgets
+    * Button behavior
 
 * Layouts
     * call .update when `width` or `height` changes.
