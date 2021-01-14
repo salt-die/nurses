@@ -50,8 +50,8 @@ class ScreenManager(Scheduler, metaclass=Singleton):
                 return
 
             if key == curses.KEY_RESIZE:
-                self.root.update_geometry(resize=True)
-            elif key != -1:
+                self.root.update_geometry()
+            elif key != curses.ERR:
                 self.root.dispatch(key)
 
             await self.sleep(delay)
@@ -59,6 +59,7 @@ class ScreenManager(Scheduler, metaclass=Singleton):
     def run(self, *coros, getch=True, getch_delay=GETCH_DELAY):
         if getch:
             self.run_soon(self.getch(GETCH_DELAY))
+
         super().run(*coros)
 
     def __enter__(self):
