@@ -3,7 +3,7 @@ import curses
 
 import numpy as np
 
-from . import Widget
+from .widget import Widget
 
 
 BORDER_STYLES = {
@@ -12,16 +12,6 @@ BORDER_STYLES = {
     "double": "╔╗║═╚╝",
     "curved": "╭╮│─╰╯",
 }
-
-
-@contextmanager
-def disable_method(obj, methodname):
-    old = getattr(obj, methodname)
-    try:
-        setattr(obj, methodname, lambda *args, **kwargs:None)
-        yield
-    finally:
-        setattr(obj, methodname, old)
 
 
 class ArrayWin(Widget):
@@ -41,8 +31,7 @@ class ArrayWin(Widget):
     and write to a Widget as if it was a numpy array.
     """
     def __init__(self, *args, border=None, border_color=None, **kwargs):
-        with disable_method(self, "_resize"):
-            super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self._buffer = None
         self._colors = None
@@ -52,13 +41,13 @@ class ArrayWin(Widget):
         if not self.has_root:
             return
 
-        with disable_method(self, "_resize"):
-            super().update_geometry()
+        super().update_geometry()
 
         h, w = self.height, self.width
         if self._buffer is None:
             self._buffer = np.full((h, w), " ")
             self._colors = np.full((h, w), self.color)
+
             if self.has_border and self.has_border[0]:
                 self.border(*self.has_border)
             else:
@@ -88,7 +77,6 @@ class ArrayWin(Widget):
         else:
             self._buffer = array
 
-    @bind_to("height", "width")
     def _resize(self):
         if self.has_border:
             self._buffer[:, -1] = self._buffer[-1] = " "  # Erase the right-most/bottom-most border in case widget expands
@@ -105,6 +93,8 @@ class ArrayWin(Widget):
 
         self._buffer = new_buffer
         self._colors = new_colors
+
+        super()._resize()
 
         if self.has_border:
             self.border(*self.has_border)
