@@ -284,12 +284,12 @@ class Widget(metaclass=Observer):
             widget.overlay(self.window, src_t, src_l, des_t, des_l, des_h, des_w)
 
     @staticmethod
-    def convert(pos, bounds):
-        """Utility function that converts a fractional or negative position to an absolute one.
+    def convert(value, bounds):
+        """Utility function that converts a fractional or negative value to an absolute one.
         """
-        if isinstance(pos, float):
-            pos = round(pos * bounds)
-        return pos + bounds if pos < 0 else pos
+        if isinstance(value, float):
+            value = int(value * bounds)
+        return value + bounds if value < 0 else value
 
     def dispatch(self, key):
         for widget in reversed(self.children):
