@@ -3,7 +3,7 @@ import curses
 
 import numpy as np
 
-from .widget import Widget
+from . import Widget
 
 
 BORDER_STYLES = {
@@ -167,8 +167,8 @@ class ArrayWin(Widget):
         self.has_border = style, color
 
         ul, ur, v, h, ll, lr = BORDER_STYLES[style]
-        b = self._buffer
 
+        b = self._buffer
         b[(0, -1), :] = h
         b[:, (0, -1)] = v
         b[ 0,  0] = ul
