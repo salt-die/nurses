@@ -2,5 +2,23 @@ from .layout import Layout
 
 
 class Stack(Layout):
-    def __init__(self, count, *, size=None, size_hint=(None, None), vertical=False, horizontal=False, min_height=1):
-        super().__init__()
+    def __init__(self, *args, vertical=False, horizontal=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_vertical = vertical
+        self.is_horizontal = horizontal
+
+    def update_geometry(self):
+        if not self.has_root:
+            return
+
+        super().update_geometry()
+
+        for i, child in enumerate(self.children):
+            if self.is_vertical:
+                child.size_hint = 1 / len(self.children), None
+                child.pos_hint = i / len(self.children), None
+            else:
+                child.size_hint = None, 1 / len(self.children)
+                child.pos_hint = None, i / len(self.children)
+
+            child.update_geometry()

@@ -8,3 +8,4 @@ from .analog_clock import AnalogClock
 
 # Layouts
 from .splits import HSplit, VSplit
+from .stack import Stack
