@@ -11,8 +11,6 @@ class Stack(Layout):
         if not self.has_root:
             return
 
-        super().update_geometry()
-
         for i, child in enumerate(self.children):
             if self.is_vertical:
                 child.size_hint = 1 / len(self.children), None
@@ -21,4 +19,4 @@ class Stack(Layout):
                 child.size_hint = None, 1 / len(self.children)
                 child.pos_hint = None, i / len(self.children)
 
-            child.update_geometry()
+        super().update_geometry()
