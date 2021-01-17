@@ -52,8 +52,6 @@ class ArrayWin(Widget):
                 self.border(*self.has_border)
             else:
                 self.has_border = False
-        else:
-            self._resize()
 
     @property
     def colors(self):
