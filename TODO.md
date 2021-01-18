@@ -3,6 +3,7 @@ TODO
 * Widgets
     * Textpad
     * Graph
+    * Arrow
 
 * Layouts
     * Grid - a `n * m` layout of widgets
