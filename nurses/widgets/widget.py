@@ -7,6 +7,8 @@ from ..observable import Observable
 
 @contextmanager
 def disable_method(obj, methodname):
+    """Temporarily disable a method by name of `obj`.
+    """
     old = getattr(obj, methodname)
     try:
         setattr(obj, methodname, lambda *args, **kwargs:None)
@@ -16,7 +18,7 @@ def disable_method(obj, methodname):
 
 _attr_to_callbacks = defaultdict(list)
 def bind_to(*attrs):
-    """Decorator that binds a method to attributes.
+    """Decorator that binds a method to attributes.  Attributes in `attrs` that aren't Observable will be redefined as Observables,
     """
     def decorator(func):
         for attr in attrs:
@@ -26,6 +28,13 @@ def bind_to(*attrs):
 
 
 class Observer(type):
+    """
+    Warning: Experimental meta-programming ahead.
+
+    This metaclass will search for any attributes what were added to `_attr_to_callbacks` with the `bind_to`
+    decorator in a Widget class definition.  If those attributes aren't `Observable` they will be redefined as
+    Observable so that the decorated methods can be bound to the attributes.
+    """
     def __prepare__(name, bases):
         _attr_to_callbacks.clear()
         return {"bind_to": bind_to}
@@ -64,14 +73,20 @@ class Widget(metaclass=Observer):
     Parameters
     ----------
     top, left, height, width: optional
-        Upper and left-most coordinates of widget relative to parent, and dimensions of the widget. Fractional arguments
-        are interpreted as percentage of parent, and parent width or height will be added to negative arguments.
+        Upper and left-most coordinates of widget relative to parent, and dimensions of the widget.
         (the defaults are 0, 0, parent's max height, parent's max width)
+
     color: optional
        A curses color_pair, the default color of this widget. (the default is `curses.color_pair(0)`)
 
     Other Parameters
     ----------------
+    pos_hint, size_hint: optional
+        If a pos_hint or size_hint are given they will override any given pos or size arguments.  Hints are expected to be
+        2-tuples of numbers or None.  Fractional arguments are interpreted as percentage of parent, and parent width or
+        height will be added to negative arguments. (e.g., `size_hint=(.5, None)` means widget will be half as tall as parent
+        and the width will come from the `width` arg.)
+
     transparent: optional
         If true, widget will overlay other widgets instead of overwrite them (whitespace will be "see-through"). (the default is `False`)
 
@@ -86,8 +101,8 @@ class Widget(metaclass=Observer):
     """
     types = { }  # Registry of subclasses of Widget
 
-    size_hint = None, None
     pos_hint = None, None
+    size_hint = None, None
 
     def __init_subclass__(cls):
         Widget.types[cls.__name__] = cls

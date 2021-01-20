@@ -5,12 +5,14 @@ NO_DEFAULT = object()
 
 class Observable:
     """
-    :class: Observables are simple properties that one can bind methods to.
+    :class: Observables are properties that one can bind methods to.
 
     Notes
     -----
     We store method names instead of methods themselves.  This so we can dynamically patch methods on widgets and the new
     method will be called.  This is relevant in ArrayWin.__init__ for example, when we need to temporarily disable `_resize`.
+
+    Extremely experimental.
     """
     def __init__(self, default=NO_DEFAULT):
         self.default = default
