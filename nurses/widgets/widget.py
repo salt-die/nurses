@@ -291,6 +291,55 @@ class Widget(metaclass=Observer):
             value = int(value * bounds)
         return value + bounds if value < 0 else value
 
+    @staticmethod
+    def line(y1, x1, y2, x2):
+        """Yields coordinates for a line from (y1, x1) to (y2, x2).
+        """
+        # TODO: separate case for vertical / horizontal line
+        if abs(y2 - y1) < abs(x2 - x1):
+            gen = Widget._line_low(y2, x2, y1, x1) if x1 > x2 else Widget._line_low(y1, x1, y2, x2)
+        else:
+            gen = Widget._line_high(y2, x2, y1, x1) if y1 > y2 else Widget._line_high(y1, x1, y2, x2)
+
+        yield from gen
+
+    @staticmethod
+    def _line_low(y1, x1, y2, x2):
+        dx = x2 - x1
+        dy, yi = (2 * (y2 - y1), 1) if y2 >= y1 else (2 * (y1 - y2), -1)
+
+        dif = dy - 2 * dx
+
+
+        delta = dy - dx
+        y = y1
+        for x in range(x1, x2 + 1):
+            yield y, x
+
+            if delta > 0:
+                y += yi
+                delta += dif
+            else:
+                delta += dy
+
+    @staticmethod
+    def _line_high(y1, x1, y2, x2):
+        dx, xi = (2 * (x2 - x1), 1) if x2 >= x1 else (2 * (x1 - x2), -1)
+        dy = y2 - y1
+
+        dif = dx - 2 * dy
+
+        delta = dx - dy
+        x = x1
+        for y in range(y1, y2 + 1):
+            yield y, x
+
+            if delta > 0:
+                x += xi
+                delta += dif
+            else:
+                delta += dx
+
     def dispatch(self, key):
         for widget in reversed(self.children):
             if widget.on_press(key) or widget.dispatch(key):
