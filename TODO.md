@@ -4,6 +4,7 @@ TODO
     * Textpad
     * Graph
     * Arrow
+    * File Explorer
 
 * Layouts
     * Grid - a `n * m` layout of widgets
