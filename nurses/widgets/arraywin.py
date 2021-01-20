@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 import curses
 
 import numpy as np
@@ -35,7 +34,8 @@ class ArrayWin(Widget):
 
         self._buffer = None
         self._colors = None
-        self.has_border = border, border_color
+
+        self.has_border = (border, border_color) if border is not None else False
 
     def update_geometry(self):
         if not self.has_root:
@@ -43,15 +43,13 @@ class ArrayWin(Widget):
 
         super().update_geometry()
 
-        h, w = self.height, self.width
         if self._buffer is None:
+            h, w = self.height, self.width
             self._buffer = np.full((h, w), " ")
             self._colors = np.full((h, w), self.color)
 
-            if self.has_border and self.has_border[0]:
+            if self.has_border:
                 self.border(*self.has_border)
-            else:
-                self.has_border = False
 
     @property
     def colors(self):
@@ -76,6 +74,9 @@ class ArrayWin(Widget):
             self._buffer = array
 
     def _resize(self):
+        if self.window is None:
+            return
+
         if self.has_border:
             self._buffer[:, -1] = self._buffer[-1] = " "  # Erase the right-most/bottom-most border in case widget expands
 

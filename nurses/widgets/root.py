@@ -10,12 +10,12 @@ class Root(Widget):
     height = None  # We don't want Widget's height, width properties
     width = None
 
-    def __init__(self, window=None):
+    def __init__(self, screen):
         self.children = [ ]
         self.group = defaultdict(list)
+        self.window = screen
 
         self.top, self.left = 0, 0
-        self.window = window
         self.update_geometry()
 
     @property

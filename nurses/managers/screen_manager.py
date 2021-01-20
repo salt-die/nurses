@@ -25,7 +25,7 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         curses.curs_set(0)
         curses.start_color()
 
-        self.root = Root(window=screen)  # Top-level widget: getch dispatching will start here.
+        self.root = Root(screen=screen)  # Top-level widget: getch dispatching will start here.
 
         super().__init__()
 

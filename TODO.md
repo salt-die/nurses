@@ -1,5 +1,8 @@
 TODO
 ====
+* Colors
+    * Resizing async_test.py seems to recolor the border on the walking widgets.  Needs fix.
+
 * Widgets
     * Textpad
     * Graph

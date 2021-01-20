@@ -1,20 +1,8 @@
 from collections import defaultdict
-from contextlib import contextmanager
 import curses
 
 from ..observable import Observable
 
-
-@contextmanager
-def disable_method(obj, methodname):
-    """Temporarily disable a method by name of `obj`.
-    """
-    old = getattr(obj, methodname)
-    try:
-        setattr(obj, methodname, lambda *args, **kwargs:None)
-        yield
-    finally:
-        setattr(obj, methodname, old)
 
 _attr_to_callbacks = defaultdict(list)
 def bind_to(*attrs):
@@ -72,15 +60,15 @@ class Widget(metaclass=Observer):
 
     Parameters
     ----------
-    top, left, height, width: optional
+    top, left, height, width: optional, positional only
         Upper and left-most coordinates of widget relative to parent, and dimensions of the widget.
         (the defaults are 0, 0, parent's max height, parent's max width)
 
+    Other Parameters
+    ----------------
     color: optional
        A curses color_pair, the default color of this widget. (the default is `curses.color_pair(0)`)
 
-    Other Parameters
-    ----------------
     pos_hint, size_hint: optional
         If a pos_hint or size_hint are given they will override any given pos or size arguments.  Hints are expected to be
         2-tuples of numbers or None.  Fractional arguments are interpreted as percentage of parent, and parent width or
@@ -105,7 +93,7 @@ class Widget(metaclass=Observer):
     size_hint = None, None
 
     def __init_subclass__(cls):
-        Widget.types[cls.__name__] = cls
+        Widget.types[cls.__name__] = cls  # Register subclasses
 
         if not cls.on_press.__doc__:
             cls.on_press.__doc__ = Widget.on_press.__doc__
@@ -115,16 +103,17 @@ class Widget(metaclass=Observer):
         self.group = defaultdict(list)
         self.window = None
 
+        self.color = color
         self.parent = parent
         self.is_transparent = transparent
-        self.color = color
 
+        # Assign default values if len(args) < 4
         top, left, height, width, *rest = args + (None, None) if len(args) == 2 else args or (0, 0, None, None)
-        with disable_method(self, "_resize"):
-            self.top = top
-            self.left = left
-            self.height = height
-            self.width = width
+
+        self.top = top
+        self.left = left
+        self.height = height
+        self.width = width
 
         for attr in tuple(kwargs):
             # This allows one to set class attributes with keyword-arguments. TODO: Document this.
@@ -166,22 +155,21 @@ class Widget(metaclass=Observer):
         top, left = self.pos_hint
         height, width = self.size_hint
 
-        with disable_method(self, "_resize"):
-            if top is not None:
-                self.top = self.convert(top, h)
+        if top is not None:
+            self.top = self.convert(top, h)
 
-            if left is not None:
-                self.left = self.convert(left, w)
+        if left is not None:
+            self.left = self.convert(left, w)
 
-            if height is not None:
-                self.height = self.convert(height, h)
-            if width is not None:
-                self.width = self.convert(width, w)
+        if height is not None:
+            self.height = self.convert(height, h)
+        if width is not None:
+            self.width = self.convert(width, w)
 
-            if self.height is None:
-                self.height = h
-            if self.width is None:
-                self.width = w
+        if self.height is None:
+            self.height = h
+        if self.width is None:
+            self.width = w
 
         self.pos_hint = top, left
         self.size_hint = height, width
@@ -189,15 +177,14 @@ class Widget(metaclass=Observer):
         if self.window is None:
             self.window = curses.newwin(self.height, self.width + 1)
             self.update_color(self.color)
-        else:
-            self._resize()
 
         for child in self.children:
             child.update_geometry()
 
     @bind_to("height", "width")
     def _resize(self):
-        self.window.resize(self.height, self.width + 1)
+        if self.window:
+            self.window.resize(self.height, self.width + 1)
 
     @property
     def bottom(self):
