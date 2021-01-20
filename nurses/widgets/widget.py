@@ -295,8 +295,13 @@ class Widget(metaclass=Observer):
     def line(y1, x1, y2, x2):
         """Yields coordinates for a line from (y1, x1) to (y2, x2).
         """
-        # TODO: separate case for vertical / horizontal line
-        if abs(y2 - y1) < abs(x2 - x1):
+        dy = abs(y2 - y1)
+        dx = abs(x2 - x1)
+        if dy == 0:  # Horizontal
+            gen = ((y1, x) for x in range(x1, x2 + 1))
+        elif dx == 0: # Vertical
+            gen = ((y, x1) for y in range(y1, y2 + 1))
+        elif dy < dx:
             gen = Widget._line_low(y2, x2, y1, x1) if x1 > x2 else Widget._line_low(y1, x1, y2, x2)
         else:
             gen = Widget._line_high(y2, x2, y1, x1) if y1 > y2 else Widget._line_high(y1, x1, y2, x2)
@@ -309,7 +314,6 @@ class Widget(metaclass=Observer):
         dy, yi = (2 * (y2 - y1), 1) if y2 >= y1 else (2 * (y1 - y2), -1)
 
         dif = dy - 2 * dx
-
 
         delta = dy - dx
         y = y1
