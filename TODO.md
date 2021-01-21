@@ -4,6 +4,7 @@ TODO
     * Resizing async_test.py seems to recolor the border on the walking widgets.  Needs fix.
 
 * Widgets
+    * Panels (widgets that can be larger than screen)
     * Textpad
     * Graph
     * Arrow
