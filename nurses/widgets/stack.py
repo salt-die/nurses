@@ -2,8 +2,10 @@ from .layout import Layout
 
 
 class Stack(Layout):
-    def __init__(self, *args, vertical=False, horizontal=False, **kwargs):
-        super().__init__(*args, **kwargs)
+    """A single file of widgets, either vertical or horizontal.
+    """
+    def __init__(self, vertical=False, horizontal=False):
+        super().__init__()
         self.is_vertical = vertical
         self.is_horizontal = horizontal
 

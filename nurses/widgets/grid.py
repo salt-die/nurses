@@ -2,8 +2,8 @@ from .layout import Layout
 
 
 class Grid(Layout):
-    def __init__(self, *args, rows, cols,**kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, rows, cols):
+        super().__init__()
         self._rows = rows
         self._cols = cols
         # Note: This layout is unique in that it uses a placeholder for children widgets.
