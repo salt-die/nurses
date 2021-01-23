@@ -6,6 +6,7 @@ class Grid(Layout):
         super().__init__(*args, **kwargs)
         self._rows = rows
         self._cols = cols
+        # Note: This layout is unique in that it uses a placeholder for children widgets.
         self.children = [None for _ in range(rows * cols)]
 
     def add_widget(self, widget, row=None, col=None):
