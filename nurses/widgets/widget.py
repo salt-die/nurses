@@ -179,7 +179,8 @@ class Widget(metaclass=Observer):
             self.update_color(self.color)
 
         for child in self.children:
-            child.update_geometry()
+            if child is not None:
+                child.update_geometry()
 
     @bind_to("height", "width")
     def _resize(self):

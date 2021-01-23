@@ -16,8 +16,10 @@ class Grid(Layout):
                     break
             else:
                 raise ValueError("too many children")
-        else:
+        elif row is not None and col is not None:
             self.children[self._cols * row + col] = widget
+        else:
+            raise ValueError("need both row and col")
 
         widget.parent = self
         widget.update_geometry()
@@ -26,6 +28,14 @@ class Grid(Layout):
         if not self.has_root:
             return
 
-        pass
+        h = 1 / self._rows
+        w = 1 / self._cols
+
+        for i, child in enumerate(self.children):
+            if child is not None:
+                child.size_hint = h, w
+
+                y, x = divmod(i, self._cols)
+                child.pos_hint = y * h, x * w
 
         super().update_geometry()
