@@ -9,7 +9,7 @@ with ScreenManager() as sm:
     blue_to_yellow += blue_to_yellow[::-1]
     blue_to_yellow = cycle(blue_to_yellow)
 
-    big_clock = sm.root.new_widget(0, 0, 1.0, boundary=False, create_with="AnalogClock")
+    big_clock = sm.root.new_widget(0, 0, boundary=False, create_with="AnalogClock")
 
     ### This hack because we don't have a normal way to track these properties yet
     old_geom = DigitalClock.update_geometry

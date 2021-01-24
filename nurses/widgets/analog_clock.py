@@ -49,8 +49,8 @@ class AnalogClock(Widget):
     seconds_character = ":"
     seconds_length = .65
 
-    def __init__(self, top, left, height_hint, *args, **kwargs):
-        super().__init__(top, left, size_hint=(height_hint, None), *args, **kwargs)
+    def __init__(self, *args, height_hint=1.0, **kwargs):
+        super().__init__(*args, size_hint=(height_hint, None), **kwargs)
 
     def line_segment(self, angle, start, stop, character, color=None):
         """
