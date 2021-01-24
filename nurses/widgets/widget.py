@@ -6,7 +6,7 @@ from ..observable import Observable
 
 _attr_to_callbacks = defaultdict(list)
 def bind_to(*attrs):
-    """Decorator that binds a method to attributes.  Attributes in `attrs` that aren't Observable will be redefined as Observables,
+    """Decorator that binds a method to attributes.  Attributes in `attrs` that aren't Observable will be redefined as Observables.
     """
     def decorator(func):
         for attr in attrs:
