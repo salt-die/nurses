@@ -277,6 +277,9 @@ class Widget(metaclass=Observer):
         # ...upside is we don't error when moving a widget off-screen.
         h, w = self.height, self.width
         for widget in self.children:
+            if widget is None:
+                continue
+
             widget.refresh()
             y, x = widget.top, widget.left
             src_t, des_t = (-y, 0) if y < 0 else (0, y)
