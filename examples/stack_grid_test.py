@@ -4,11 +4,11 @@ with ScreenManager() as sm:
     widgets = load_string("""
     Grid(2, 2)
         Stack()
-            ArrayWin(border="light") as tl_top
-            ArrayWin(border="light") as tl_bottom
+            ArrayWin(border="light") as a
+            ArrayWin(border="light") as b
         Stack(vertical=False)
-            ArrayWin(border="light") as tr_left
-            ArrayWin(border="light") as tr_right
+            ArrayWin(border="light") as c
+            ArrayWin(border="light") as d
         AnalogClock()
         AnalogClock()
     """)
