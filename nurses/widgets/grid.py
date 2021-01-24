@@ -33,10 +33,12 @@ class Grid(Layout):
         w = 1 / self._cols
 
         for i, child in enumerate(self.children):
-            if child is not None:
-                child.size_hint = h, w
+            if child is None:
+                continue
 
-                y, x = divmod(i, self._cols)
-                child.pos_hint = y * h, x * w
+            child.size_hint = h, w
+
+            y, x = divmod(i, self._cols)
+            child.pos_hint = y * h, x * w
 
         super().update_geometry()
