@@ -163,7 +163,7 @@ class ArrayWin(Widget):
         as long as `has_border` is truth-y.  To disable this behavior set `has_border` to False or call
         this method with `read_only=False`.
         """
-        self.has_border = style, color
+        self.has_border = read_only and (style, color)
 
         ul, ur, v, h, ll, lr = BORDER_STYLES[style]
 
