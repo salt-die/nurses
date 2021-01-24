@@ -14,10 +14,10 @@ class Stack(Layout):
 
         for i, child in enumerate(self.children):
             if self.is_vertical:
-                child.size_hint = 1 / len(self.children), None
-                child.pos_hint = i / len(self.children), None
+                child.size_hint = 1 / len(self.children), 1.0
+                child.pos_hint = i / len(self.children), 0.0
             else:
-                child.size_hint = None, 1 / len(self.children)
-                child.pos_hint = None, i / len(self.children)
+                child.size_hint = 1.0, 1 / len(self.children)
+                child.pos_hint = 0.0, i / len(self.children)
 
         super().update_geometry()
