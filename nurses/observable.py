@@ -10,7 +10,7 @@ class Observable:
     Notes
     -----
     We store method names instead of methods themselves.  This so we can dynamically patch methods on widgets and the new
-    method will be called.  This is relevant in ArrayWin.__init__ for example, when we need to temporarily disable `_resize`.
+    method will be called.
 
     Extremely experimental.
     """
