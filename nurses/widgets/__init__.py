@@ -1,11 +1,12 @@
 from .widget import Widget
 
 # Widgets
-from .root import Root
+from .analog_clock import AnalogClock
 from .arraywin import ArrayWin
 from .digital_clock import DigitalClock
-from .analog_clock import AnalogClock
+from .root import Root
 
 # Layouts
+from .grid import Grid
 from .splits import HSplit, VSplit
 from .stack import Stack
