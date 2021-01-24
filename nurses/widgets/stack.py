@@ -4,10 +4,9 @@ from .layout import Layout
 class Stack(Layout):
     """A single file of widgets, either vertical or horizontal.
     """
-    def __init__(self, vertical=False, horizontal=False):
+    def __init__(self, vertical=True):
         super().__init__()
         self.is_vertical = vertical
-        self.is_horizontal = horizontal
 
     def update_geometry(self):
         if not self.has_root:
