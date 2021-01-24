@@ -58,7 +58,7 @@ class ScreenManager(Scheduler, metaclass=Singleton):
 
     def run(self, *coros, getch=True, getch_delay=GETCH_DELAY):
         if getch:
-            self.run_soon(self.getch(GETCH_DELAY))
+            self.run_soon(self.getch(getch_delay))
 
         super().run(*coros)
 
