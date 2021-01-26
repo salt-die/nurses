@@ -15,7 +15,7 @@ BORDER_STYLES = {
 
 class ArrayWin(Widget):
     """
-    A Widget that uses a numpy array to store its state and uses a very numpy-ish api.
+    A Widget whose state is stored an a numpy array and whose __getitem__ / __setitem__ use numpy indexing to update text.
 
     Other Parameters
     ----------------
