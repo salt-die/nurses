@@ -1,11 +1,5 @@
 TODO
 ====
-* ArrayWin
-    * Resizing stack_grid_test.py doesn't redraw borders correctly. Needs fix.
-
-* Colors
-    * Resizing async_test.py seems to recolor the border on the walking widgets.  Needs fix.
-
 * Widgets
     * Panels (widgets that can be larger than screen)
     * Textpad
@@ -20,4 +14,6 @@ TODO
 
 Notes
 -----
-I hate the name ArrayWin.
+* Colors
+    Resizing windows terminal seems to do something strange to colors.  I can't quite nail it down - the behavior doesn't seem consistent for all colors.
+    One can see an example of this when resizing the terminal for async_test.py:  The borders of the walking widgets turn blue.
