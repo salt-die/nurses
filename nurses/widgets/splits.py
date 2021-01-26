@@ -15,7 +15,7 @@ class HSplit(Layout):
         self.min_height = min_height
 
     def update_geometry(self):
-        if not self.has_root:
+        if self.root is None:
             return
 
         super().update_geometry()
@@ -58,7 +58,7 @@ class VSplit(Layout):
         self.min_width = min_width
 
     def update_geometry(self):
-        if not self.has_root:
+        if self.root is None:
             return
 
         super().update_geometry()

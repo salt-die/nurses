@@ -147,7 +147,7 @@ class Widget(metaclass=Observer):
         This should only be called by the widget's parent (usually when calling the parent's `add_widget` method).
         This will immediately return if there isn't a root widget, since screen size can't be determined yet.
         """
-        if not self.has_root:
+        if self.root is None:
             return
 
         h, w = self.parent.height, self.parent.width
@@ -194,12 +194,6 @@ class Widget(metaclass=Observer):
     @property
     def right(self):
         return self.left + self.width
-
-    @property
-    def has_root(self):
-        if self.parent is None:
-            return False
-        return self.parent.has_root
 
     @property
     def root(self):

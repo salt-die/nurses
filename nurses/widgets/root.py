@@ -19,10 +19,6 @@ class Root(Widget):
         self.update_geometry()
 
     @property
-    def has_root(self):
-        return True
-
-    @property
     def root(self):
         return self
 

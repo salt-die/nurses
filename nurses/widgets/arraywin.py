@@ -38,7 +38,7 @@ class ArrayWin(Widget):
         self.has_border = (border, border_color) if border is not None else False
 
     def update_geometry(self):
-        if not self.has_root:
+        if self.root is None:
             return
 
         super().update_geometry()

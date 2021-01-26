@@ -9,7 +9,7 @@ class Stack(Layout):
         self.is_vertical = vertical
 
     def update_geometry(self):
-        if not self.has_root:
+        if self.root is None:
             return
 
         for i, child in enumerate(self.children):

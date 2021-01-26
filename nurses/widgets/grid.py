@@ -26,7 +26,7 @@ class Grid(Layout):
         widget.update_geometry()
 
     def update_geometry(self):
-        if not self.has_root:
+        if self.root is None:
             return
 
         h = 1 / self._rows
