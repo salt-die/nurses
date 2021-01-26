@@ -1,7 +1,7 @@
 TODO
 ====
 * Widgets
-    * Panels (widgets that can be larger than screen)
+    * Pads (widgets that can be larger than screen)
     * Textpad
     * Graph
     * Arrow
