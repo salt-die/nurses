@@ -1,14 +1,15 @@
 TODO
 ====
 * Widgets
-    * Pads (widgets that can be larger than screen)
     * Textpad
     * Graph
-    * Arrow
     * File Explorer
 
 * Layouts
     * Scrolling - a row or column of widgets that extends off-screen and can be scrolled
+
+* Testing
+    * Test pads
 
 * Docs
 
