@@ -4,7 +4,8 @@ from .meta import Singleton
 from .scheduler import Scheduler
 from ..widgets import Root
 
-EXIT = ord('q')
+EXIT = 27  # Escape
+
 
 
 class ScreenManager(Scheduler, metaclass=Singleton):

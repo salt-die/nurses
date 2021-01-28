@@ -2,7 +2,7 @@
 Credit for ascii art logo to Matthew Barber (https://ascii.matthewbarber.io/art/python/)
 
 Directions:
-    'q' to quit
+    'esc' to quit
     'r' to reset
     arrow-keys to move
     space to poke
@@ -41,7 +41,7 @@ j888888888888888888888888888888888888888'  8888888888888
                 `^888888888888888888888^
                   `'"^^V888888888V^^'
 """
-SPACE, RESET = 32, 114  # Keybindings
+SPACE, RESET = ord(' '), ord('r')  # Keybindings
 POKE_POWER = 2          # Increase this for more powerful pokes
 MAX_VELOCITY = 10       # Limits how fast particles can travel.
 FRICTION = .97          # Friction decreases the closer this value is to `1`.
