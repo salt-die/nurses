@@ -5,9 +5,6 @@ TODO
     * Graph
     * File Explorer
 
-* Testing
-    * Test pads
-
 * Docs
 
 Notes
