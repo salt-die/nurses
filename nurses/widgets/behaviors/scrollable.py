@@ -8,11 +8,11 @@ class Scrollable:
 
     def on_press(self, key):
         if key == self.scroll_up:
-            self.min_row = min(0, self.min_row - 1)
+            self.min_row = max(0, self.min_row - 1)
         elif key == self.scroll_down:
             self.min_row = min(self.rows - self.height, self.min_row + 1)
         elif key == self.scroll_left:
-            self.min_col = min(0, self.min_col - 1)
+            self.min_col = max(0, self.min_col - 1)
         elif key == self.scroll_right:
             self.min_col = min(self.cols - self.width, self.min_col + 1)
         else:
