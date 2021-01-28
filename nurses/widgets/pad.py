@@ -76,3 +76,22 @@ class Pad(ArrayWin):
 
         self.pad = new_pad
         self.pad_colors = new_pad_colors
+
+    def refresh(self):
+        """Redraw widget.
+        """
+        self.push()
+
+        h, w = self.height, self.width
+        for widget in self.children:
+            if widget is None:
+                continue
+
+            widget.refresh()
+            y, x = widget.top - self.min_row, widget.left - self.min_col
+            src_t, des_t = (-y, 0) if y < 0 else (0, y)
+            src_l, des_l = (-x, 0) if x < 0 else (0, x)
+            des_h = min(h - 1, des_t + widget.height)
+            des_w = min(w - 1, des_l + widget.width - 1)
+
+            widget.overlay(self.window, src_t, src_l, des_t, des_l, des_h, des_w)
