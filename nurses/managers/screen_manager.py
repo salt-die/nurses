@@ -4,7 +4,6 @@ from .meta import Singleton
 from .scheduler import Scheduler
 from ..widgets import Root
 
-GETCH_DELAY = .05
 EXIT = ord('q')
 
 
@@ -38,7 +37,7 @@ class ScreenManager(Scheduler, metaclass=Singleton):
         screen.nodelay(True)
         return key
 
-    async def getch(self, delay):
+    async def getch(self):
         while True:
             if not self.ready and not self.sleeping:
                 return
@@ -54,11 +53,11 @@ class ScreenManager(Scheduler, metaclass=Singleton):
             elif key != curses.ERR:
                 self.root.dispatch(key)
 
-            await self.sleep(delay)
+            await self.next_task()
 
-    def run(self, *coros, getch=True, getch_delay=GETCH_DELAY):
+    def run(self, *coros, getch=True):
         if getch:
-            self.run_soon(self.getch(getch_delay))
+            self.run_soon(self.getch())
 
         super().run(*coros)
 
