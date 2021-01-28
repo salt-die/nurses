@@ -5,8 +5,8 @@ from . import ArrayWin
 
 class ArrayPad(ArrayWin):
     """
-    Pads are windows that can be larger than the screen.  They have an extra buffer, `pad`: rectangular sections of `pad`
-    will be copied to the buffer and pushed to the screen.
+    :class: ArrayPads are windows that can be larger than the screen.  They have an extra buffer, `pad`. Rectangular sections of `pad`
+    will be copied to the buffer and pushed to the screen.  Pad colors are stored in `pad_colors`.
 
     Parameters
     ----------
