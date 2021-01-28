@@ -1,10 +1,13 @@
 from .widget import Widget
 
 # Widgets
-from .analog_clock import AnalogClock
-from .arraywin import ArrayWin
-from .digital_clock import DigitalClock
 from .root import Root
+
+from .array_win import ArrayWin
+from .array_pad import ArrayPad
+
+from .digital_clock import DigitalClock
+from .analog_clock import AnalogClock
 
 # Layouts
 from .grid import Grid
