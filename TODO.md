@@ -5,9 +5,6 @@ TODO
     * Graph
     * File Explorer
 
-* Layouts
-    * Scrolling - a row or column of widgets that extends off-screen and can be scrolled
-
 * Testing
     * Test pads
 
