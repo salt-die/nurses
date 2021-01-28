@@ -1,5 +1,5 @@
 class Scrollable:
-    """Warning:: Scrollable behavior for :class: Pad only.
+    """Warning:: Scrollable behavior for :class: ArrayPad only.
     """
     scroll_up = 259  # Up-arrow
     scroll_down = 258  # Down-arrow
