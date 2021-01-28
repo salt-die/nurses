@@ -1,6 +1,7 @@
 TODO
 ====
 * Widgets
+    * Scrollbar -- We may want to consider a more general approach to properties -- scrollbars need to update on a Pad's properties
     * Textpad
     * Graph
     * File Explorer
