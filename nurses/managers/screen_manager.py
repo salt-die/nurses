@@ -7,7 +7,6 @@ from ..widgets import Root
 EXIT = 27  # Escape
 
 
-
 class ScreenManager(Scheduler, metaclass=Singleton):
     """
     ScreenManager starts and closes curses, handles events (getching for now, hopefully mouse
