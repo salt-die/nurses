@@ -1,7 +1,6 @@
 from itertools import cycle
 
 from nurses import ScreenManager, colors
-from nurses.widgets import DigitalClock
 
 with ScreenManager() as sm:
     rainbow = cycle(colors.rainbow_gradient(20))
@@ -11,17 +10,8 @@ with ScreenManager() as sm:
 
     big_clock = sm.root.new_widget(0, 0, boundary=False, create_with="AnalogClock")
 
-    ### This hack because we don't have a normal way to track these properties yet
-    old_geom = DigitalClock.update_geometry
-
-    def update_geometry(self):
-        old_geom(self)
-        self.left = big_clock.height - self.width // 2 - 1
-
-    DigitalClock.update_geometry = update_geometry
-    ###
-
     small_clock = sm.root.new_widget(18, 15,  transparent=True, pos_hint=(-8, None), create_with="DigitalClock")
+    small_clock.getter("left", lambda: big_clock.height - small_clock.width // 2 - 1)
 
     def update_color():
         big_clock.update_color(next(blue_to_yellow))
