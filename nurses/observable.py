@@ -18,6 +18,7 @@ class Observable:
         self.default = default
         self.methods = defaultdict(dict)
         self.callbacks = { }
+        self.getters = { }
 
     def __set_name__(self, owner, name):
         self.name = name
@@ -29,6 +30,9 @@ class Observable:
     def __get__(self, instance, owner):
         if instance is None:
             return self
+
+        if instance in self.getters:
+            return self.getters[instance]()
 
         if self.name in instance.__dict__:
             return instance.__dict__[self.name]
