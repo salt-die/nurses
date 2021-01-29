@@ -122,6 +122,19 @@ class Widget(metaclass=Observer):
 
         super().__init__(*rest, **kwargs)
 
+    def getter(self, name, getter):
+        """
+        Replace an attribute lookup with a no-argument function call.
+
+        ::Warning:: This modifies the class dictionary, replacing any non-Observable attribute with an Observable.
+        """
+        observable = getattr(type(self), name, None)
+        if not isinstance(observable, Observable):
+            setattr(type(self), name, Observable(observable))
+            observable = getattr(type(self), name)
+
+        observable.getters[self] = getter
+
     @bind_to("top")
     def _set_pos_hint_y(self):
         self.pos_hint = None, self.pos_hint[1]
