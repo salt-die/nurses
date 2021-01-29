@@ -18,5 +18,5 @@ Notes
     Would like an easy way to create properties that track attributes on other widgets as well.
 
 * Off-by-1
-    Stacks and Grids might not use entire screen space do to rounding from size-hints.  On the one hand we could add extra rows/cols to child widgets, but then
+    Stacks and Grids might not use entire screen space due to rounding from size-hints.  On the one hand we could add extra rows/cols to child widgets, but then
     widgets that are expected to be same size could be differently sized.  On the other hand we could do nothing and widgets with the same size hints will be the same size, but there may be a row or two of screen real estate that isn't used.
