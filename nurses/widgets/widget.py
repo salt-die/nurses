@@ -85,7 +85,7 @@ class Widget(metaclass=Observer):
 
     If some part of the widget moves out-of-bounds of the screen only the part that overlaps the screen will be drawn.
 
-    Currently widget size is limited by screen size.
+    Widget size is limited by screen size (ArrayPad can be larger than screen).
     """
     types = { }  # Registry of subclasses of Widget
 
