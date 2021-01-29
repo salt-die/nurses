@@ -130,8 +130,7 @@ class Widget(metaclass=Observer):
         """
         observable = getattr(type(self), name, None)
         if not isinstance(observable, Observable):
-            setattr(type(self), name, Observable(observable))
-            observable = getattr(type(self), name)
+            setattr(type(self), name, observable := Observable(observable))
 
         observable.getters[self] = getter
 
