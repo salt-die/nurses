@@ -1,7 +1,7 @@
 TODO
 ====
 * Widgets
-    * Scrollbar -- We may want to consider a more general approach to properties -- scrollbars need to update on a Pad's properties
+    * Scrollbar
     * Textpad
     * Graph
     * File Explorer
@@ -13,3 +13,10 @@ Notes
 * Colors
     Resizing windows terminal seems to do something strange to colors.  I can't quite nail it down - the behavior doesn't seem consistent for all colors.
     One can see an example of this when resizing the terminal for async_test.py:  The borders of the walking widgets turn blue.
+
+* Properties
+    Would like an easy way to create properties that track attributes on other widgets as well.
+
+* Off-by-1
+    Stacks and Grids might not use entire screen space do to rounding from size-hints.  On the one hand we could add extra rows/cols to child widgets, but then
+    widgets that are expected to be same size could be differently sized.  On the other hand we could do nothing and widgets with the same size hints will be the same size, but there may be a row or two of screen real estate that isn't used.
