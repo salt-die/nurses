@@ -12,11 +12,12 @@ class Stack(Layout):
         if self.root is None:
             return
 
-        for i, child in enumerate(self.children):
-            if self.is_vertical:
+        if self.is_vertical:
+            for i, child in enumerate(self.children):
                 child.size_hint = 1 / len(self.children), 1.0
                 child.pos_hint = i / len(self.children), 0.0
-            else:
+        else:
+            for i, child in enumerate(self.children):
                 child.size_hint = 1.0, 1 / len(self.children)
                 child.pos_hint = 0.0, i / len(self.children)
 
