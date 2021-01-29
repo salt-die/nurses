@@ -12,7 +12,8 @@ class Observable:
     We store method names instead of methods themselves.  This so we can dynamically patch methods on widgets and the new
     method will be called.
 
-    Extremely experimental.
+    Instances that want to use a custom __get__ simply need to add the getter (a no-argument callable) to `getters`.
+    (e.g., `observable.getters[my_instance] = getter`)
     """
     def __init__(self, default=NO_DEFAULT):
         self.default = default
