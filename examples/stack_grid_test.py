@@ -1,4 +1,4 @@
-from nurses import ScreenManager, colors, load_string
+from nurses import ScreenManager, load_string
 
 with ScreenManager() as sm:
     widgets = load_string("""
