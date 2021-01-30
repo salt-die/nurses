@@ -10,7 +10,8 @@ with ScreenManager() as sm:
 
     scroll_pad = sm.root.new_widget(
         create_with=ScrollingPad, rows=200, cols=200, size_hint=(1.0, 1.0),
-        right_scrollbar=True, bottom_scrollbar=True, bar_color=colors.BLUE_ON_WHITE)
+        right_scrollbar=True, bottom_scrollbar=True, bar_color=colors.BLUE_ON_WHITE
+    )
 
     for i in range(200):
         scroll_pad[i, :] = f'{f"{i:03}":>10}' * 20
