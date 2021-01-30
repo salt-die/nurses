@@ -17,10 +17,10 @@ class ArrayPad(ArrayWin):
         the upper left corner of the pad region to be displayed (default is 0)
     """
 
-    vertical_scrollbar_left = False
-    vertical_scrollbar_right = False
-    horizontal_scrollbar_top = False
-    horizontal_scrollbar_bottom = False
+    left_scrollbar = False
+    right_scrollbar = False
+    top_scrollbar = False
+    bottom_scrollbar = False
 
     UP_ARROW = "⯅"
     DOWN_ARROW = "⯆"
@@ -69,8 +69,8 @@ class ArrayPad(ArrayWin):
     def push(self):
         """Write the buffers to the window.
         """
-        top, bottom = self.horizontal_scrollbar_top, self.horizontal_scrollbar_bottom
-        left, right = self.vertical_scrollbar_left, self.vertical_scrollbar_right
+        top, bottom = self.top_scrollbar, self.bottom_scrollbar
+        left, right = self.left_scrollbar, self.right_scrollbar
 
         buf_h, buf_w = self.buffer.shape
         buf_h -= top + bottom
@@ -100,11 +100,11 @@ class ArrayPad(ArrayWin):
     def _bar(self, vertical=True):
         if vertical:
             start, end = self.UP_ARROW, self.DOWN_ARROW
-            length = self.buffer.shape[0] - self.horizontal_scrollbar_bottom - self.horizontal_scrollbar_top
+            length = self.buffer.shape[0] - self.bottom_scrollbar - self.top_scrollbar
             percent = self.min_row / (self.rows - length)
         else:
             start, end = self.LEFT_ARROW, self.RIGHT_ARROW
-            length = self.buffer.shape[1] - self.vertical_scrollbar_left - self.vertical_scrollbar_right
+            length = self.buffer.shape[1] - self.left_scrollbar - self.right_scrollbar
             percent = self.min_col / (self.cols - length)
 
         filler_amount = length - self.BAR_INDICATOR_THICKNESS - 2
