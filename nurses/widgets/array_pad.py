@@ -17,7 +17,21 @@ class ArrayPad(ArrayWin):
         the upper left corner of the pad region to be displayed (default is 0)
     """
 
-    def __init__(self, *args, rows, cols, min_row=0, min_col=0, **kwargs):
+    vertical_scrollbar_left = False
+    vertical_scrollbar_right = False
+    horizontal_scrollbar_top = False
+    horizontal_scrollbar_bottom = False
+
+    UP_ARROW = "⯅"
+    DOWN_ARROW = "⯆"
+    LEFT_ARROW = "⯇"
+    RIGHT_ARROW = "⯈"
+
+    BAR_INDICATOR = "█"
+    BAR_INDICATOR_THICKNESS = 3
+    BAR_FILLER = "░"
+
+    def __init__(self, *args, rows, cols, min_row=0, min_col=0, bar_color=0, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.__dict__["rows"] = rows
@@ -27,6 +41,8 @@ class ArrayPad(ArrayWin):
 
         self.pad = np.full((rows, cols), " ")
         self.pad_colors = np.full((rows, cols), self.color)
+
+        self.bar_color = bar_color
 
     def __getitem__(self, key):
         return self.pad[key]
@@ -53,14 +69,52 @@ class ArrayPad(ArrayWin):
     def push(self):
         """Write the buffers to the window.
         """
+        top, bottom = self.horizontal_scrollbar_top, self.horizontal_scrollbar_bottom
+        left, right = self.vertical_scrollbar_left, self.vertical_scrollbar_right
+
         buf_h, buf_w = self.buffer.shape
+        buf_h -= top + bottom
+        buf_w -= left + right
+
         min_row, min_col = self.min_row, self.min_col
 
         min_h, min_w = min(buf_h, self.rows - min_row), min(buf_w, self.cols - min_col)
-        self.buffer[:min_h, :min_w] = self.pad[min_row: min_row + min_h, min_col: min_col + min_w]
-        self.colors[:min_h, :min_w] = self.pad_colors[min_row: min_row + min_h, min_col: min_col + min_w]
+        self.buffer[top: top + min_h, left: left + min_w] = self.pad[min_row: min_row + min_h, min_col: min_col + min_w]
+        self.colors[top: top + min_h, left: left + min_w] = self.pad_colors[min_row: min_row + min_h, min_col: min_col + min_w]
+
+        if top:
+            self.buffer[0, left: -right or None] = self._bar(vertical=False)
+            self.colors[0, left: -right or None] = self.bar_color
+        if bottom:
+            self.buffer[-1, left: -right or None] = self._bar(vertical=False)
+            self.colors[-1, left: -right or None] = self.bar_color
+        if left:
+            self.buffer[top: -bottom or None, 0] = self._bar()
+            self.colors[top: -bottom or None, 0] = self.bar_color
+        if right:
+            self.buffer[top: -bottom or None, -1] = self._bar()
+            self.colors[top: -bottom or None, -1] = self.bar_color
 
         super().push()
+
+    def _bar(self, vertical=True):
+        if vertical:
+            start, end = self.UP_ARROW, self.DOWN_ARROW
+            length = self.buffer.shape[0] - self.horizontal_scrollbar_bottom - self.horizontal_scrollbar_top
+            percent = self.min_row / (self.rows - length)
+        else:
+            start, end = self.LEFT_ARROW, self.RIGHT_ARROW
+            length = self.buffer.shape[1] - self.vertical_scrollbar_left - self.vertical_scrollbar_right
+            percent = self.min_col / (self.cols - length)
+
+        filler_amount = length - self.BAR_INDICATOR_THICKNESS - 2
+        start_filler = int(percent * filler_amount)
+
+        return tuple(
+            f'{start}{self.BAR_FILLER * start_filler}'
+            f'{self.BAR_INDICATOR * self.BAR_INDICATOR_THICKNESS}'
+            f'{self.BAR_FILLER * (filler_amount - start_filler)}{end}'
+        )
 
     @bind_to("rows", "cols")
     def _resize_pad(self):

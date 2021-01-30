@@ -15,3 +15,7 @@ numpy arrays and typical GUI widgets.
 # /examples/behaviors_test.py:
 
 ![moving and selectable widgets](behaviors.gif)
+
+# /examples/pad_test.py
+
+![scrollable pad window](pad_test.gif)

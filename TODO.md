@@ -1,7 +1,6 @@
 TODO
 ====
 * Widgets
-    * Scrollbar
     * Textpad
     * Graph
     * File Explorer
