@@ -43,6 +43,8 @@ class ScreenManager(Scheduler, metaclass=Singleton):
                 return
 
             key = self.screen.getch()
+            curses.flushinp()
+
             if key == EXIT:
                 self.ready.clear()
                 self.sleeping.clear()
