@@ -254,6 +254,9 @@ class Widget(metaclass=Observer):
         widget.parent = self
         widget.update_geometry()
 
+    def remove_widget(self, widget):
+        self.children.remove(widget)
+
     def new_widget(self, *args, group=None, create_with=None, **kwargs):
         """
         Create a new widget and append to widget stack.  Can group widgets if providing a hashable group.
