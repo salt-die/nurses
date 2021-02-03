@@ -2,37 +2,15 @@ from itertools import cycle
 
 from nurses import colors, ScreenManager
 from nurses.widgets import ArrayWin, DigitalClock
-from nurses.widgets.behaviors import Selectable, Movable
+from nurses.widgets.behaviors import Selectable, Movable, Bouncing
 
 
 VELOCITY = .5
 
 
-class MovingClock(DigitalClock):
-    def __init__(self, top, left, *args, **kwargs):
-        super().__init__(top, left, *args, **kwargs)
-
-        self.pos = complex(top, left)
-        self.vel = 1 + 1j
-        self.vel *= VELOCITY / abs(self.vel)  # Normalize
-
-        sm.schedule(self.update, delay=.1)
-
-    def update(self):
-        self.pos += self.vel
-
-        if not 1 <= self.pos.real <= self.parent.height - self.height - 1:
-            self.vel = -self.vel.conjugate()
-            self.pos += 2 * self.vel.real
-
-        if not 1 <= self.pos.imag <= self.parent.width - self.width - 1:
-            self.vel = self.vel.conjugate()
-            self.pos += 2j * self.vel.imag
-
-        self.top = round(self.pos.real)
-        self.left = round(self.pos.imag)
-
-        self.update_color(next(rainbow))
+class MovingClock(Bouncing, DigitalClock):
+    def __init__(self, top=0, left=0, *args, **kwargs):
+        super().__init__(top, left, *args, pos=complex(top, left), vel= (1 + 1j) * VELOCITY / abs(1 + 1j), **kwargs)
 
 
 class Window(ArrayWin, Movable, Selectable):
@@ -102,7 +80,9 @@ with ScreenManager() as sm:
     sm.root.add_widget(Notepad(0, 0, size_hint=(.5, .5)))
     sm.root.add_widget(Notepad(pos_hint=(0, .5), size_hint=(.5, .5)))
     sm.root.add_widget(Notepad(pos_hint=(.5, 0), size_hint=(.5, .5)))
-    sm.root.new_widget(pos_hint=(.5, .5), size_hint=(.5, .5), create_with=Window).add_widget(MovingClock(1, 1))
+    mc = sm.root.new_widget(pos_hint=(.5, .5), size_hint=(.5, .5), create_with=Window).new_widget(1, 1, delay=.1, create_with=MovingClock)
+    mc.schedule_bounce()
 
+    sm.schedule(lambda: mc.update_color(next(rainbow)), delay=.1)
     sm.schedule(sm.root.refresh)
     sm.run()
