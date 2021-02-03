@@ -7,8 +7,8 @@ class Textbox(ArrayWin):
     CURSOR = "█"
     CURSOR_COLOR = 0
 
-    def __init__(self, y, x, width,*args, **kwargs):
-        super().__init__(y, x, 3 if kwargs.get("border") else 1, width + 2 * bool(kwargs.get("border")), *args, **kwargs)
+    def __init__(self, top, left, width,*args, **kwargs):
+        super().__init__(top, left, 3 if kwargs.get("border") else 1, width + 2 * bool(kwargs.get("border")), *args, **kwargs)
         self._input = ""
         self._gathering = False
         self._col = 0
