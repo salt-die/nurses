@@ -1,23 +1,15 @@
 from . import ArrayWin
-from ..managers import ScreenManager
 
 ENTER = 10
 
 
 class Textbox(ArrayWin):
-    """
-    TODO: bounds checks in on_press, limit height?,
-    ... : alternative async init (with metaclasses)? --- textboxes are meant as one-shot inputs mostly?
-    ... : refresh root while gathering?
-    ... : pass event loop into constructor?
-
-    This is a incomplete, non-blocking version of a curses Textbox.  I've not decided exactly how I want this to behave yet.
-    """
     CURSOR = "█"
     CURSOR_COLOR = 0
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, y, x, width,*args, **kwargs):
+        super().__init__(y, x, 3 if kwargs.get("border") else 1, width + 2 * bool(kwargs.get("border")), *args, **kwargs)
+        self._input = ""
         self._gathering = False
         self._col = 0
 
@@ -29,11 +21,16 @@ class Textbox(ArrayWin):
     async def gather(self):
         self._gathering = True
 
+        from .. import ScreenManager  # We need the event loop, but we need to defer this import to avoid circularity.
+        sm = ScreenManager()
+
+        self.root.refresh()
+
         while self._gathering:
-            await ScreenManager().next_task()
+            await sm.next_task()
 
         self.parent.remove_widget(self)
-        return "".join(self.buffer[0])
+        return self._input
 
     def on_press(self, key):
         if not self._gathering:
@@ -41,8 +38,15 @@ class Textbox(ArrayWin):
 
         if key == ENTER:
             self._gathering = False
+        # TODO: Check for arrow keys / delete / backspace
         else:
+            self._input += chr(key)
             self[0, self._col] = chr(key)
-            self._col += 1
 
+            if self._col == self.width - 2 * bool(self.has_border) - 1:
+                self.roll()
+            else:
+                self._col += 1
+
+        self.root.refresh()
         return True

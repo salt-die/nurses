@@ -43,8 +43,6 @@ class ScreenManager(Scheduler, metaclass=Singleton):
                 return
 
             key = self.screen.getch()
-            curses.flushinp()
-
             if key == EXIT:
                 self.ready.clear()
                 self.sleeping.clear()
@@ -54,6 +52,7 @@ class ScreenManager(Scheduler, metaclass=Singleton):
                 self.root.update_geometry()
             elif key != curses.ERR:
                 self.root.dispatch(key)
+                curses.flushinp()
 
             await self.next_task()
 
