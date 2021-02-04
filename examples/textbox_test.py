@@ -5,13 +5,13 @@ from nurses.widgets import Textbox
 from nurses.widgets.behaviors import Bouncing
 
 
-class WalkingTextbox(Bouncing, Textbox):
+class BouncingTextbox(Bouncing, Textbox):
     ...
 
 
 with ScreenManager() as sm:
     rainbow = cycle(colors.rainbow_gradient())
-    tb = sm.root.new_widget(0, 0, 20, border="curved", create_with=WalkingTextbox)
+    tb = sm.root.new_widget(0, 0, 20, border="curved", create_with=BouncingTextbox)
 
     def color_border():
         tb.border(style="curved", color=next(rainbow))
