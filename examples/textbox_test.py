@@ -8,8 +8,7 @@ from nurses.widgets.behaviors import Bouncing
 class BouncingTextbox(Bouncing, Textbox):
     def refresh(self):
         self.border(style="curved", color=next(rainbow))
-        self._buffer[0, 1:7] = tuple("Input:")
-        self._colors[0, 1:7] = 0
+        self.window.addstr(0, 1, "Input:")
         super().refresh()
 
 
