@@ -6,27 +6,24 @@ from nurses.widgets.behaviors import Bouncing
 
 
 class BouncingTextbox(Bouncing, Textbox):
-    ...
+    def refresh(self):
+        self.border(style="curved", color=next(rainbow))
+        self._buffer[0, 1:7] = tuple("Input:")
+        self._colors[0, 1:7] = 0
+        super().refresh()
 
 
 with ScreenManager() as sm:
     rainbow = cycle(colors.rainbow_gradient())
+
     tb = sm.root.new_widget(0, 0, 20, border="curved", create_with=BouncingTextbox)
-
-    def color_border():
-        tb.border(style="curved", color=next(rainbow))
-
-        tb._buffer[0, 1:7] = tuple("Input:")
-        tb._colors[0, 1:7] = 0
-
-        sm.root.refresh()
-
     tb.schedule_bounce()
-    color_task = sm.schedule(color_border, delay=.1)
+
+    refresh_task = sm.schedule(sm.root.refresh, delay=.1)
 
     async def print_result():
         print(await tb.gather())
         tb.bounce.cancel()
-        color_task.cancel()
+        refresh_task.cancel()
 
     sm.run(print_result())
