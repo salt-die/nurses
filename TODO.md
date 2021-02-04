@@ -8,7 +8,7 @@ TODO
     doesn't always seem to work.
 
 * Widgets
-    * Textpad
+    * Textpad - The `on_press` method of `Textbox` probably has plenty of reusable code for this.
     * Graph
     * File Explorer
 
