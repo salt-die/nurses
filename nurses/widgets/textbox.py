@@ -1,4 +1,4 @@
-from . import ArrayWin
+from . import Widget
 
 BACKSPACE = 8
 TAB = 9
@@ -10,7 +10,7 @@ END = 455
 DELETE = 462
 
 
-class Textbox(ArrayWin):
+class Textbox(Widget):
     CURSOR = "█"
     CURSOR_COLOR = 0
 
@@ -20,8 +20,8 @@ class Textbox(ArrayWin):
         self._reset()
 
     def refresh(self):
-        super().refresh()
         offset = 1 if self.has_border else 0
+        self.window.hline(offset, offset, " ", self.width - 2 * offset)
         self.window.addstr(offset, offset, self._input[self._input_offset: self._input_offset + self.width - 2 * offset])
         self.window.addstr(offset, offset + self._cursor_x, self.CURSOR, self.CURSOR_COLOR)
 

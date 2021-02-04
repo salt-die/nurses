@@ -4,6 +4,13 @@ import curses
 from ..observable import Observable
 
 
+BORDER_STYLES = {
+    "light" : "┌┐│─└┘",
+    "heavy" : "┏┓┃━┗┛",
+    "double": "╔╗║═╚╝",
+    "curved": "╭╮│─╰╯",
+}
+
 _attr_to_callbacks = defaultdict(list)
 def bind_to(*attrs):
     """Decorator that binds a method to attributes.  Attributes in `attrs` that aren't Observable will be redefined as Observables.
@@ -98,7 +105,7 @@ class Widget(metaclass=Observer):
         if not cls.on_press.__doc__:
             cls.on_press.__doc__ = Widget.on_press.__doc__
 
-    def __init__(self, *args, color=0, parent=None, transparent=False, **kwargs):
+    def __init__(self, *args, color=0, parent=None, transparent=False, border=None, border_color=None, **kwargs):
         self.children = [ ]
         self.group = defaultdict(list)
         self.window = None
@@ -114,6 +121,8 @@ class Widget(metaclass=Observer):
         self.left = left
         self.height = height
         self.width = width
+
+        self.has_border = (border, border_color) if border is not None else False
 
         for attr in tuple(kwargs):
             # This allows one to set class attributes with keyword-arguments. TODO: Document this.
@@ -358,6 +367,38 @@ class Widget(metaclass=Observer):
                 delta += dif
             else:
                 delta += dx
+
+    def border(self, style="light", color=None):
+        """
+        Draw a border on the edges of the widget.
+
+        Parameters
+        ----------
+        style: optional
+            The style of the border, can be one of `nurses.widget.BORDER_STYLES`. (the default is "light")
+
+        color: optional
+            The color of the border.  (the default is the widget's `color`)
+        """
+        # Curses windows already have a `border` method, but UnicodeEncodeErrors seem to happen when called with the
+        # characters in BORDER_STYLES. So we add the border "by hand".
+        window = self.window
+        h, w = self.height - 1, self.width - 1
+        ul, ur, v, hor, ll, lr = BORDER_STYLES[style]
+        color = color or self.color
+
+        window.addstr(0, 0, ul, color)
+        window.addstr(0, w, ur, color)
+        window.addstr(h, 0, ll, color)
+        window.addstr(h, w, lr, color)
+
+        for x in range(1, w):
+            window.addstr(0, x, hor, color)
+            window.addstr(h, x, hor, color)
+
+        for y in range(1, h):
+            window.addstr(y, 0, v, color)
+            window.addstr(y, w, v, color)
 
     def dispatch(self, key):
         for widget in reversed(self.children):
