@@ -2,15 +2,7 @@ import curses
 
 import numpy as np
 
-from . import Widget
-
-
-BORDER_STYLES = {
-    "light" : "┌┐│─└┘",
-    "heavy" : "┏┓┃━┗┛",
-    "double": "╔╗║═╚╝",
-    "curved": "╭╮│─╰╯",
-}
+from .widget import Widget, BORDER_STYLES
 
 
 class ArrayWin(Widget):
@@ -29,13 +21,10 @@ class ArrayWin(Widget):
     __getitem__ and __setitem__ call the respective buffer functions directly, so one can slice
     and write to a Widget as if it was a numpy array.
     """
-    def __init__(self, *args, border=None, border_color=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self._buffer = None
         self._colors = None
-
-        self.has_border = (border, border_color) if border is not None else False
 
     def update_geometry(self):
         if self.root is None:
