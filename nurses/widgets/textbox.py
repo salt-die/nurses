@@ -23,7 +23,10 @@ class Textbox(Widget):
         offset = 1 if self.has_border else 0
         self.window.hline(offset, offset, " ", self.width - 2 * offset)
         self.window.addstr(offset, offset, self._input[self._input_offset: self._input_offset + self.width - 2 * offset])
-        self.window.addstr(offset, offset + self._cursor_x, self.CURSOR, self.CURSOR_COLOR)
+        if self.CURSOR:
+            self.window.addstr(offset, offset + self._cursor_x, self.CURSOR, self.CURSOR_COLOR)
+        else:
+            self.window.chgat(offset, offset + self._cursor_x, 1, self.CURSOR_COLOR)
 
     def _reset(self):
         self._input = ""

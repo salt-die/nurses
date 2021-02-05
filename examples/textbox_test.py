@@ -6,6 +6,8 @@ from nurses.widgets.behaviors import Bouncing
 
 
 class BouncingTextbox(Bouncing, Textbox):
+    CURSOR = ""
+
     def refresh(self):
         self.border(style="curved", color=next(rainbow))
         self.window.addstr(0, 1, "Input:")
@@ -15,7 +17,7 @@ class BouncingTextbox(Bouncing, Textbox):
 with ScreenManager() as sm:
     rainbow = cycle(colors.rainbow_gradient())
 
-    tb = sm.root.new_widget(0, 0, 20, border="curved", create_with=BouncingTextbox)
+    tb = sm.root.new_widget(0, 0, 20, border="curved", CURSOR_COLOR=colors.BLACK_ON_WHITE, create_with=BouncingTextbox)
     tb.schedule_bounce()
 
     refresh_task = sm.schedule(sm.root.refresh, delay=.1)
