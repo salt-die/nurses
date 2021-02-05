@@ -42,9 +42,11 @@ class Textbox(Widget):
             await sm.next_task()
 
         self.parent.remove_widget(self)
-        out = self._input
-        self._reset()
-        return out
+
+        try:
+            return self._input
+        finally:
+            self._reset()
 
     def on_press(self, key):
         if not self._gathering:
