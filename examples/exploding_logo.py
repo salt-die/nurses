@@ -62,7 +62,7 @@ class Cursor(Widget, Movable):
 
 class Particle(Widget):
     # We create a lot of particles, if we can get any speed up from this, we'll take it!
-    __slots__ = "start", "pos", "vel", "start_color", "character"
+    __slots__ = "start", "pos", "vel", "start_color", "character", "_step_task"
 
     def __init__(self, top, left, color, character, **kwargs):
         super().__init__(top, left, 1, 1, color=color)
@@ -73,7 +73,7 @@ class Particle(Widget):
         self.start_color = color
         self.character = character
 
-        sm.schedule(self.step)
+        self._step_task = sm.schedule(self.step)
 
     def update_geometry(self):
         if self.parent is None:
@@ -85,6 +85,8 @@ class Particle(Widget):
     def on_press(self, key):
         if key == SPACE:
             self.poke()
+            if self._step_task.is_canceled:
+                self._step_task = self._step_task()
         elif key == RESET:
             sm.run_soon(self.reset())
 
@@ -94,8 +96,8 @@ class Particle(Widget):
             self.vel += POKE_POWER / (dyx.real**2 + dyx.imag**2) * dyx
 
     def step(self):
-        if self.vel == 0:
-            return
+        if abs(self.vel) < .0001:
+            return self._step_task.cancel()
 
         if (mag := abs(self.vel)) > MAX_VELOCITY:
             self.vel *= MAX_VELOCITY / mag
@@ -118,6 +120,7 @@ class Particle(Widget):
         self.color = (self.color + min(mag, MAX_VELOCITY) * COLOR_CHANGE) % COLORS
 
     async def reset(self):
+        self._step_task.cancel()
         self.vel = 0j
         async for a in sm.aiter(FAST_DIVISION):
             self.pos = a * self.start + (1 - a) * self.pos
