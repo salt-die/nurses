@@ -16,8 +16,6 @@ TODO
 
 Notes
 -----
-* Test that escape characters are being getched properly
-
 * Window sizes
     Windows in widgets are wider than they need to be by 1.  This is because writing to the lower-right corner of a curses window produces an error since the cursor
     can't advance.  There may be a more elegant solution...
