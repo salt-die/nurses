@@ -26,8 +26,7 @@ with ScreenManager() as sm:
     def update():
         widget.colors[:, :5] = next(rainbow)
         widget.colors[:, 5:] = next(purp_to_teal)
-        widget.push()
-        sm.root.refresh()
+        widget.root.refresh()
 
     sm.schedule(update, delay=.1)
     sm.run()
