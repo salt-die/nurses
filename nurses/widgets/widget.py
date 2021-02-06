@@ -57,7 +57,6 @@ class Observer(type):
                 prop.bind(name, callback)
 
         _attr_to_callbacks.clear()
-
         return super().__new__(meta, name, bases, methods)
 
 
@@ -96,6 +95,11 @@ class Widget(metaclass=Observer):
     """
     types = { }  # Registry of subclasses of Widget
 
+    color = 0
+    parent = None
+    transparent = False
+    border_style = None
+    border_color = None
     pos_hint = None, None
     size_hint = None, None
 
@@ -105,14 +109,10 @@ class Widget(metaclass=Observer):
         if not cls.on_press.__doc__:
             cls.on_press.__doc__ = Widget.on_press.__doc__
 
-    def __init__(self, *args, color=0, parent=None, transparent=False, border=None, border_color=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.children = [ ]
         self.group = defaultdict(list)
         self.window = None
-
-        self.color = color
-        self.parent = parent
-        self.is_transparent = transparent
 
         # Assign default values if len(args) < 4
         top, left, height, width, *rest = args + (None, None) if len(args) == 2 else args or (0, 0, None, None)
@@ -122,14 +122,18 @@ class Widget(metaclass=Observer):
         self.height = height
         self.width = width
 
-        self.has_border = (border, border_color) if border is not None else False
-
         for attr in tuple(kwargs):
             # This allows one to set class attributes with keyword-arguments. TODO: Document this.
             if hasattr(self, attr):
                 setattr(self, attr, kwargs.pop(attr))
 
         super().__init__(*rest, **kwargs)
+
+    __init__.__text_signature__ = (
+        "(top=0, left=0, height=None, width=None, /, "
+        "color=0, parent=None, transparent=False, border_style=None, border_color=None, "
+        "pos_hint=(None, None), size_hint=(None, None), **kwargs)"
+    )
 
     def getter(self, name, getter):
         """
@@ -286,7 +290,7 @@ class Widget(metaclass=Observer):
 
     @property
     def overlay(self):
-        return self.window.overlay if self.is_transparent else self.window.overwrite
+        return self.window.overlay if self.transparent else self.window.overwrite
 
     def refresh(self):
         """Redraw children's windows.
@@ -368,6 +372,10 @@ class Widget(metaclass=Observer):
             else:
                 delta += dx
 
+    @property
+    def has_border(self):
+        return bool(self.border_style)
+
     def border(self, style="light", color=None):
         """
         Draw a border on the edges of the widget.
@@ -382,6 +390,9 @@ class Widget(metaclass=Observer):
         """
         # Curses windows already have a `border` method, but UnicodeEncodeErrors seem to happen when called with the
         # characters in BORDER_STYLES. So we add the border "by hand".
+        self.border_style = style
+        self.border_color = color
+
         window = self.window
         h, w = self.height - 1, self.width - 1
         ul, ur, v, hor, ll, lr = BORDER_STYLES[style]
