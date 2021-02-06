@@ -1,4 +1,5 @@
-from nurses import ScreenManager, colors, load_string
+from nurses import ScreenManager, colors
+from nurses.builder import load_string
 
 with ScreenManager() as sm:
     # Define a widget layout with a TAML-like string

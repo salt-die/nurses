@@ -1,4 +1,5 @@
-from nurses import ScreenManager, load_string
+from nurses import ScreenManager
+from nurses.builder import load_string
 
 with ScreenManager() as sm:
     widgets = load_string("""
