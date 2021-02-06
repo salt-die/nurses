@@ -11,8 +11,8 @@ DELETE = 462
 
 
 class Textbox(Widget):
-    CURSOR = "█"
-    CURSOR_COLOR = 0
+    cursor = "█"
+    cursor_color = 0
 
     def __init__(self, top, left, width,*args, **kwargs):
         super().__init__(top, left, 3 if kwargs.get("border") else 1, width + 2 * bool(kwargs.get("border")), *args, **kwargs)
@@ -23,10 +23,10 @@ class Textbox(Widget):
         offset = 1 if self.has_border else 0
         self.window.hline(offset, offset, " ", self.width - 2 * offset)
         self.window.addstr(offset, offset, self._input[self._input_offset: self._input_offset + self.width - 2 * offset])
-        if self.CURSOR:
-            self.window.addstr(offset, offset + self._cursor_x, self.CURSOR, self.CURSOR_COLOR)
+        if self.cursor:
+            self.window.addstr(offset, offset + self._cursor_x, self.cursor, self.cursor_color)
         else:
-            self.window.chgat(offset, offset + self._cursor_x, 1, self.CURSOR_COLOR)
+            self.window.chgat(offset, offset + self._cursor_x, 1, self.cursor_color)
 
     def _reset(self):
         self._input = ""
