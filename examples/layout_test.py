@@ -5,12 +5,12 @@ with ScreenManager() as sm:
     # load_string will return a dictionary of named widgets
     globals().update(load_string("""
     HSplit(3)
-        ArrayWin(color=colors.YELLOW_ON_BLACK, border="curved", border_color=colors.CYAN_ON_BLACK) as title
+        ArrayWin(color=colors.YELLOW_ON_BLACK, border_style="curved", border_color=colors.CYAN_ON_BLACK) as title
         HSplit(-3)
             VSplit(.5)
-                ArrayWin(color=colors.RED_ON_BLACK, border="heavy", border_color=colors.GREEN_ON_BLACK) as left
+                ArrayWin(color=colors.RED_ON_BLACK, border_style="heavy", border_color=colors.GREEN_ON_BLACK) as left
                 ArrayWin() as right
-            ArrayWin(border="light", border_color=colors.GREEN_ON_BLACK)
+            ArrayWin(border_style="light", border_color=colors.GREEN_ON_BLACK)
     """))
 
     title[0, :5] = "Title"

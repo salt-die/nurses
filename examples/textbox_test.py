@@ -7,7 +7,7 @@ from nurses.widgets.behaviors import Bouncing
 
 class BouncingTextbox(Bouncing, Textbox):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, border="curved", **kwargs)
+        super().__init__(*args, border_style="curved", **kwargs)
 
     def refresh(self):
         self.border(style="curved", color=next(rainbow))

@@ -15,12 +15,12 @@ class Textbox(Widget):
     cursor_color = 0
 
     def __init__(self, top, left, width,*args, **kwargs):
-        super().__init__(top, left, 3 if kwargs.get("border") else 1, width + 2 * bool(kwargs.get("border")), *args, **kwargs)
+        super().__init__(top, left, 3 if kwargs.get("border_style") else 1, width + 2 * bool(kwargs.get("border_style")), *args, **kwargs)
         self._gathering = False
         self._reset()
 
     def refresh(self):
-        offset = 1 if self.has_border else 0
+        offset = int(self.has_border)
         self.window.hline(offset, offset, " ", self.width - 2 * offset)
         self.window.addstr(offset, offset, self._input[self._input_offset: self._input_offset + self.width - 2 * offset])
         if self.cursor:
@@ -58,7 +58,7 @@ class Textbox(Widget):
         text = self._input
         text_offset = self._input_offset
         cursor_x = self._cursor_x
-        end = self.width - 2 * bool(self.has_border) - 1
+        end = self.width - 2 * self.has_border - 1
 
         if key == ENTER:
             self._gathering = False

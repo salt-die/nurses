@@ -15,13 +15,13 @@ class MovingClock(Bouncing, DigitalClock):
 
 class Window(ArrayWin, Movable, Selectable):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, border="light", **kwargs)
+        super().__init__(*args, border_style="light", **kwargs)
 
     def refresh(self):
         if self.is_selected:
-            if self.has_border[0] != "heavy":
+            if self.border_style != "heavy":
                 self.border("heavy", colors.BLUE_ON_BLACK)
-        elif self.has_border[0] != "light":
+        elif self.border_style != "light":
             self.border()
 
         super().refresh()

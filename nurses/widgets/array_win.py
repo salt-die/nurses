@@ -38,7 +38,7 @@ class ArrayWin(Widget):
             self._colors = np.full((h, w), self.color)
 
             if self.has_border:
-                self.border(*self.has_border)
+                self.border(self.border_style, self.border_color)
 
     @property
     def colors(self):
@@ -85,7 +85,7 @@ class ArrayWin(Widget):
         super()._resize()
 
         if self.has_border:
-            self.border(*self.has_border)
+            self.border(self.border_style, self.border_color)
 
     def push(self):
         """Write the buffers to the window.
@@ -101,7 +101,7 @@ class ArrayWin(Widget):
 
     def __getitem__(self, key):
         """
-        `buffer.__getitem__` except offset if `self.has_border` is truth-y
+        `buffer.__getitem__` except offset if `self.has_border` is true
         (i.e., `buffer[1: -1, 1: -1].__getitem__` if `self.has_border`).
         """
         return self.buffer[key]
@@ -115,7 +115,7 @@ class ArrayWin(Widget):
         If `len(text) > 1`, `text` is coerced into an array or an array of arrays (depending on the presence of newlines).
         If the array's shape can't be cast to `self.buffer` it will be rotated and tried again (setting the text vertically).
 
-        If `self.has_border` is truth-y then indices will be offset automatically.
+        If `self.has_border` is true then indices will be offset automatically.
         (i.e., `buffer[1: -1, 1: -1].__setitem__` will be called instead)
 
         Examples
@@ -132,7 +132,7 @@ class ArrayWin(Widget):
         except ValueError:
             self.buffer[key] = np.rot90(text if len(text.shape) == 2 else text[None, ], -1)  # Try to fit the text vertically
 
-    def border(self, style="light", color=None, *, read_only=True):
+    def border(self, style="light", color=None):
         """
         Draw a border on the edges of the widget.
 
@@ -146,13 +146,12 @@ class ArrayWin(Widget):
 
         Notes
         -----
-        Calling this method sets the attribute `has_border` to `(style, color)`.
-
         Methods such as `__setitem__`, `roll`, `scroll`, `_resize` will take care to preserve the border
         as long as `has_border` is truth-y.  To disable this behavior set `has_border` to False or call
         this method with `read_only=False`.
         """
-        self.has_border = read_only and (style, color)
+        self.border_style = style
+        self.border_color = color
 
         ul, ur, v, h, ll, lr = BORDER_STYLES[style]
 
