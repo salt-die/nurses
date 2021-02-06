@@ -96,10 +96,10 @@ class Particle(Widget):
             self.vel += POKE_POWER / (dyx.real**2 + dyx.imag**2) * dyx
 
     def step(self):
-        if abs(self.vel) < .0001:
+        if (mag := abs(self.vel)) < .0001:
             return self._step_task.cancel()
 
-        if (mag := abs(self.vel)) > MAX_VELOCITY:
+        if mag > MAX_VELOCITY:
             self.vel *= MAX_VELOCITY / mag
 
         self.pos += self.vel
@@ -122,6 +122,7 @@ class Particle(Widget):
     async def reset(self):
         self._step_task.cancel()
         self.vel = 0j
+
         async for a in sm.aiter(FAST_DIVISION):
             self.pos = a * self.start + (1 - a) * self.pos
             self.color = COLOR_LERP * a * self.start_color + (1 - COLOR_LERP * a) * self.color
