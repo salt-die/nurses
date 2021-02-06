@@ -130,7 +130,7 @@ class Widget(metaclass=Observer):
         super().__init__(*rest, **kwargs)
 
     __init__.__text_signature__ = (
-        "(top=0, left=0, height=None, width=None, /, "
+        "($self, top=0, left=0, height=None, width=None, /, "
         "color=0, parent=None, transparent=False, border_style=None, border_color=None, "
         "pos_hint=(None, None), size_hint=(None, None), **kwargs)"
     )
