@@ -22,14 +22,14 @@ class ArrayPad(ArrayWin):
     top_scrollbar = False
     bottom_scrollbar = False
 
-    UP_ARROW = "⯅"
-    DOWN_ARROW = "⯆"
-    LEFT_ARROW = "⯇"
-    RIGHT_ARROW = "⯈"
+    up_arrow = "⯅"
+    down_arrow = "⯆"
+    left_arrow = "⯇"
+    right_arrow = "⯈"
 
-    BAR_INDICATOR = "█"
-    BAR_INDICATOR_THICKNESS = 3
-    BAR_FILLER = "░"
+    bar_indicator = "█"
+    bar_indicator_thickness = 3
+    bar_fill = "░"
 
     def __init__(self, *args, rows, cols, min_row=0, min_col=0, bar_color=0, **kwargs):
         super().__init__(*args, **kwargs)
@@ -99,21 +99,21 @@ class ArrayPad(ArrayWin):
 
     def _bar(self, vertical=True):
         if vertical:
-            start, end = self.UP_ARROW, self.DOWN_ARROW
+            start, end = self.up_arrow, self.down_arrow
             length = self.buffer.shape[0] - self.bottom_scrollbar - self.top_scrollbar
             percent = self.min_row / (self.rows - length)
         else:
-            start, end = self.LEFT_ARROW, self.RIGHT_ARROW
+            start, end = self.left_arrow, self.right_arrow
             length = self.buffer.shape[1] - self.left_scrollbar - self.right_scrollbar
             percent = self.min_col / (self.cols - length)
 
-        filler_amount = length - self.BAR_INDICATOR_THICKNESS - 2
+        filler_amount = length - self.bar_indicator_thickness - 2
         start_filler = int(percent * filler_amount)
 
         return tuple(
-            f'{start}{self.BAR_FILLER * start_filler}'
-            f'{self.BAR_INDICATOR * self.BAR_INDICATOR_THICKNESS}'
-            f'{self.BAR_FILLER * (filler_amount - start_filler)}{end}'
+            f'{start}{self.bar_fill * start_filler}'
+            f'{self.bar_indicator * self.bar_indicator_thickness}'
+            f'{self.bar_fill * (filler_amount - start_filler)}{end}'
         )
 
     @bind_to("rows", "cols")
