@@ -23,8 +23,11 @@ class Textbox(Widget):
 
     def refresh(self):
         offset = int(self.has_border)
-        self.window.hline(offset, offset, " ", self.width - 2 * offset)
-        self.window.addstr(offset, offset, self._input[self._input_offset: self._input_offset + self.width - 2 * offset])
+        width = self.width - 2 * offset
+
+        self.window.hline(offset, offset, " ", width)
+        self.window.addstr(offset, offset, self._input[self._input_offset: self._input_offset + width])
+
         if self.cursor:
             self.window.addstr(offset, offset + self._cursor_x, self.cursor, self.cursor_color)
         else:
