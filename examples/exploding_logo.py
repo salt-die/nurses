@@ -62,7 +62,7 @@ class Cursor(Widget, Movable):
 
 class Particle(Widget):
     # We create a lot of particles, if we can get any speed up from this, we'll take it!
-    __slots__ = "start", "pos", "vel", "start_color", "color"
+    __slots__ = "start", "pos", "vel", "start_color", "character"
 
     def __init__(self, top, left, color, character, **kwargs):
         super().__init__(top, left, 1, 1, color=color)
