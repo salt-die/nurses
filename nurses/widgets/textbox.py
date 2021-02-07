@@ -24,7 +24,7 @@ class Textbox(Widget):
     def refresh(self):
         if self.cursor_color is None:
             # The default cursor color pair can't be assigned until curses.init_scr has been called.
-            from nurses import colors
+            from .. import colors
             self.cursor_color = colors.BLACK_ON_WHITE
 
         offset = int(self.has_border)
