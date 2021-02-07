@@ -13,8 +13,8 @@ DELETE = 462
 KEYS = { BACKSPACE, TAB, ENTER, LEFT, RIGHT, HOME, END, DELETE, *map(ord, string.printable) }
 
 class Textbox(Widget):
-    cursor = "█"
-    cursor_color = 0
+    cursor = ""
+    cursor_color = None
 
     def __init__(self, top, left, width,*args, **kwargs):
         super().__init__(top, left, 3 if kwargs.get("border_style") else 1, width + 2 * bool(kwargs.get("border_style")), *args, **kwargs)
@@ -22,6 +22,11 @@ class Textbox(Widget):
         self._reset()
 
     def refresh(self):
+        if self.cursor_color is None:
+            # The default cursor color pair can't be assigned until curses.init_scr has been called.
+            from nurses import colors
+            self.cursor_color = colors.BLACK_ON_WHITE
+
         offset = int(self.has_border)
         width = self.width - 2 * offset
 

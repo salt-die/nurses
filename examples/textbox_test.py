@@ -18,7 +18,7 @@ class BouncingTextbox(Bouncing, Textbox):
 with ScreenManager() as sm:
     rainbow = cycle(colors.rainbow_gradient())
 
-    tb = sm.root.new_widget(0, 0, 20, cursor="", cursor_color=colors.BLACK_ON_WHITE, create_with=BouncingTextbox)
+    tb = sm.root.new_widget(0, 0, 20, create_with=BouncingTextbox)
     tb.schedule_bounce()
 
     refresh_task = sm.schedule(sm.root.refresh, delay=.1)
