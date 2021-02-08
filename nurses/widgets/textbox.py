@@ -22,16 +22,16 @@ class Textbox(Widget):
         self._reset()
 
     def refresh(self):
+        offset = int(self.has_border)
+        width = self.width - 2 * offset
+
+        self.window.hline(offset, offset, " ", width)  # Erase text
+        self.window.addstr(offset, offset, self._input[self._input_offset: self._input_offset + width])
+
         if self.cursor_color is None:
             # The default cursor color pair can't be assigned until curses.init_scr has been called.
             from .. import colors
             self.cursor_color = colors.BLACK_ON_WHITE
-
-        offset = int(self.has_border)
-        width = self.width - 2 * offset
-
-        self.window.hline(offset, offset, " ", width)
-        self.window.addstr(offset, offset, self._input[self._input_offset: self._input_offset + width])
 
         if self.cursor:
             self.window.addstr(offset, offset + self._cursor_x, self.cursor, self.cursor_color)
