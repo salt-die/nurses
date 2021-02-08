@@ -7,6 +7,8 @@ TAB = 9
 ENTER = 10
 LEFT = 260
 RIGHT = 261
+SLEFT = 391
+SRIGHT = 400
 HOME = 449
 END = 455
 DELETE = 462
@@ -62,6 +64,7 @@ class Textbox(Widget):
             self._reset()
 
     def on_press(self, key):
+        print(key)
         if not self._gathering or key not in KEYS:
             return
 
