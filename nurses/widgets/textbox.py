@@ -1,17 +1,8 @@
 import string
 
 from . import Widget
+from .. import BACKSPACE, TAB, ENTER, LEFT, RIGHT, HOME, END, DELETE
 
-BACKSPACE = 8
-TAB = 9
-ENTER = 10
-LEFT = 260
-RIGHT = 261
-SLEFT = 391
-SRIGHT = 400
-HOME = 449
-END = 455
-DELETE = 462
 KEYS = { BACKSPACE, TAB, ENTER, LEFT, RIGHT, HOME, END, DELETE, *map(ord, string.printable) }
 
 class Textbox(Widget):
@@ -64,7 +55,6 @@ class Textbox(Widget):
             self._reset()
 
     def on_press(self, key):
-        print(key)
         if not self._gathering or key not in KEYS:
             return
 

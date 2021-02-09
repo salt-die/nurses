@@ -1,8 +1,11 @@
+from ... import UP, DOWN, LEFT, RIGHT
+
+
 class Resizable:
-    shrink_vertical = 259  # Up-arrow
-    expand_vertical = 258  # Down-arrow
-    shrink_horizontal = 260  # Left-arrow
-    expand_horizontal = 261  # Right-arrow
+    shrink_vertical = UP
+    expand_vertical = DOWN
+    shrink_horizontal = LEFT
+    expand_horizontal = RIGHT
 
     def on_press(self, key):
         if key == self.shrink_vertical:

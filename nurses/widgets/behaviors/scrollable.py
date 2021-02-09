@@ -1,10 +1,13 @@
+from ... import UP, DOWN, LEFT, RIGHT
+
+
 class Scrollable:
     """Warning:: Scrollable behavior for :class: ArrayPad only.
     """
-    scroll_up = 259  # Up-arrow
-    scroll_down = 258  # Down-arrow
-    scroll_left = 260  # Left-arrow
-    scroll_right = 261  # Right-arrow
+    scroll_up = UP
+    scroll_down = DOWN
+    scroll_left = LEFT
+    scroll_right = RIGHT
 
     def on_press(self, key):
         if key == self.scroll_up:

@@ -1,12 +1,15 @@
 from collections import deque
 from weakref import ref
 
+from ... import TAB
+
 selectables = deque()
+
 
 class Selectable:
     __selected = None
 
-    select_key = 9  # Tab
+    select_key = TAB
 
     def __init__(self, *args, **kwargs):
         selectables.append(ref(self))

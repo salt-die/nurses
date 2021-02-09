@@ -1,8 +1,11 @@
+from ... import UP, DOWN, LEFT, RIGHT
+
+
 class Movable:
-    move_up = 259  # Up-arrow
-    move_down = 258  # Down-arrow
-    move_left = 260  # Left-arrow
-    move_right = 261  # Right-arrow
+    move_up = UP
+    move_down = DOWN
+    move_left = LEFT
+    move_right = RIGHT
 
     lr_step = 1
     ud_step = 1

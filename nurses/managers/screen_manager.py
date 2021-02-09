@@ -3,8 +3,9 @@ import curses
 from .meta import Singleton
 from .scheduler import Scheduler
 from ..widgets import Root
+from .. import ESCAPE
 
-EXIT = 27  # Escape
+EXIT = ESCAPE
 
 
 class ScreenManager(Scheduler, metaclass=Singleton):
