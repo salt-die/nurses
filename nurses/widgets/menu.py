@@ -1,11 +1,9 @@
 """
-details for future implementation:
-
-similar to Textbox, will need to delay import the default selected color
-
-should open/closed version of the menu be stored on separate windows? alternatively we could just resize/rewrite a single window
+window and on_press still needs implementing
 """
+
 from . import Widget
+from .. import UP, DOWN, ENTER
 
 
 class Menu(Widget):
@@ -14,9 +12,9 @@ class Menu(Widget):
     -----
     `items` should be an iterable of pairs ("menu entry", callback)
     """
-    move_up = 259  # Up-arrow
-    move_down = 258  # Down-arrow
-    select_key = 10  # Enter
+    move_up = UP
+    move_down = DOWN
+    select_key = ENTER
     open_close_key = None  # Alt + first letter of menu name?
 
     wrap = False
@@ -26,4 +24,23 @@ class Menu(Widget):
     def __init__(self, top, left, *items, **kwargs):
         raise NotImplementedError
         self._items = dict(items)
-        super().__init__(top, left, len(self._items), max(map(len, self._items) + 2, **kwargs))
+        offset = bool(kwargs.get("border"))
+        super().__init__(top, left, len(self._items) + 2 * offset, max(map(len, self._items) + 2 * offset, **kwargs))
+
+    def update_geometry(self):
+        if self.root is None:
+            return
+
+        if self.selected_color is None:
+            from .. import colors
+            self.selected_color = colors.BLACK_ON_WHITE
+
+        h, w = self.parent.height, self.parent.width
+
+        if self.window is None:
+            self.window = self._closed_window = ...
+            self._open_window = ...
+            self.update_color(self.color)
+
+    def on_press(self, key):
+        ...
