@@ -203,6 +203,9 @@ class Widget(metaclass=Observer):
             self.window = curses.newwin(self.height, self.width + 1)
             self.update_color(self.color)
 
+            if self.has_border:
+                self.border(self.border_style, self.border_color)
+
         for child in self.children:
             if child is not None:
                 child.update_geometry()
