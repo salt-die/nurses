@@ -12,6 +12,8 @@ TODO
     * Graph
     * File Explorer
 
+* Resizing Widget doesn't correct borders (ArrayWin does correct)
+
 * Docs
 
 Notes
