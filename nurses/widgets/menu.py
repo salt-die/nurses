@@ -1,6 +1,7 @@
 """
-window and on_press still needs implementing
+on_press still needs implementing
 """
+import curses
 
 from . import Widget
 from .. import UP, DOWN, ENTER
@@ -21,9 +22,11 @@ class Menu(Widget):
 
     selected_color = None
 
-    def __init__(self, top, left, *items, **kwargs):
+    def __init__(self, top, left, name, *items, **kwargs):
         raise NotImplementedError
+        self.name = name
         self._items = dict(items)
+
         offset = bool(kwargs.get("border"))
         super().__init__(top, left, len(self._items) + 2 * offset, max(map(len, self._items) + 2 * offset, **kwargs))
 
@@ -38,8 +41,8 @@ class Menu(Widget):
         h, w = self.parent.height, self.parent.width
 
         if self.window is None:
-            self.window = self._closed_window = ...
-            self._open_window = ...
+            self.window = self._closed_window = curses.newwin(1, self.width + 1)
+            self._open_window = curses.newwin(self.height, self.width + 1)
             self.update_color(self.color)
 
     def on_press(self, key):
