@@ -1,4 +1,4 @@
-from nurses import ScreenManager, colors
+from nurses import ScreenManager
 from nurses.widgets import Menu
 
 
@@ -14,7 +14,9 @@ with ScreenManager() as sm:
                 ("2nd Entry", lambda: print("2nd Entry Selected")),
                 ("3rd Entry", lambda: print("3rd Entry Selected")),
             ),
-            border_style="curved"))
+            border_style="curved",
+        )
+    )
 
     sm.schedule(sm.root.refresh)
     sm.run()
