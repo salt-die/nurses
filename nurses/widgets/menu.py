@@ -1,9 +1,7 @@
-"""
-on_press still needs implementing
-"""
 import curses
 
 from . import Widget
+from . import Menubar
 from .. import UP, DOWN, ENTER
 
 
@@ -20,7 +18,7 @@ class Menu(Widget):
 
     selected_color = None
 
-    def __init__(self, top, left, name, items, **kwargs):
+    def __init__(self, name, items, *, top=0, left=0, **kwargs):
         self.is_closed = True
         self.name = name
 
@@ -44,11 +42,11 @@ class Menu(Widget):
     def open_menu(self):
         self.is_closed = False
         self._selected_entry = 0
-        self.parent.add_widget(self._menu_widget)
+        self.root.add_widget(self._menu_widget)
 
     def close_menu(self):
         self.is_closed = True
-        self.parent.remove_widget(self._menu_widget)
+        self.root.remove_widget(self._menu_widget)
 
     def update_geometry(self):
         if self.root is None:
@@ -92,11 +90,18 @@ class Menu(Widget):
 
         if key == self.move_up:
             self._selected_entry = (self._selected_entry - 1) % len(self)
+
         elif key == self.move_down:
             self._selected_entry = (self._selected_entry + 1) % len(self)
+
         elif key == self.select_key:
             self._callbacks[self._selected_entry]()
             self.close_menu()
+
+            if isinstance(self.parent, Menubar):  # DO NOT LIKE THIS -- FIX
+                self.parent.is_activated = False
+                self.parent.active_menu = None
+
         else:
             return
 

@@ -9,8 +9,8 @@ from .array_pad import ArrayPad
 from .digital_clock import DigitalClock
 from .analog_clock import AnalogClock
 
-from .menu import Menu
 from .menubar import Menubar
+from .menu import Menu
 from .textbox import Textbox
 
 # Layouts
