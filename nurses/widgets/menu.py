@@ -1,7 +1,6 @@
 import curses
 
 from . import Widget
-from . import Menubar
 from .. import UP, DOWN, ENTER
 
 
@@ -18,7 +17,7 @@ class Menu(Widget):
 
     selected_color = None
 
-    def __init__(self, name, items, *, top=0, left=0, **kwargs):
+    def __init__(self, top, left, name, items, **kwargs):
         self.is_closed = True
         self.name = name
 
@@ -38,6 +37,10 @@ class Menu(Widget):
 
     def __len__(self):
         return len(self.items)
+
+    @property
+    def is_open(self):
+        return not self.is_closed
 
     def open_menu(self):
         self.is_closed = False
@@ -97,10 +100,6 @@ class Menu(Widget):
         elif key == self.select_key:
             self._callbacks[self._selected_entry]()
             self.close_menu()
-
-            if isinstance(self.parent, Menubar):  # DO NOT LIKE THIS -- FIX
-                self.parent.is_activated = False
-                self.parent.active_menu = None
 
         else:
             return

@@ -10,21 +10,21 @@ with ScreenManager() as sm:
 
     sm.root.add_widget(
         Menubar(
-            MyMenu("Menu1",
+            ("Menu1",
                 (
                     ("1st Entry", lambda: print("1st Entry Selected")),
                     ("2nd Entry", lambda: print("2nd Entry Selected")),
                     ("3rd Entry", lambda: print("3rd Entry Selected")),
                 ),
             ),
-            MyMenu("Menu2",
+            ("Menu2",
                 (
                     ("1st Entry", lambda: print("1st Entry Selected")),
                     ("2nd Entry", lambda: print("2nd Entry Selected")),
                     ("3rd Entry", lambda: print("3rd Entry Selected")),
                 ),
             ),
-            MyMenu("Menu3",
+            ("Menu3",
                 (
                     ("1st Entry", lambda: print("1st Entry Selected")),
                     ("2nd Entry", lambda: print("2nd Entry Selected")),
