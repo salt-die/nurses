@@ -53,7 +53,7 @@ class TextPad(ArrayPad):
 
         top_of_text = y == 0 and row == 0
         start_of_line = x == 0 and col == 0
-        end_of_line = x + col == self.cols or x + col < self.cols and pad[row + y, col + x + 1] == EMPTY
+        end_of_line = x + col == self.cols or x + col < self.cols and pad[row + y, col + x] == EMPTY
 
         max_y, max_x = self.buffer[:-1, :-1].shape  # We don't use self.height, self.width as buffer will account for possible border
 
@@ -62,13 +62,14 @@ class TextPad(ArrayPad):
                 self.rows += 1
 
             rest_of_line = pad[row + y, col + x:]
-            if len(line_text := rest_of_line[rest_of_line != EMPTY]):
-                text_len = len(line_text)
-                # Resize if needed
-                if new_cols := text_len - (pad[row + y + 1, -text_len:] == EMPTY).sum():
-                    # Note that `self.cols` is an observable and we don't want to call `__set__` if new_cols is 0
-                    self.cols += new_cols
-
+            line_text = rest_of_line[rest_of_line != EMPTY]
+            text_len = len(line_text)
+            if text_len:
+                if (pad[-1] != EMPTY).any():
+                    self.rows += 1
+                # Move lines down
+                pad[row + y + 2:]  = pad[row + y + 1: -1]
+                pad[row + y + 1] = EMPTY
                 # Insert line_text at start of next row
                 pad[row + y + 1, text_len:] = pad[row + y + 1, :-text_len]
                 pad[row + y + 1, :text_len] = line_text
@@ -117,11 +118,22 @@ class TextPad(ArrayPad):
                 else:
                     self._cursor_x -= 1
 
-            # TODO: Move up a line if cursor is at start of a line
+            elif y != 0 or row != 0:  # move to end of previous line
+                line_length = (pad[row + y - 1, :] != EMPTY).sum()
+                if (curs_x := line_length - col) <= max_x:
+                    self._cursor_x = curs_x
+                else:
+                    self.min_col = max(0, line_length - max_x)
+                    self._cursor_x = max_x if self.min_col else line_length
+
+                if y == 0:
+                    self.min_row -= 1
+                else:
+                    self._cursor_y -= 1
 
         elif key == RIGHT:
             if end_of_line:
-                if row + y != self.rows and pad[row + y + 1, 0] != EMPTY:
+                if row + y + 1 != self.rows and pad[row + y + 1, 0] != EMPTY:
                     self._cursor_x = 0
                     if y == max_y:
                         self.min_row += 1
@@ -136,14 +148,14 @@ class TextPad(ArrayPad):
         elif key == DELETE:
             pad[row + y, col + x: -1] = pad[row + y, col + x + 1:]
             pad[row + y, -1] = EMPTY
-            # TODO: Move next line up if at end of line
+            # TODO: Move next word up if at end of line
 
         elif key == HOME:
             self._cursor_x = 0
             self.min_col = 0
 
         elif key == END:
-            line_length = (pad[y, :] != EMPTY).sum()
+            line_length = (pad[row + y, :] != EMPTY).sum()
             if (curs_x := line_length - col) <= max_x:
                 self._cursor_x = curs_x
             else:
