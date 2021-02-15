@@ -21,6 +21,9 @@ class ArrayWin(Widget):
     __getitem__ and __setitem__ call the respective buffer functions directly, so one can slice
     and write to a Widget as if it was a numpy array.
     """
+
+    default_character = " "
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._buffer = None
@@ -34,7 +37,7 @@ class ArrayWin(Widget):
 
         if self._buffer is None:
             h, w = self.height, self.width
-            self._buffer = np.full((h, w), " ")
+            self._buffer = np.full((h, w), self.default_character)
             self._colors = np.full((h, w), self.color)
 
             if self.has_border:
@@ -67,13 +70,13 @@ class ArrayWin(Widget):
             return
 
         if self.has_border:
-            self._buffer[:, -1] = self._buffer[-1] = " "  # Erase the right-most/bottom-most border in case widget expands
+            self._buffer[:, -1] = self._buffer[-1] = self.default_character  # Erase the right-most/bottom-most border in case widget expands
 
         height, width = self.height, self.width
         old_h, old_w = self._buffer.shape
         min_h, min_w = min(height, old_h), min(width, old_w)
 
-        new_buffer = np.full((height, width), " ")
+        new_buffer = np.full((height, width), self.default_character)
         new_buffer[:min_h, :min_w] = self._buffer[:min_h, :min_w]
 
         new_colors = np.full((height, width), self.color)
@@ -196,5 +199,5 @@ class ArrayWin(Widget):
         """
         self.roll(lines, vertical=True)
         slice_ = slice(-lines, None) if lines > 0 else slice(None, -lines)
-        self.buffer[slice_] = " "
+        self.buffer[slice_] = self.default_character
         self.colors[slice_] = self.color
