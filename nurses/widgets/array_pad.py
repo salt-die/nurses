@@ -40,7 +40,7 @@ class ArrayPad(ArrayWin):
         self.min_row = min_row
         self.min_col = min_col
 
-        self.pad = np.full((rows, cols), " ")
+        self.pad = np.full((rows, cols), self.default_character)
         self.pad_colors = np.full((rows, cols), self.color)
 
     def __getitem__(self, key):
@@ -121,7 +121,7 @@ class ArrayPad(ArrayWin):
         rows, cols = self.rows, self.cols
         min_rows, min_cols = min(rows, old_rows), min(cols, old_cols)
 
-        new_pad = np.full((rows, cols), " ")
+        new_pad = np.full((rows, cols), self.default_character)
         new_pad[:min_rows, :min_cols] = self.pad[:min_rows, :min_cols]
 
         new_pad_colors = np.full((rows, cols), self.color)
