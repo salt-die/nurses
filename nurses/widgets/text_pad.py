@@ -14,12 +14,15 @@ class TextPad(ArrayPad):
 
     def __init__(self, *args, **kwargs):
         raise NotImplementedError
+        super().__init__(*args, **kwargs)
+
+        self.pad[...] = chr(0x200B)  # zero-width space:  We need to differentiate from normal spaces in text.
+        self._cursor_x = 0
+        self._cursor_y = 0
 
     @property
     def text(self):
-        """
-        join contents of pad array
-        """
+        return "\n".join("".join(char for char in row if char != chr(0x200B)) for row in self.pad)
 
     @text.setter
     def text(self, contents):
@@ -27,13 +30,29 @@ class TextPad(ArrayPad):
         rewrite pad contents with text
         """
 
+    def refresh(self):
+        offset = int(self.has_border)
+        width = self.width - 2 * offset
+
+        self.window.hline(offset, offset, " ", width)  # Erase text
+        self.window.addstr(offset, offset, self._input[self._input_offset: self._input_offset + width])
+
+        if self.cursor_color is None:
+            # The default cursor color pair can't be assigned until curses.init_scr has been called.
+            from .. import colors
+            self.cursor_color = colors.BLACK_ON_WHITE
+
+        if self.cursor:
+            self.window.addstr(offset, offset + self._cursor_x, self.cursor, self.cursor_color)
+        else:
+            self.window.chgat(offset, offset + self._cursor_x, 1, self.cursor_color)
+
     def on_press(self, key):
         if key not in KEYS:
             return
 
         text = self.text
-        text_offset = self._text_offset
-        cursor_x = self._cursor_x
+        x, y = self._cursor_x, self._cursor_y
         end = self.width - 2 * self.has_border - 1
 
         if key == ENTER:
