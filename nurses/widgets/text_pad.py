@@ -6,6 +6,7 @@ from .. import BACKSPACE, TAB, ENTER, LEFT, RIGHT, UP, DOWN, HOME, END, DELETE
 KEYS = { BACKSPACE, TAB, ENTER, LEFT, RIGHT, UP, DOWN, HOME, END, DELETE, *map(ord, string.printable) }
 EMPTY = chr(0x200B)  # zero-width space:  We need to differentiate from normal spaces in text.
 
+
 class TextPad(ArrayPad):
     default_character = EMPTY
     cursor = ""
@@ -48,12 +49,8 @@ class TextPad(ArrayPad):
 
         pad = self.pad
 
-        x, y = self._cursor_x, self._cursor_y
+        y, x  = self._cursor_y, self._cursor_x
         row, col = self.min_row, self.min_col
-
-        top_of_text = y == 0 and row == 0
-        start_of_line = x == 0 and col == 0
-        end_of_line = x + col == self.cols or x + col < self.cols and pad[row + y, col + x] == EMPTY
 
         max_y, max_x = self.buffer[:-1, :-1].shape  # We don't use self.height, self.width as buffer will account for possible border
 
@@ -77,7 +74,7 @@ class TextPad(ArrayPad):
                 # Erase
                 pad[row + y, col + x:] = EMPTY
 
-            pad[row + y, col + x] = "\n"
+            pad[row + y, col + x] = "\n"  # TODO:  left/ right cursor movement shouldn't trip over this character in the array
 
             if y == max_y:
                 self.min_row += 1
@@ -132,7 +129,7 @@ class TextPad(ArrayPad):
                     self._cursor_y -= 1
 
         elif key == RIGHT:
-            if end_of_line:
+            if pad[row + y, col + x] == EMPTY:
                 if row + y + 1 != self.rows and pad[row + y + 1, 0] != EMPTY:
                     self._cursor_x = 0
                     if y == max_y:
