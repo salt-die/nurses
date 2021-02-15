@@ -1,9 +1,9 @@
 import string
 
 from . import ArrayPad
-from .. import BACKSPACE, TAB, ENTER, LEFT, RIGHT, UP, DOWN, HOME, END, DELETE
+from .. import BACKSPACE, TAB, ENTER, LEFT, RIGHT, UP, DOWN, HOME, END, PGUP, PGDN, DELETE
 
-KEYS = { BACKSPACE, TAB, ENTER, LEFT, RIGHT, UP, DOWN, HOME, END, DELETE, *map(ord, string.printable) }
+KEYS = { BACKSPACE, TAB, ENTER, LEFT, RIGHT, UP, DOWN, HOME, PGUP, PGDN, END, DELETE, *map(ord, string.printable) }
 EMPTY = chr(0x200B)  # zero-width space:  We need to differentiate from normal spaces in text.
 
 
@@ -52,7 +52,7 @@ class TextPad(ArrayPad):
         y, x  = self._cursor_y, self._cursor_x
         row, col = self.min_row, self.min_col
 
-        max_y, max_x = self.buffer[:-1, :-1].shape  # We don't use self.height, self.width as buffer will account for possible border
+        max_y, max_x = self.buffer[1:, 1:].shape  # We don't use self.height, self.width as buffer will account for possible border
 
         if key == ENTER:
             if row + y == self.rows:
@@ -132,6 +132,7 @@ class TextPad(ArrayPad):
             if pad[row + y, col + x] == EMPTY:
                 if row + y + 1 != self.rows and pad[row + y + 1, 0] != EMPTY:
                     self._cursor_x = 0
+                    self.min_col = 0
                     if y == max_y:
                         self.min_row += 1
                     else:
@@ -141,6 +142,18 @@ class TextPad(ArrayPad):
                     self.min_col += 1
                 else:
                     self._cursor_x += 1
+
+        elif key == UP:
+            ...
+
+        elif key == DOWN:
+            ...
+
+        elif key == PGUP:
+            ...
+
+        elif key == PGDN:
+            ...
 
         elif key == DELETE:
             pad[row + y, col + x: -1] = pad[row + y, col + x + 1:]
