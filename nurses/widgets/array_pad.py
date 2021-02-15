@@ -30,8 +30,9 @@ class ArrayPad(ArrayWin):
     bar_indicator = "█"
     bar_indicator_thickness = 3
     bar_fill = "░"
+    bar_color = 0
 
-    def __init__(self, *args, rows, cols, min_row=0, min_col=0, bar_color=0, **kwargs):
+    def __init__(self, *args, rows, cols, min_row=0, min_col=0, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.__dict__["rows"] = rows
@@ -41,8 +42,6 @@ class ArrayPad(ArrayWin):
 
         self.pad = np.full((rows, cols), " ")
         self.pad_colors = np.full((rows, cols), self.color)
-
-        self.bar_color = bar_color
 
     def __getitem__(self, key):
         return self.pad[key]
