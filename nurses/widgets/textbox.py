@@ -105,8 +105,11 @@ class Textbox(Widget):
             self._input_offset = 0
 
         elif key == END:
-            self._input_offset = max(0, len(text) - end)
-            self._cursor_x = len(text) if self._input_offset == 0 else end
+            if (curs_x := len(text) - text_offset) <= end:
+                self._cursor_x = curs_x
+            else:
+                self._input_offset = max(0, len(text) - end)
+                self._cursor_x = len(text) if self._input_offset == 0 else end
 
         else:
             self._input = f"{text[:text_offset + cursor_x]}{chr(key)}{text[text_offset + cursor_x:]}"
