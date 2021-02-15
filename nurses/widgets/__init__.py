@@ -12,6 +12,7 @@ from .analog_clock import AnalogClock
 from .menu import Menu
 from .menubar import Menubar
 from .textbox import Textbox
+from .text_pad import TextPad
 
 # Layouts
 from .grid import Grid
