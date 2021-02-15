@@ -8,7 +8,7 @@ TODO
     doesn't always seem to work.
 
 * Widgets
-    * Textpad - The `on_press` method of `Textbox` probably has plenty of reusable code for this.
+    * Textpad - UP / DOWN / PGDN / PGUP and a few more on_press things need implementing
     * Graph
     * File Explorer
     * Add PGDN, PGUP keys to constants and Scrollable behavior
