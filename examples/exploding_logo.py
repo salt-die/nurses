@@ -80,7 +80,7 @@ class Particle(Widget):
             return
 
         super().update_geometry()
-        self.window.addstr(0, 0, self.character, colors.palette["rainbow"][self.color])
+        self.window.addstr(0, 0, self.character, colors.palette["rainbow"][int(self.color)])
 
     def on_press(self, key):
         if key == SPACE:
