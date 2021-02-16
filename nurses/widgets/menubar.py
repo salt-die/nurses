@@ -1,6 +1,6 @@
 from . import Widget
 from . import Menu
-from .. import LEFT, RIGHT, DOWN, TAB
+from .. import LEFT, LEFT_2, RIGHT, RIGHT_2, DOWN, DOWN_2, TAB
 
 
 class Menubar(Widget):
@@ -13,8 +13,11 @@ class Menubar(Widget):
     """
     activate = TAB
     move_left = LEFT
+    move_left_alt = LEFT_2
     move_right = RIGHT
+    move_right_alt = RIGHT_2
     open_submenu = DOWN
+    open_submenu_alt = DOWN_2
 
     selected_color = None
 
@@ -59,7 +62,7 @@ class Menubar(Widget):
         if menus[active].is_open and menus[active].on_press(key):
             return True
 
-        if key == self.move_left:
+        if key == self.move_left or key == self.move_left_alt:
             if open_menu := menus[active].is_open:
                 menus[active].close_menu()
 
@@ -68,7 +71,7 @@ class Menubar(Widget):
             if open_menu:
                 menus[self.active_menu].open_menu()
 
-        elif key == self.move_right:
+        elif key == self.move_right or key == self.move_right_alt:
             if open_menu := menus[active].is_open:
                 menus[active].close_menu()
 
@@ -77,7 +80,7 @@ class Menubar(Widget):
             if open_menu:
                 menus[self.active_menu].open_menu()
 
-        elif key == self.open_submenu:
+        elif key == self.open_submenu or key == self.open_submenu_alt:
             menus[active].open_menu()
             self._submenu_open = True
 

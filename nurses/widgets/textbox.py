@@ -1,9 +1,9 @@
 import string
 
 from . import Widget
-from .. import BACKSPACE, TAB, ENTER, LEFT, RIGHT, HOME, END, DELETE
+from .. import BACKSPACE, TAB, ENTER, LEFT, LEFT_2, RIGHT, RIGHT_2, HOME, END, DELETE
 
-KEYS = { BACKSPACE, TAB, ENTER, LEFT, RIGHT, HOME, END, DELETE, *map(ord, string.printable) }
+KEYS = { BACKSPACE, TAB, ENTER, LEFT, RIGHT, LEFT_2, RIGHT_2, HOME, END, DELETE, *map(ord, string.printable) }
 
 class Textbox(Widget):
     cursor = ""
@@ -82,14 +82,14 @@ class Textbox(Widget):
                 else:
                     self._cursor_x -= 1
 
-        elif key == LEFT:
+        elif key == LEFT or key == LEFT_2:
             if cursor_x != 0 or text_offset != 0:
                 if cursor_x == 0:
                     self._input_offset -= 1
                 else:
                     self._cursor_x -= 1
 
-        elif key == RIGHT:
+        elif key == RIGHT or key == RIGHT_2:
             if cursor_x + text_offset != len(text):
                 if cursor_x != end:
                     self._cursor_x += 1

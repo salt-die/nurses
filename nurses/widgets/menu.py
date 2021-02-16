@@ -1,7 +1,7 @@
 import curses
 
 from . import Widget
-from .. import UP, DOWN, ENTER
+from .. import UP, DOWN, UP_2, DOWN_2, ENTER
 
 
 class Menu(Widget):
@@ -11,7 +11,9 @@ class Menu(Widget):
     `items` should be an iterable of pairs ("menu entry", callback)
     """
     move_up = UP
+    move_up_alt = UP_2
     move_down = DOWN
+    move_down_alt = DOWN_2
     select_key = ENTER
     open_close_key = None
 
@@ -91,10 +93,10 @@ class Menu(Widget):
         if self.is_closed:
             return
 
-        if key == self.move_up:
+        if key == self.move_up or key == self.move_up_alt:
             self._selected_entry = (self._selected_entry - 1) % len(self)
 
-        elif key == self.move_down:
+        elif key == self.move_down or key == self.move_down_alt:
             self._selected_entry = (self._selected_entry + 1) % len(self)
 
         elif key == self.select_key:
