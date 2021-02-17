@@ -11,12 +11,6 @@ from .. import (
     BACKSPACE,
     TAB,
     ENTER,
-    SEND,
-    SDOWN_2,
-    SLEFT_2,
-    SRIGHT_2,
-    SHOME,
-    SUP_2,
     DOWN,
     UP,
     LEFT,
@@ -37,8 +31,7 @@ from .. import (
 )
 
 KEYS = {
-    BACKSPACE, TAB, ENTER, SEND, SDOWN_2, SLEFT_2,
-    SRIGHT_2, SHOME, SUP_2, DOWN, UP, LEFT, RIGHT,
+    BACKSPACE, TAB, ENTER, DOWN, UP, LEFT, RIGHT,
     SLEFT, SRIGHT, HOME, UP_2, LEFT_2, RIGHT_2, DOWN_2,
     PGUP, END, PGDN, DELETE, SUP, SDOWN,
     *map(ord, string.printable)
@@ -50,12 +43,15 @@ class TextPad(ArrayPad):
     default_character = EMPTY
     cursor = ""
     cursor_color = None
+    selected_color = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._cursor_x = 0
         self._cursor_y = 0
+        self._select_start = None
+        self._select_end = None
 
     @property
     def text(self):
@@ -73,6 +69,10 @@ class TextPad(ArrayPad):
             # So we defer the import as long as possible.
             from .. import colors
             self.cursor_color = colors.BLACK_ON_WHITE
+
+        if self.selected_color is None:
+            from .. import colors
+            self.selected_color = colors.BLACK_ON_WHITE
 
         super().refresh()
 
@@ -95,7 +95,7 @@ class TextPad(ArrayPad):
         max_y, max_x = self.buffer[1:, 1:].shape  # We don't use self.height, self.width as buffer will account for possible border
 
         if key == ENTER:
-            if row + y == self.rows:
+            if row + y == self.rows - 1:
                 self.rows += 1
 
             rest_of_line = pad[row + y, col + x:]
@@ -149,13 +149,13 @@ class TextPad(ArrayPad):
             # TODO:  Move the leading word to the end of the above line
 
         elif key == LEFT or key == LEFT_2:
-            if x != 0 or col != 0:
-                if x == 0:
-                    self.min_col -= 1
-                else:
-                    self._cursor_x -= 1
+            if x:
+                self._cursor_x -= 1
 
-            elif y != 0 or row != 0:  # move to end of previous line (ignoring new lines)
+            elif col:
+                self.min_col -= 1
+
+            elif y or row:
                 line_length = (pad[row + y - 1, :] != default).sum() - 1
                 if (curs_x := line_length - col) <= max_x:
                     self._cursor_x = curs_x
@@ -163,10 +163,10 @@ class TextPad(ArrayPad):
                     self.min_col = max(0, line_length - max_x)
                     self._cursor_x = max_x if self.min_col else line_length
 
-                if y == 0:
-                    self.min_row -= 1
-                else:
+                if y:
                     self._cursor_y -= 1
+                else:
+                    self.min_row -= 1
 
         elif key == RIGHT or key == RIGHT_2:
             if pad[row + y, col + x] == "\n":
@@ -183,10 +183,10 @@ class TextPad(ArrayPad):
                 else:
                     self._cursor_x += 1
 
-        elif key == SLEFT or key == SLEFT_2:
+        elif key == SLEFT:
             ...
 
-        elif key == SRIGHT or key == SRIGHT_2:
+        elif key == SRIGHT:
             ...
 
         elif key == UP or key == UP_2:
@@ -220,12 +220,6 @@ class TextPad(ArrayPad):
             else:
                 self.min_col = max(0, line_length - max_x)
                 self._cursor_x = max_x if self.min_col else line_length
-
-        elif key == SHOME:
-            ...
-
-        elif key == SEND:
-            ...
 
         else:
             if pad[row + y, -1] != default:
