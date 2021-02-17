@@ -1,9 +1,48 @@
+"""
+TODO:
+* Skip over "/n"
+* Keep track of old _cursor_x when moving up/ down
+"""
+
 import string
 
 from . import ArrayPad
-from .. import BACKSPACE, TAB, ENTER, LEFT, RIGHT, UP, DOWN, HOME, END, PGUP, PGDN, DELETE
+from .. import (
+    BACKSPACE,
+    TAB,
+    ENTER,
+    SEND,
+    SDOWN_2,
+    SLEFT_2,
+    SRIGHT_2,
+    SHOME,
+    SUP_2,
+    DOWN,
+    UP,
+    LEFT,
+    RIGHT,
+    SLEFT,
+    SRIGHT,
+    HOME,
+    UP_2,
+    LEFT_2,
+    RIGHT_2,
+    DOWN_2,
+    PGUP,
+    END,
+    PGDN,
+    DELETE,
+    SUP,
+    SDOWN,
+)
 
-KEYS = { BACKSPACE, TAB, ENTER, LEFT, RIGHT, UP, DOWN, HOME, PGUP, PGDN, END, DELETE, *map(ord, string.printable) }
+KEYS = {
+    BACKSPACE, TAB, ENTER, SEND, SDOWN_2, SLEFT_2,
+    SRIGHT_2, SHOME, SUP_2, DOWN, UP, LEFT, RIGHT,
+    SLEFT, SRIGHT, HOME, UP_2, LEFT_2, RIGHT_2, DOWN_2,
+    PGUP, END, PGDN, DELETE, SUP, SDOWN,
+    *map(ord, string.printable)
+}
 EMPTY = chr(0x200B)  # zero-width space:  We need to differentiate from normal spaces in text.
 
 
@@ -20,7 +59,7 @@ class TextPad(ArrayPad):
 
     @property
     def text(self):
-        return "".join("".join(char for char in row if char != EMPTY) for row in self.pad if not (row == EMPTY).all())
+        return "".join("".join(char for char in row if char != self.default_character) for row in self.pad if not (row == self.default_character).all())
 
     @text.setter
     def text(self, contents):
@@ -47,6 +86,7 @@ class TextPad(ArrayPad):
         if key not in KEYS:
             return
 
+        default = self.default_character
         pad = self.pad
 
         y, x  = self._cursor_y, self._cursor_x
@@ -59,20 +99,20 @@ class TextPad(ArrayPad):
                 self.rows += 1
 
             rest_of_line = pad[row + y, col + x:]
-            line_text = rest_of_line[rest_of_line != EMPTY]
+            line_text = rest_of_line[rest_of_line != default]
             text_len = len(line_text)
             if text_len:
-                if (pad[-1] != EMPTY).any():
+                if (pad[-1] != default).any():
                     self.rows += 1
                 # Move lines down
                 pad[row + y + 2:]  = pad[row + y + 1: -1]
-                pad[row + y + 1] = EMPTY
+                pad[row + y + 1] = default
                 # Insert line_text at start of next row
                 pad[row + y + 1, text_len:] = pad[row + y + 1, :-text_len]
                 pad[row + y + 1, :text_len] = line_text
 
                 # Erase
-                pad[row + y, col + x:] = EMPTY
+                pad[row + y, col + x:] = default
 
             pad[row + y, col + x] = "\n"  # TODO:  left/ right cursor movement shouldn't trip over this character in the array
 
@@ -100,7 +140,7 @@ class TextPad(ArrayPad):
         elif key == BACKSPACE:
             if x != 0 or col != 0:
                 pad[row + y, col + x - 1: -1] = pad[row + y, col + x: ]
-                pad[row + y, -1] = EMPTY
+                pad[row + y, -1] = default
                 if x == 0:
                     self.min_col -= 1
                 else:
@@ -108,7 +148,7 @@ class TextPad(ArrayPad):
 
             # TODO:  Move the leading word to the end of the above line
 
-        elif key == LEFT:
+        elif key == LEFT or key == LEFT_2:
             if x != 0 or col != 0:
                 if x == 0:
                     self.min_col -= 1
@@ -116,7 +156,7 @@ class TextPad(ArrayPad):
                     self._cursor_x -= 1
 
             elif y != 0 or row != 0:  # move to end of previous line
-                line_length = (pad[row + y - 1, :] != EMPTY).sum()
+                line_length = (pad[row + y - 1, :] != default).sum()
                 if (curs_x := line_length - col) <= max_x:
                     self._cursor_x = curs_x
                 else:
@@ -128,9 +168,9 @@ class TextPad(ArrayPad):
                 else:
                     self._cursor_y -= 1
 
-        elif key == RIGHT:
-            if pad[row + y, col + x] == EMPTY:
-                if row + y + 1 != self.rows and pad[row + y + 1, 0] != EMPTY:
+        elif key == RIGHT or key == RIGHT_2:
+            if pad[row + y, col + x] == default:
+                if row + y + 1 != self.rows and pad[row + y + 1, 0] != default:
                     self._cursor_x = 0
                     self.min_col = 0
                     if y == max_y:
@@ -143,10 +183,16 @@ class TextPad(ArrayPad):
                 else:
                     self._cursor_x += 1
 
-        elif key == UP:
+        elif key == SLEFT or key == SLEFT_2:
             ...
 
-        elif key == DOWN:
+        elif key == SRIGHT or key == SRIGHT_2:
+            ...
+
+        elif key == UP or key == UP_2:
+            ...
+
+        elif key == DOWN or key == DOWN_2:
             ...
 
         elif key == PGUP:
@@ -157,7 +203,7 @@ class TextPad(ArrayPad):
 
         elif key == DELETE:
             pad[row + y, col + x: -1] = pad[row + y, col + x + 1:]
-            pad[row + y, -1] = EMPTY
+            pad[row + y, -1] = default
             # TODO: Move next word up if at end of line
 
         elif key == HOME:
@@ -165,15 +211,21 @@ class TextPad(ArrayPad):
             self.min_col = 0
 
         elif key == END:
-            line_length = (pad[row + y, :] != EMPTY).sum()
+            line_length = (pad[row + y, :] != default).sum()
             if (curs_x := line_length - col) <= max_x:
                 self._cursor_x = curs_x
             else:
                 self.min_col = max(0, line_length - max_x)
                 self._cursor_x = max_x if self.min_col else line_length
 
+        elif key == SHOME:
+            ...
+
+        elif key == SEND:
+            ...
+
         else:
-            if pad[row + y, -1] != EMPTY:
+            if pad[row + y, -1] != default:
                 self.cols += 1
 
             pad[row + y, col + x + 1:] = pad[row + y, col + x: -1]
