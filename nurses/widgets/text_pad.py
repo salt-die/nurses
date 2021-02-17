@@ -52,6 +52,7 @@ class TextPad(ArrayPad):
         self._cursor_y = 0
         self._select_start = None
         self._select_end = None
+        self._vert_x = None  # This keeps track of target cursor_x through vertical movement
 
     @property
     def text(self):
@@ -64,9 +65,9 @@ class TextPad(ArrayPad):
         """
 
     def refresh(self):
+        # The default cursor color and selected text color can't be assigned until curses.init_scr has been called.
+        # So we defer the import as long as possible.
         if self.cursor_color is None:
-            # The default cursor color pair can't be assigned until curses.init_scr has been called.
-            # So we defer the import as long as possible.
             from .. import colors
             self.cursor_color = colors.BLACK_ON_WHITE
 
@@ -95,23 +96,24 @@ class TextPad(ArrayPad):
         max_y, max_x = self.buffer[1:, 1:].shape  # We don't use self.height, self.width as buffer will account for possible border
 
         if key == ENTER:
-            if row + y == self.rows - 1:
+            # TODO: overwrite selected text
+
+            # Resize pad if we're at the bottom or there's text at the bottom.
+            if row + y == self.rows - 1 or pad[-1, 0] != default:
                 self.rows += 1
 
+            # Move lines down
+            pad[row + y + 2:]  = pad[row + y + 1: -1]
+            pad[row + y + 1] = default
+
+            # Move rest of line onto next line
             rest_of_line = pad[row + y, col + x:]
             line_text = rest_of_line[rest_of_line != default]
-            text_len = len(line_text)
-            if text_len:
-                if (pad[-1] != default).any():
-                    self.rows += 1
-                # Move lines down
-                pad[row + y + 2:]  = pad[row + y + 1: -1]
-                pad[row + y + 1] = default
+            if text_len := len(line_text):
                 # Insert line_text at start of next row
-                pad[row + y + 1, text_len:] = pad[row + y + 1, :-text_len]
                 pad[row + y + 1, :text_len] = line_text
 
-                # Erase
+                # Erase line_text from current row
                 pad[row + y, col + x:] = default
 
             pad[row + y, col + x] = "\n"
@@ -125,6 +127,8 @@ class TextPad(ArrayPad):
             self.min_col = 0
 
         elif key == TAB:
+            # TODO: overwrite selected text
+
             if (to_end := max_x - x) < 4:
                 self.min_col += 4 - to_end
                 self._cursor_x += to_end
@@ -134,21 +138,25 @@ class TextPad(ArrayPad):
             if (new_col := col + max_x - self.cols) > 0:
                 self.cols += new_col
 
-            pad[row + y, col + self._cursor_x: ] = pad[row + y, col + self._cursor_x - 4: -4]
-            pad[row + y, col + self._cursor_x - 4: col + self._cursor_x] = " "
+            pad[row + y, self.min_col + self._cursor_x: ] = pad[row + y, self.min_col + self._cursor_x - 4: -4]
+            pad[row + y, self.min_col + self._cursor_x - 4: self.min_col + self._cursor_x] = " "
 
         elif key == BACKSPACE:
+            # TODO: overwrite selected text
+
             if x != 0 or col != 0:
                 pad[row + y, col + x - 1: -1] = pad[row + y, col + x: ]
                 pad[row + y, -1] = default
-                if x == 0:
-                    self.min_col -= 1
-                else:
+                if x:
                     self._cursor_x -= 1
+                else:
+                    self.min_col -= 1
 
             # TODO:  Move the leading word to the end of the above line
 
         elif key == LEFT or key == LEFT_2:
+            # TODO: un-select text
+
             if x:
                 self._cursor_x -= 1
 
@@ -169,6 +177,8 @@ class TextPad(ArrayPad):
                     self.min_row -= 1
 
         elif key == RIGHT or key == RIGHT_2:
+            # TODO: un-select text
+
             if pad[row + y, col + x] == "\n":
                 self._cursor_x = 0
                 self.min_col = 0
@@ -202,15 +212,20 @@ class TextPad(ArrayPad):
             ...
 
         elif key == DELETE:
+            # TODO: overwrite selected text
+
             pad[row + y, col + x: -1] = pad[row + y, col + x + 1:]
             pad[row + y, -1] = default
+
             # TODO: Move next word up if at end of line
 
         elif key == HOME:
+            # TODO: un-select text
             self._cursor_x = 0
             self.min_col = 0
 
         elif key == END:
+            # TODO: un-select text
             line_length = (pad[row + y, :] != default).sum()
             if line_length and pad[row + y, line_length - 1] == "\n":  # Skip over new lines
                 line_length -= 1
