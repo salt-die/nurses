@@ -114,7 +114,7 @@ class TextPad(ArrayPad):
                 # Erase
                 pad[row + y, col + x:] = default
 
-            pad[row + y, col + x] = "\n"  # TODO:  left/ right cursor movement shouldn't trip over this character in the array
+            pad[row + y, col + x] = "\n"
 
             if y == max_y:
                 self.min_row += 1
@@ -155,8 +155,8 @@ class TextPad(ArrayPad):
                 else:
                     self._cursor_x -= 1
 
-            elif y != 0 or row != 0:  # move to end of previous line
-                line_length = (pad[row + y - 1, :] != default).sum()
+            elif y != 0 or row != 0:  # move to end of previous line (ignoring new lines)
+                line_length = (pad[row + y - 1, :] != default).sum() - 1
                 if (curs_x := line_length - col) <= max_x:
                     self._cursor_x = curs_x
                 else:
@@ -169,15 +169,15 @@ class TextPad(ArrayPad):
                     self._cursor_y -= 1
 
         elif key == RIGHT or key == RIGHT_2:
-            if pad[row + y, col + x] == default:
-                if row + y + 1 != self.rows and pad[row + y + 1, 0] != default:
-                    self._cursor_x = 0
-                    self.min_col = 0
-                    if y == max_y:
-                        self.min_row += 1
-                    else:
-                        self._cursor_y += 1
-            else:
+            if pad[row + y, col + x] == "\n":
+                self._cursor_x = 0
+                self.min_col = 0
+                if y == max_y:
+                    self.min_row += 1
+                else:
+                    self._cursor_y += 1
+
+            elif pad[row + y, col + x] != default:
                 if x == max_x:
                     self.min_col += 1
                 else:
@@ -212,6 +212,9 @@ class TextPad(ArrayPad):
 
         elif key == END:
             line_length = (pad[row + y, :] != default).sum()
+            if line_length and pad[row + y, line_length - 1] == "\n":  # Skip over new lines
+                line_length -= 1
+
             if (curs_x := line_length - col) <= max_x:
                 self._cursor_x = curs_x
             else:
