@@ -8,10 +8,10 @@ TODO
     doesn't always seem to work.
 
 * Widgets
-    * Textpad - UP / DOWN / PGDN / PGUP and a few more on_press things need implementing
+    * Textpad - vertical movement and word wrap option
     * Graph
     * File Explorer
-    * Add PGDN, PGUP keys to constants and Scrollable behavior
+    * Add PGDN, PGUP keys to Scrollable behavior
 
 * Resizing Widget doesn't correct borders (ArrayWin does correct)
 
