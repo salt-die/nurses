@@ -89,8 +89,8 @@ class TextPad(ArrayPad):
 
                 for y, x in np.argwhere(self.pad == "\n"):
                     if (
-                        start <= (y, x) <= end and
-                        (row, col) <= (y, x) <= (row + h, col + w)
+                        start <= (y, x) < end and
+                        (row, col) <= (y, x) < (row + h, col + w)
                     ):
                         self.window.chgat(offset + y - row, offset + x - col, 1, self.selected_color)  # Show selected new lines
                 return
@@ -259,40 +259,44 @@ class TextPad(ArrayPad):
             self.delete_selection()
 
         elif key == LEFT or key == LEFT_2:
-            self.unselect()
-            self._move_cursor_left()
+            if self.has_selection:
+                self.unselect()
+            else:
+                self._move_cursor_left()
 
         elif key == RIGHT or key == RIGHT_2:
-            self.unselect()
-            self._move_cursor_right()
+            if self.has_selection:
+                self.unselect()
+            else:
+                self._move_cursor_right()
 
         elif key == SLEFT:
             if not self.has_selection:
-                self._select_start = self._select_end = col + y, row + x
+                self._select_start = self._select_end = row + y, col + x
 
-            if (col + y, row + x) == self._select_start:
+            if (row + y, col + x) == self._select_start:
                 self._move_cursor_left()
-                self._select_start = self.min_row + self._cursor_y, self.min_col + self._cursor_x
                 self.pad_colors[self.min_row + self._cursor_y, self.min_col + self._cursor_x] = self.selected_color
+                self._select_start = self.min_row + self._cursor_y, self.min_col + self._cursor_x
 
             else:
-                self.pad_colors[self.min_row + self._cursor_y, self.min_col + self._cursor_x] = self.color
                 self._move_cursor_left()
+                self.pad_colors[self.min_row + self._cursor_y, self.min_col + self._cursor_x] = self.color
                 self._select_end = self.min_row + self._cursor_y, self.min_col + self._cursor_x
 
         elif key == SRIGHT:
             if not self.has_selection:
-                self._select_start = self._select_end = col + y, row + x
+                self._select_start = self._select_end = row + y, col + x
 
-            if (col + y, row + x) == self._select_end:
+            if (row + y, col + x) == self._select_end:
+                self.pad_colors[row + y, col + x] = self.selected_color
                 self._move_cursor_right()
                 self._select_end =  self.min_row + self._cursor_y, self.min_col + self._cursor_x
-                self.pad_colors[self.min_row + self._cursor_y, self.min_col + self._cursor_x] = self.selected_color
 
             else:
-                self.pad_colors[self.min_row + self._cursor_y, self.min_col + self._cursor_x] = self.color
+                self.pad_colors[row + y, col + x] = self.color
                 self._move_cursor_right()
-                self._select_start =  self.min_row + self._cursor_y, self.min_col + self._cursor_x
+                self._select_start = self.min_row + self._cursor_y, self.min_col + self._cursor_x
 
         elif key == UP or key == UP_2:
             ...
