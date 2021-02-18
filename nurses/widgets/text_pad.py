@@ -1,9 +1,3 @@
-"""
-TODO:
-* Skip over "/n"
-* Keep track of old _cursor_x when moving up/ down
-"""
-
 import string
 
 import numpy as np
@@ -304,6 +298,12 @@ class TextPad(ArrayPad):
             ...
 
         elif key == DOWN or key == DOWN_2:
+            ...
+
+        elif key == SUP:
+            ...
+
+        elif key == SDOWN:
             ...
 
         elif key == PGUP:
