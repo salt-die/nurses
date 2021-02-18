@@ -65,8 +65,8 @@ class TextPad(ArrayPad):
         """
 
     def refresh(self):
-        # The default cursor color and selected text color can't be assigned until curses.init_scr has been called.
-        # So we defer the import as long as possible.
+        # The default cursor color and selected text color can't be assigned until curses.init_scr has been called
+        # so we defer the import as long as possible.
         if self.cursor_color is None:
             from .. import colors
             self.cursor_color = colors.BLACK_ON_WHITE
@@ -103,7 +103,7 @@ class TextPad(ArrayPad):
                 self.rows += 1
 
             # Move lines down
-            pad[row + y + 2:]  = pad[row + y + 1: -1]
+            pad[row + y + 2:] = pad[row + y + 1: -1]
             pad[row + y + 1] = default
 
             # Move rest of line onto next line
@@ -144,7 +144,7 @@ class TextPad(ArrayPad):
         elif key == BACKSPACE:
             # TODO: overwrite selected text
 
-            if x != 0 or col != 0:
+            if x or col:
                 pad[row + y, col + x - 1: -1] = pad[row + y, col + x: ]
                 pad[row + y, -1] = default
                 if x:
@@ -152,7 +152,32 @@ class TextPad(ArrayPad):
                 else:
                     self.min_col -= 1
 
-            # TODO:  Move the leading word to the end of the above line
+            elif y or row:
+                # Join current line with previous line, i.e., delete the previous line's "\n"
+                prev_line_length = (pad[row + y - 1, :] != default).sum() - 1  # -1 because we'll destroy the previous line's "\n"
+                this_line_length = (pad[row + y, :] != default).sum()
+
+                # Resize pad if the two lines are longer than pad's width
+                if (new_col := prev_line_length + this_line_length - self.cols) > 0:
+                    self.cols += new_col
+
+                pad[row + y - 1, prev_line_length: prev_line_length + this_line_length] = pad[row + y, :this_line_length]
+
+                # Move lines up
+                pad[row + y: -1] = pad[row + y + 1:]
+                pad[-1] = default
+
+                # Logic same as left movement --- perhaps write a single routine?
+                if (curs_x := prev_line_length - col) <= max_x:
+                    self._cursor_x = curs_x
+                else:
+                    self.min_col = max(0, prev_line_length - max_x)
+                    self._cursor_x = max_x if self.min_col else prev_line_length
+
+                if y:
+                    self._cursor_y -= 1
+                else:
+                    self.min_row -= 1
 
         elif key == LEFT or key == LEFT_2:
             # TODO: un-select text
@@ -236,7 +261,7 @@ class TextPad(ArrayPad):
                 self.min_col = max(0, line_length - max_x)
                 self._cursor_x = max_x if self.min_col else line_length
 
-        else:
+        else:  # Print whatever key is pressed:
             if pad[row + y, -1] != default:
                 self.cols += 1
 
