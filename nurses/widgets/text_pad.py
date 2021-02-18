@@ -83,14 +83,16 @@ class TextPad(ArrayPad):
         super().refresh()
 
         offset = int(self.has_border)
-        h, w = self.buffer.shape
-        row, col = self.min_row, self.min_col
-        start, end = self._select_start, self._select_end
 
         if self.has_selection:
+            start, end = self._select_start, self._select_end
+
             if start == end:
                 self.unselect()
             else:
+                row, col = self.min_row, self.min_col
+                h, w = self.buffer.shape
+
                 for y, x in np.argwhere(self.pad == "\n"):
                     if (
                         start <= (y, x) <= end and
@@ -105,13 +107,11 @@ class TextPad(ArrayPad):
             self.window.chgat(offset + self._cursor_y, offset + self._cursor_x, 1, self.cursor_color)
 
     def unselect(self):
-        self._select_start = None
-        self._select_end = None
-
+        self._select_start = self._select_end = None
         self.pad_colors[:] = self.color
 
     def delete_selection(self):
-        if self._select_start is None:
+        if not self.has_selection:
             return
 
         default = self.default_character
@@ -259,7 +259,7 @@ class TextPad(ArrayPad):
                 elif y or row:
                     self._select_start = row + y - 1, (pad[row + y - 1, :] != default).sum() - 1
                 else:
-                    return
+                    return True
                 self._select_end = row + y, col + x
 
             self.delete_selection()
@@ -315,7 +315,7 @@ class TextPad(ArrayPad):
         elif key == DELETE:
             if not self.has_selection:
                 if pad[row + y, col + x] == default:
-                    return
+                    return True
 
                 self._select_start = row + y, col + x
 
