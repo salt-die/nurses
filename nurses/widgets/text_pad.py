@@ -196,7 +196,7 @@ class TextPad(ArrayPad):
         row, col = self.min_row, self.min_col
         max_x = len(self.buffer[0]) - 1
 
-        if self._last_x is None or col == row == y == x == 0:
+        if self._last_x is None or row + y == col + x == 0:
             self._last_x = col + x
 
         if not (y or row):
@@ -253,6 +253,23 @@ class TextPad(ArrayPad):
                 self._cursor_x = 0
             else:
                 self._cursor_x = curs_x
+
+    def _highlight_selection(self):
+        colors = self.pad_colors
+        colors[:] = self.color
+        start_y, start_x = self._select_start
+        end_y, end_x = self._select_end
+        selected_color = self.selected_color
+
+        if lines := end_y - start_y:
+            colors[start_y, start_x:] = selected_color
+            if lines > 1:
+                colors[start_y + 1: end_y] = selected_color
+            colors[end_y, :end_x] = selected_color
+        else:
+            colors[start_y, start_x: end_x] = selected_color
+
+        colors[self.pad == self.default_character] = self.color
 
     def on_press(self, key):
         if key not in KEYS:
@@ -379,10 +396,48 @@ class TextPad(ArrayPad):
             self._move_cursor_down()
 
         elif key == SUP:
-            ...
+            if not self.has_selection:
+                self._select_start = self._select_end = row + y, col + x
+
+            was_before_start = (row + y, col + x) <= self._select_start
+
+            self._move_cursor_up()
+
+            new_row, new_col = self.min_row, self.min_col
+            new_y, new_x = self._cursor_y, self._cursor_x
+
+            if (cursor := (new_row + new_y, new_col + new_x)) <= self._select_start:
+                if not was_before_start:
+                    self._select_end = self._select_start
+
+                self._select_start = cursor
+
+            else:
+                self._select_end = cursor
+
+            self._highlight_selection()
 
         elif key == SDOWN:
-            ...
+            if not self.has_selection:
+                self._select_start = self._select_end = row + y, col + x
+
+            was_after_end = (row + y, col + x) >= self._select_end
+
+            self._move_cursor_down()
+
+            new_row, new_col = self.min_row, self.min_col
+            new_y, new_x = self._cursor_y, self._cursor_x
+
+            if (cursor := (new_row + new_y, new_col + new_x)) >= self._select_end:
+                if not was_after_end:
+                    self._select_start = self._select_end
+
+                self._select_end = cursor
+
+            else:
+                self._select_start = cursor
+
+            self._highlight_selection()
 
         elif key == PGUP:
             ...
