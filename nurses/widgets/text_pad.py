@@ -81,19 +81,16 @@ class TextPad(ArrayPad):
         if self.has_selection:
             start, end = self._select_start, self._select_end
 
-            if start == end:
-                self.unselect()
-            else:
+            if start != end:
                 row, col = self.min_row, self.min_col
                 h, w = self.buffer.shape
 
                 for y, x in np.argwhere(self.pad == "\n"):
-                    if (
-                        start <= (y, x) < end and
-                        (row, col) <= (y, x) < (row + h, col + w)
-                    ):
+                    if start <= (y, x) < end and row <= y < row + h and col <= x < col + w:
                         self.window.chgat(offset + y - row, offset + x - col, 1, self.selected_color)  # Show selected new lines
-                return
+                return  # We won't draw cursor if there's a selection, so return early.
+
+            self.unselect()
 
         if self.cursor:
             self.window.addstr(offset + self._cursor_y, offset + self._cursor_x, self.cursor, self.cursor_color)
@@ -276,6 +273,9 @@ class TextPad(ArrayPad):
 
             if (row + y, col + x) == self._select_start:
                 self._move_cursor_left()
+                if (self.min_row + self._cursor_y, self.min_col + self._cursor_x) == (row + y, col + x):  # Didn't move
+                    return True
+
                 self.pad_colors[self.min_row + self._cursor_y, self.min_col + self._cursor_x] = self.selected_color
                 self._select_start = self.min_row + self._cursor_y, self.min_col + self._cursor_x
 
@@ -289,6 +289,9 @@ class TextPad(ArrayPad):
                 self._select_start = self._select_end = row + y, col + x
 
             if (row + y, col + x) == self._select_end:
+                if pad[row + y, col + x] == default:
+                    return True
+
                 self.pad_colors[row + y, col + x] = self.selected_color
                 self._move_cursor_right()
                 self._select_end =  self.min_row + self._cursor_y, self.min_col + self._cursor_x
