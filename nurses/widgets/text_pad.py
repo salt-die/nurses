@@ -47,7 +47,7 @@ class TextPad(ArrayPad):
         self._cursor_x = 0
         self._cursor_y = 0
         self.unselect()
-        self._vert_x = None  # This keeps track of target cursor_x through vertical movement
+        self._last_x = None  # This keeps track of target cursor_x through vertical movement
 
     @property
     def text(self):
@@ -105,6 +105,8 @@ class TextPad(ArrayPad):
         if not self.has_selection:
             return
 
+        self._last_x = None
+
         default = self.default_character
         pad = self.pad
         row, col = self.min_row, self.min_col
@@ -127,21 +129,23 @@ class TextPad(ArrayPad):
             pad[start_y + 1: -lines] = pad[end_y + 1:]
             pad[-lines] = default
 
-        if (curs_x := start_x - col) <= max_x:
+        if (curs_x := start_x - col) > max_x:
+            self.min_col = start_x - max_x
+            self._cursor_x = max_x
+        else:
             self._cursor_x = curs_x
-        else:
-            self.min_col = max(0, start_x - max_x)
-            self._cursor_x = max_x if self.min_col else start_x
 
-        if (curs_y := start_y - row) <= max_y:
-            self._cursor_y = curs_y
+        if (curs_y := start_y - row) > max_y:
+            self.min_row = start_y - max_y
+            self._cursor_y = max_y
         else:
-            self.min_row = max(0, start_y - max_y)
-            self._cursor_y = max_y if self.min_row else start_y
+            self._cursor_y = curs_y
 
         self.unselect()
 
     def _move_cursor_left(self):
+        self._last_x = None
+
         y, x  = self._cursor_y, self._cursor_x
         row, col = self.min_row, self.min_col
         max_x = len(self.buffer[0]) - 1
@@ -153,12 +157,12 @@ class TextPad(ArrayPad):
             self.min_col -= 1
 
         elif y or row:
-            line_length = (self.pad[row + y - 1, :] != self.default_character).sum() - 1
-            if (curs_x := line_length - col) <= max_x:
-                self._cursor_x = curs_x
+            line_length = (self.pad[row + y - 1] != self.default_character).sum() - 1
+            if (curs_x := line_length - col) > max_x:
+                self.min_col = line_length - max_x
+                self._cursor_x = max_x
             else:
-                self.min_col = max(0, line_length - max_x)
-                self._cursor_x = max_x if self.min_col else line_length
+                self._cursor_x = curs_x
 
             if y:
                 self._cursor_y -= 1
@@ -166,6 +170,8 @@ class TextPad(ArrayPad):
                 self.min_row -= 1
 
     def _move_cursor_right(self):
+        self._last_x = None
+
         pad = self.pad
         y, x  = self._cursor_y, self._cursor_x
         row, col = self.min_row, self.min_col
@@ -184,6 +190,69 @@ class TextPad(ArrayPad):
                 self.min_col += 1
             else:
                 self._cursor_x += 1
+
+    def _move_cursor_up(self):
+        y, x = self._cursor_y, self._cursor_x
+        row, col = self.min_row, self.min_col
+        max_x = len(self.buffer[0]) - 1
+
+        if self._last_x is None or col == row == y == x == 0:
+            self._last_x = col + x
+
+        if not (y or row):
+            self._cursor_x = 0
+            self.min_col = 0
+
+        else:
+            if y:
+                self._cursor_y -= 1
+            else:
+                self.min_row -= 1
+
+            min_x = min(self._last_x, (self.pad[row + y - 1] != self.default_character).sum() - 1)
+            if (curs_x := min_x - col) > max_x:
+                self.min_col = min_x - max_x
+                self._cursor_x = max_x
+            elif curs_x < 0:
+                self.min_col += curs_x
+                self._cursor_x = 0
+            else:
+                self._cursor_x = curs_x
+
+    def _move_cursor_down(self):
+        default = self.default_character
+        pad = self.pad
+        y, x = self._cursor_y, self._cursor_x
+        row, col = self.min_row, self.min_col
+        max_y, max_x = self.buffer[1:, 1:].shape
+        line_length = (pad[row + y] != default).sum()
+        bottom_line = line_length == 0 or line_length != 0 and pad[row + y, line_length - 1] != "\n"
+
+        if self._last_x is None or bottom_line and col + x == line_length:
+            self._last_x = col + x
+
+        if bottom_line:
+            if (curs_x := line_length - col) > max_x:
+                self.min_col = line_length - max_x
+                self._cursor_x = max_x
+            else:
+                self._cursor_x = curs_x
+
+        else:
+            if y == max_y:
+                self.min_row += 1
+            else:
+                self._cursor_y += 1
+
+            min_x = min(self._last_x, np.isin(pad[row + y + 1], (default, "\n"), invert=True).sum())
+            if (curs_x := min_x - col) > max_x:
+                self.min_col = min_x - max_x
+                self._cursor_x = max_x
+            elif curs_x < 0:
+                self.min_col += curs_x
+                self._cursor_x = 0
+            else:
+                self._cursor_x = curs_x
 
     def on_press(self, key):
         if key not in KEYS:
@@ -248,7 +317,7 @@ class TextPad(ArrayPad):
                 if x or col:
                     self._select_start = row + y, col + x - 1
                 elif y or row:
-                    self._select_start = row + y - 1, (pad[row + y - 1, :] != default).sum() - 1
+                    self._select_start = row + y - 1, (pad[row + y - 1] != default).sum() - 1
                 else:
                     return True
                 self._select_end = row + y, col + x
@@ -302,10 +371,12 @@ class TextPad(ArrayPad):
                 self._select_start = self.min_row + self._cursor_y, self.min_col + self._cursor_x
 
         elif key == UP or key == UP_2:
-            ...
+            self.unselect()
+            self._move_cursor_up()
 
         elif key == DOWN or key == DOWN_2:
-            ...
+            self.unselect()
+            self._move_cursor_down()
 
         elif key == SUP:
             ...
@@ -337,18 +408,21 @@ class TextPad(ArrayPad):
             self.unselect()
             self._cursor_x = 0
             self.min_col = 0
+            self._last_x = None
 
         elif key == END:
             self.unselect()
-            line_length = (pad[row + y, :] != default).sum()
+            self._last_x = None
+
+            line_length = (pad[row + y] != default).sum()
             if line_length and pad[row + y, line_length - 1] == "\n":  # Skip over new lines
                 line_length -= 1
 
-            if (curs_x := line_length - col) <= max_x:
-                self._cursor_x = curs_x
+            if (curs_x := line_length - col) > max_x:
+                self.min_col = line_length - max_x
+                self._cursor_x = max_x
             else:
-                self.min_col = max(0, line_length - max_x)
-                self._cursor_x = max_x if self.min_col else line_length
+                self._cursor_x = curs_x
 
         else:  # Print whatever key is pressed:
             self.delete_selection()
