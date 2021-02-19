@@ -98,7 +98,7 @@ class ColorManager(metaclass=Singleton):
         background: optional
             The background color for the gradient. Can be a string ("COLOR_NAME") or rgb-tuple. (the default is "BLACK")
         """
-        back = getattr(self, background) if isinstance(background, str) else self.color(background)
+        back = getattr(self, background) if isinstance(background, str) else background
         return self.pair_gradient(n, (start_color, back), (end_color, back), palette)
 
     def color(self, rgb):
