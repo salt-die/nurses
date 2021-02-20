@@ -77,8 +77,8 @@ class TextPad(ArrayPad):
         for i, line in enumerate(lines):
             self.pad[i, :len(line)] = tuple(line)
 
-        self._set_min_col(len(line))
         self._set_min_row(i)
+        self._set_min_col(len(line))
 
     @property
     def has_selection(self):
