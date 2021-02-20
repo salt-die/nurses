@@ -303,12 +303,18 @@ class TextPad(ArrayPad):
 
         elif key == LEFT or key == LEFT_2:
             if self.has_selection:
+                y, x = self._select_start
+                self._set_min_row(y)
+                self._set_min_col(x)
                 self.unselect()
             else:
                 self._move_cursor_left()
 
         elif key == RIGHT or key == RIGHT_2:
             if self.has_selection:
+                y, x = self._select_end
+                self._set_min_row(y)
+                self._set_min_col(x)
                 self.unselect()
             else:
                 self._move_cursor_right()
@@ -318,35 +324,26 @@ class TextPad(ArrayPad):
                 self._select_start = self._select_end = cursor
 
             self._move_cursor_left()
-            new_cursor = self._absolute_cursor
 
             if cursor == self._select_start:
-                if new_cursor == cursor:  # Didn't move
-                    return True
-
-                self.pad_colors[new_cursor] = self.selected_color
-                self._select_start = new_cursor
-
+                self._select_start = self._absolute_cursor
             else:
-                self.pad_colors[new_cursor] = self.color
-                self._select_end = new_cursor
+                self._select_end = self._absolute_cursor
+
+            self._highlight_selection()
 
         elif key == SRIGHT:
             if not self.has_selection:
                 self._select_start = self._select_end = cursor
 
+            self._move_cursor_right()
+
             if cursor == self._select_end:
-                if pad[cursor] == default:
-                    return True
-
-                self.pad_colors[cursor] = self.selected_color
-                self._move_cursor_right()
                 self._select_end = self._absolute_cursor
-
             else:
-                self.pad_colors[cursor] = self.color
-                self._move_cursor_right()
                 self._select_start = self._absolute_cursor
+
+            self._highlight_selection()
 
         elif key == UP or key == UP_2:
             self.unselect()
