@@ -4,7 +4,7 @@ from nurses import ScreenManager, colors
 from nurses.widgets import TextPad
 
 with ScreenManager() as sm:
-    tp = sm.root.new_widget(0, 0, 30, 50, rows=50, cols=150, border_style="curved", create_with=TextPad)
+    tp = sm.root.new_widget(0, 0, 30, 50, border_style="curved", create_with=TextPad)
     rainbow = cycle(colors.rainbow_gradient())
     blue_green = colors.gradient(40, (0, 0, 255), (0, 255, 0), "blue_green")
     blue_green = cycle(blue_green + blue_green[::-1])
