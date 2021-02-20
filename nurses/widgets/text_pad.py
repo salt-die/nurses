@@ -55,9 +55,27 @@ class TextPad(ArrayPad):
 
     @text.setter
     def text(self, contents):
-        """
-        rewrite pad contents with text
-        """
+        lines = tuple(self._lines(contents))
+
+        if len(lines) > self.rows:
+            self.rows = len(lines)
+
+        if (cols := max(map(len, lines)) + 1) > self.cols:  # `+ 1` accounts for trailing newlines
+            self.cols = cols
+
+        self.pad[:] = self.default_character
+        for i, line in enumerate(lines):
+            self.pad[i, :len(line)] = tuple(line)
+
+    @staticmethod
+    def _lines(text):
+        """Yield each line of text including the newline."""
+        start = 0
+        for i, char in enumerate(text):
+            if char == "\n":
+                yield text[start: i + 1]
+                start = i + 1
+        yield text[start:]
 
     @property
     def has_selection(self):
