@@ -32,7 +32,7 @@ KEYS = {
     PGUP, END, PGDN, DELETE, SUP, SDOWN,
     *map(ord, string.printable)
 }
-EMPTY = chr(0x200B)  # zero-width space:  We need to differentiate from normal spaces in text.
+EMPTY = chr(0x00A0)  # no-break space:  We need to differentiate from normal spaces in text.
 
 
 class TextPad(ArrayPad):
