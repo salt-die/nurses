@@ -70,7 +70,7 @@ class TextPad(ArrayPad):
         if len(lines) > self.rows:
             self.rows = len(lines)
 
-        if (cols := max(map(len, lines)) + 1) > self.cols:  # `+ 1` accounts for trailing newlines
+        if (cols := max(map(len, lines))) > self.cols:
             self.cols = cols
 
         self.pad[:] = self.default_character
