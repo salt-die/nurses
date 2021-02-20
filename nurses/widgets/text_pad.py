@@ -61,7 +61,7 @@ class TextPad(ArrayPad):
 
     @property
     def text(self):
-        return "".join("".join(char for char in row if char != self.default_character) for row in self.pad if not (row == self.default_character).all())
+        return "".join("".join(char for char in row if char != self.default_character) for row in self.pad if row[0] != self.default_character)
 
     @text.setter
     def text(self, contents):
