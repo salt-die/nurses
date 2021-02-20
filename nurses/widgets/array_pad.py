@@ -32,8 +32,13 @@ class ArrayPad(ArrayWin):
     bar_fill = "░"
     bar_color = 0
 
-    def __init__(self, *args, rows, cols, min_row=0, min_col=0, **kwargs):
+    def __init__(self, *args, rows=None, cols=None, min_row=0, min_col=0, **kwargs):
         super().__init__(*args, **kwargs)
+        if rows is None:
+            rows = self.height
+
+        if cols is None:
+            cols = self.width
 
         self.__dict__["rows"] = rows
         self.__dict__["cols"] = cols
