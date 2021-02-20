@@ -398,6 +398,7 @@ class TextPad(ArrayPad):
             self._highlight_selection()
 
         elif key == PGUP:
+            self.unselect()
             _, x = self._absolute_cursor
 
             for _ in range(self._max_y - 1):
@@ -406,6 +407,7 @@ class TextPad(ArrayPad):
             self._last_x = x
 
         elif key == PGDN:
+            self.unselect()
             _, x = self._absolute_cursor
 
             for _ in range(self._max_y - 1):
