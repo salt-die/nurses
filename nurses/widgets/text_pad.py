@@ -143,18 +143,19 @@ class TextPad(ArrayPad):
         end_line_length = self._line_length(end_y, end_x)
 
         # Resize pad if the two lines are longer than pad's width
-        if (new_col := start_x + end_line_length - self.cols) > 0:
-            self.cols += new_col
+        if (new_cols := start_x + end_line_length - self.cols) > 0:
+            self.cols += new_cols
 
         # Join start line and end line minus the selected text
         pad = self.pad
         pad[start_y, start_x: start_x + end_line_length] = pad[end_y, end_x: end_x + end_line_length]
         pad[start_y, start_x + end_line_length:] = default
 
-        if lines := end_y - start_y:
+        if end_y - start_y:
             # Move lines up
-            pad[start_y + 1: -lines] = pad[end_y + 1:]
-            pad[-lines] = default
+            remaining_lines = pad[end_y + 1:]
+            pad[start_y + 1: start_y + 1 + len(remaining_lines)] = remaining_lines
+            pad[start_y + 1 + len(remaining_lines):] = default
 
         self._set_min_row(start_y)
         self._set_min_col(start_x)
@@ -247,7 +248,6 @@ class TextPad(ArrayPad):
 
         default = self.default_character
         pad = self.pad
-
         cursor = curs_y, curs_x = self._absolute_cursor
 
         if key == ENTER:
@@ -257,7 +257,11 @@ class TextPad(ArrayPad):
             # Resize pad if we're at the bottom or there's text at the bottom.
             if curs_y == self.rows - 1 or pad[-1, 0] != default:
                 self.rows += 1
-                pad = self.pad
+
+            if curs_x == self.cols:
+                self.cols += 1
+
+            pad = self.pad  # Needs re-alias
 
             # Move lines down
             pad[curs_y + 2:] = pad[curs_y + 1: -1]
