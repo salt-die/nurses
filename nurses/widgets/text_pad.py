@@ -147,6 +147,7 @@ class TextPad(ArrayPad):
         if (new_col := start_x + end_line_length - self.cols) > 0:
             self.cols += new_col
 
+        # Join start line and end line minus the selected text
         pad[start_y, start_x: start_x + end_line_length] = pad[end_y, end_x: end_x + end_line_length]
         pad[start_y, start_x + end_line_length:] = default
 
@@ -399,21 +400,19 @@ class TextPad(ArrayPad):
 
         elif key == PGUP:
             self.unselect()
-            _, x = self._absolute_cursor
 
             for _ in range(self._max_y - 1):
                 self._move_cursor_up()
 
-            self._last_x = x
+            self._last_x = curs_x
 
         elif key == PGDN:
             self.unselect()
-            _, x = self._absolute_cursor
 
             for _ in range(self._max_y - 1):
                 self._move_cursor_down()
 
-            self._last_x = x
+            self._last_x = curs_x
 
         elif key == DELETE:
             if not self.has_selection:
