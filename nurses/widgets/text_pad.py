@@ -440,10 +440,22 @@ class TextPad(ArrayPad):
             self._highlight_selection()
 
         elif key == PGUP:
-            ...
+            h = len(buffer[:, 0])
+            x = self.min_col + self._cursor_x
+
+            for _ in range(h):
+                self._move_cursor_up()
+
+            self._last_x = x
 
         elif key == PGDN:
-            ...
+            h = len(buffer[:, 0])
+            x = self.min_col + self._cursor_x
+
+            for _ in range(h):
+                self._move_cursor_down()
+
+            self._last_x = x
 
         elif key == DELETE:
             if not self.has_selection:
