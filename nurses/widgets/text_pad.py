@@ -136,7 +136,6 @@ class TextPad(ArrayPad):
         self._last_x = None
 
         default = self.default_character
-        pad = self.pad
 
         start_y, start_x = self._select_start
         end_y, end_x = self._select_end
@@ -148,6 +147,7 @@ class TextPad(ArrayPad):
             self.cols += new_col
 
         # Join start line and end line minus the selected text
+        pad = self.pad
         pad[start_y, start_x: start_x + end_line_length] = pad[end_y, end_x: end_x + end_line_length]
         pad[start_y, start_x + end_line_length:] = default
 
@@ -252,17 +252,19 @@ class TextPad(ArrayPad):
 
         if key == ENTER:
             self.delete_selection()
+            cursor = curs_y, curs_x = self._absolute_cursor
 
             # Resize pad if we're at the bottom or there's text at the bottom.
             if curs_y == self.rows - 1 or pad[-1, 0] != default:
                 self.rows += 1
+                pad = self.pad
 
             # Move lines down
             pad[curs_y + 2:] = pad[curs_y + 1: -1]
             pad[curs_y + 1] = default
 
             # Move rest of line onto next line
-            text_len = self._line_length(curs_y, curs_x)
+            text_len = self._line_length(*cursor)
             if text_len:
                 rest_of_line = pad[curs_y, curs_x: curs_x + text_len]
 
@@ -279,9 +281,11 @@ class TextPad(ArrayPad):
 
         elif key == TAB:
             self.delete_selection()
+            curs_y, curs_x = self._absolute_cursor
 
             if (new_cols := self._line_length(curs_y) + 4 - self.cols) > 0:
                 self.cols += new_cols
+                pad = self.pad
 
             pad[curs_y, curs_x + 4: ] = pad[curs_y, curs_x: -4]
             pad[curs_y, curs_x: curs_x + 4] = " "
@@ -445,9 +449,11 @@ class TextPad(ArrayPad):
 
         else:  # Print whatever key is pressed:
             self.delete_selection()
+            curs_y, curs_x = self._absolute_cursor
 
             if pad[curs_y, -1] != default:
                 self.cols += 1
+                pad = self.pad
 
             pad[curs_y, curs_x + 1:] = pad[curs_y, curs_x: -1]
             pad[cursor] = chr(key)
