@@ -401,18 +401,22 @@ class TextPad(ArrayPad):
         elif key == PGUP:
             self.unselect()
 
+            last_x = curs_x if self._last_x is None else self._last_x
+
             for _ in range(self._max_y - 1):
                 self._move_cursor_up()
 
-            self._last_x = curs_x
+            self._last_x = last_x
 
         elif key == PGDN:
             self.unselect()
 
+            last_x = curs_x if self._last_x is None else self._last_x
+
             for _ in range(self._max_y - 1):
                 self._move_cursor_down()
 
-            self._last_x = curs_x
+            self._last_x = last_x
 
         elif key == DELETE:
             if not self.has_selection:
