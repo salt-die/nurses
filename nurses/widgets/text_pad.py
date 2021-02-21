@@ -97,6 +97,7 @@ class TextPad(ArrayPad):
         return self.min_row + self._cursor_y, self.min_col + self._cursor_x
 
     def _set_min_row(self, y):
+        """Move `self.min_row` if needed so that the cursor is visible."""
         max_y = self._max_y
 
         if (curs_y := y - self.min_row) > max_y:
