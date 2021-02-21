@@ -30,16 +30,16 @@ KEYS = {
     BACKSPACE, TAB, ENTER, DOWN, UP, LEFT, RIGHT,
     SLEFT, SRIGHT, HOME, UP_2, LEFT_2, RIGHT_2, DOWN_2,
     PGUP, END, PGDN, DELETE, SUP, SDOWN,
-    *map(ord, string.printable)
+    *map(ord, string.printable),
 }
-EMPTY = chr(0x00A0)  # no-break space:  We need to differentiate from normal spaces in text.
 
 
 class TextPad(ArrayPad):
-    default_character = EMPTY
+    default_character = chr(0x00A0)  # no-break space:  We need to differentiate from normal spaces in text.
     cursor = ""
     cursor_color = None
     selected_color = None
+    word_wrap = False  # word_wrap = True not implemented
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -82,7 +82,7 @@ class TextPad(ArrayPad):
 
     @property
     def has_selection(self):
-        return bool(self._select_start)
+        return self._select_start is not None
 
     @property
     def _max_x(self):
