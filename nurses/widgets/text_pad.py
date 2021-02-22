@@ -243,7 +243,7 @@ class TextPad(ArrayPad):
 
         colors[self.pad == self.default_character] = self.color
 
-    def on_press(self, key):
+    def on_press(self, key, no_refresh=False):
         if key not in KEYS:
             return
 
@@ -465,8 +465,40 @@ class TextPad(ArrayPad):
 
             self._set_min_col(curs_x + 1)
 
-        self.root.refresh()
+            if self.word_wrap:
+                self._fix_width()
+
+        if not no_refresh:
+            self.root.refresh()
         return True
+
+    def _fix_width(self):
+        y_curs, x_curs = self._absolute_cursor
+
+        if self._line_length(y_curs) <= self._max_x:
+            return
+
+        if (spaces := self.pad[y_curs] == " ").any():
+            x = np.argwhere(spaces).max()
+        else:
+            return
+
+        self._set_min_col(x)
+        self.on_press(DELETE, no_refresh=True)
+        self.on_press(ENTER, no_refresh=True)
+        self.on_press(END, no_refresh=True)
+
+        if y_curs + 2 < self.rows and self.pad[y_curs + 2, 0] != self.default_character:
+            self.on_press(DELETE, no_refresh=True)
+            self.on_press(ord(" "), no_refresh=True)  # Recursively calls _fix_width
+            self.on_press(LEFT, no_refresh=True)
+
+        if x_curs <= x:
+            self._set_min_row(y_curs)
+            self._set_min_col(x_curs)
+        else:
+            self._set_min_row(y_curs + 1)
+            self._set_min_col(x_curs - x - 1)
 
     def refresh(self):
         # The default cursor color and selected text color can't be assigned until curses.init_scr has been called
