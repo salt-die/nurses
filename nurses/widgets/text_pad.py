@@ -464,8 +464,7 @@ class TextPad(ArrayPad):
 
             self._set_min_col(curs_x + 1)
 
-        if not no_refresh:
-            self.root.refresh()
+        self.root.refresh()
         return True
 
     def refresh(self):
