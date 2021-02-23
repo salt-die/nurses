@@ -8,7 +8,6 @@ TODO
     doesn't always seem to work.
 
 * Widgets
-    * Textpad - word wrap option
     * Graph
     * File Explorer
     * Add PGDN, PGUP keys to Scrollable behavior
