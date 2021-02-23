@@ -10,7 +10,6 @@ TODO
 * Widgets
     * Graph
     * File Explorer
-    * Add PGDN, PGUP keys to Scrollable behavior
 
 * Resizing Widget doesn't correct borders (ArrayWin does correct)
 
