@@ -8,7 +8,6 @@ TODO
     doesn't always seem to work.
 
 * Widgets
-    * Graph
     * File Explorer
 
 * Resizing Widget doesn't correct borders (ArrayWin does correct)
