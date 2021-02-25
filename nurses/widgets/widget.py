@@ -175,14 +175,14 @@ class Widget(metaclass=Observer):
         if self.root is None:
             return
 
-        h, w = self.parent.height, self.parent.width
+        border = int(self.parent.has_border)
+        h, w = self.parent.height - 2 * border, self.parent.width - 2 * border
 
         top, left = self.pos_hint
         height, width = self.size_hint
 
         if top is not None:
             self.top = self.convert(top, h)
-
         if left is not None:
             self.left = self.convert(left, w)
 
@@ -300,6 +300,7 @@ class Widget(metaclass=Observer):
         """
         # Notably, we don't use curses.panels as they aren't available for windows-curses...
         # ...upside is we don't error when moving a widget off-screen.
+        border = int(self.has_border)
         h, w = self.height, self.width
         for widget in self.children:
             if widget is None:
@@ -307,8 +308,8 @@ class Widget(metaclass=Observer):
 
             widget.refresh()
             y, x = widget.top, widget.left
-            src_t, des_t = (-y, 0) if y < 0 else (0, y)
-            src_l, des_l = (-x, 0) if x < 0 else (0, x)
+            src_t, des_t = (-y, border) if y < 0 else (0, y + border)
+            src_l, des_l = (-x, border) if x < 0 else (0, x + border)
             des_h = min(h - 1, des_t + widget.height)
             des_w = min(w - 1, des_l + widget.width - 1)  # -1 compensates for the extra width of widget's window
 
