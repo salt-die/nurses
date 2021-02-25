@@ -127,7 +127,8 @@ class TextPad(ArrayPad):
 
     def unselect(self):
         self._select_start = self._select_end = None
-        self.pad_colors[:] = self.color
+        if self.pad_colors is not None:
+            self.pad_colors[:] = self.color
 
     def delete_selection(self):
         if not self.has_selection:
@@ -244,7 +245,7 @@ class TextPad(ArrayPad):
 
     def on_press(self, key):
         if key not in KEYS:
-            return
+            return super().on_press(key)
 
         default = self.default_character
         pad = self.pad
