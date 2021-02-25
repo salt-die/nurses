@@ -9,7 +9,7 @@ class Textbox(Widget):
     cursor = ""
     cursor_color = None
 
-    def __init__(self, top, left, width,*args, **kwargs):
+    def __init__(self, top, left, width, *args, **kwargs):
         super().__init__(top, left, 3 if kwargs.get("border_style") else 1, width + 2 * bool(kwargs.get("border_style")), *args, **kwargs)
         self._gathering = False
         self._reset()
