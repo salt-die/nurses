@@ -3,8 +3,11 @@ class Bouncing:
     """
 
     vel = 1 + 1j
-    pos = 0j
     delay = .3
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.pos = complex(self.top, self. left)
 
     def schedule_bounce(self):
         from ... import ScreenManager
