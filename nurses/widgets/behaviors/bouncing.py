@@ -16,13 +16,14 @@ class Bouncing:
     def _bounce(self):
         self.pos += self.vel
 
-        offset = int(getattr(self.parent, "has_border", None))
+        offset = int(self.parent.has_border)
+        h, w = self.parent.height - 2 * offset, self.parent.width - 2 * offset
 
-        if not offset <= self.pos.real <= self.parent.height - offset - self.height:
+        if not 0 <= self.pos.real <= h - self.height:
             self.vel = -self.vel.conjugate()
             self.pos += 2 * self.vel.real
 
-        if not offset <= self.pos.imag <= self.parent.width - offset - self.width:
+        if not 0 <= self.pos.imag <= w - self.width:
             self.vel = self.vel.conjugate()
             self.pos += 2j * self.vel.imag
 
