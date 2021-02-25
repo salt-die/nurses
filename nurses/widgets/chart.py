@@ -56,11 +56,15 @@ class Chart(ArrayWin):
         if y_label_width:
             self[:, y_label_width] = "|"
 
-            # Print y labels
+            # Print y values
             for i in range(n_labels):
                 percent_of_height = i / (n_labels - 1)
                 value = f"{percent_of_height * max_v:.1f}"  # TODO: attribute to specify places after decimal
-                self[round((1 - percent_of_height) * h), :y_label_width - 2] = f"{value:>{y_label_width - 2}}"
+                row = round((1 - percent_of_height) * h)
+                self[row, :y_label_width - 2] = f"{value:>{y_label_width - 2}}"
+
+                if gradient is not None:
+                    self.colors[row, :y_label_width - 2] = gradient[round(percent_of_height * (len(gradient) - 1))]
 
         # Print vertical bars
         for i, value in enumerate(reversed(values)):

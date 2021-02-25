@@ -11,5 +11,5 @@ with ScreenManager() as sm:
         chart.update(random() * 50)
         sm.root.refresh()
 
-    sm.schedule(update)
+    sm.schedule(update, delay=.1)
     sm.run()
