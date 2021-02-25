@@ -33,20 +33,27 @@ class ArrayPad(ArrayWin):
     bar_color = 0
 
     def __init__(self, *args, rows=None, cols=None, min_row=0, min_col=0, **kwargs):
-        super().__init__(*args, **kwargs)
-        if rows is None:
-            rows = self.height
-
-        if cols is None:
-            cols = self.width
-
-        self.__dict__["rows"] = rows
-        self.__dict__["cols"] = cols
+        self._rows = rows
+        self._cols = cols
         self.min_row = min_row
         self.min_col = min_col
+        self.pad = self.pad_colors= None
 
-        self.pad = np.full((rows, cols), self.default_character)
-        self.pad_colors = np.full((rows, cols), self.color)
+        super().__init__(*args, **kwargs)
+
+    def update_geometry(self):
+        if self.root is None:
+            return
+
+        super().update_geometry()
+
+        if self.pad is None:
+            rows = self.__dict__["rows"] = self.height if self._rows is None else self._rows
+            cols = self.__dict__["cols"] = self.width if self._cols is None else self._cols
+            del self._rows
+            del self._cols
+            self.pad = np.full((rows, cols), self.default_character)
+            self.pad_colors = np.full((rows, cols), self.color)
 
     def __getitem__(self, key):
         return self.pad[key]
