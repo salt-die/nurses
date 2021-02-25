@@ -1,7 +1,8 @@
 from itertools import cycle
+from random import random
 
 from nurses import colors, ScreenManager
-from nurses.widgets import ArrayWin, DigitalClock, TextPad
+from nurses.widgets import ArrayWin, Chart, DigitalClock, TextPad
 from nurses.widgets.behaviors import Selectable, Movable, Bouncing
 
 
@@ -39,13 +40,16 @@ class Notepad(Window, TextPad):
 
 with ScreenManager() as sm:
     rainbow = cycle(colors.rainbow_gradient(20))
+    blue_to_purple = colors.gradient(20, (0, 255, 255), (103, 15, 215), "blue_to_purple")
 
     sm.root.add_widget(Notepad(0, 0, size_hint=(.5, .5)))
     sm.root.add_widget(Notepad(pos_hint=(0, .5), size_hint=(.5, .5)))
-    sm.root.add_widget(Notepad(pos_hint=(.5, 0), size_hint=(.5, .5)))
+    chart = sm.root.new_widget(pos_hint=(.5, .0), size_hint=(.5, .5), create_with=Window).new_widget(
+        maxlen=200, gradient=blue_to_purple, y_label=5, create_with=Chart)
     mc = sm.root.new_widget(pos_hint=(.5, .5), size_hint=(.5, .5), create_with=Window).new_widget(1, 1, delay=.1, create_with=MovingClock)
     mc.schedule_bounce()
 
     sm.schedule(lambda: mc.update_color(next(rainbow)), delay=.1)
+    sm.schedule(lambda: chart.update(random() * 50), delay=.1)
     sm.schedule(sm.root.refresh)
     sm.run()
