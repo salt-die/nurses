@@ -14,6 +14,8 @@ from .menubar import Menubar
 from .textbox import Textbox
 from .text_pad import TextPad
 
+from .chart import Chart
+
 # Layouts
 from .grid import Grid
 from .splits import HSplit, VSplit
