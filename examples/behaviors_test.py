@@ -44,9 +44,12 @@ with ScreenManager() as sm:
 
     sm.root.add_widget(Notepad(0, 0, size_hint=(.5, .5)))
     sm.root.add_widget(Notepad(pos_hint=(0, .5), size_hint=(.5, .5)))
-    chart = sm.root.new_widget(pos_hint=(.5, .0), size_hint=(.5, .5), create_with=Window).new_widget(
-        maxlen=200, gradient=blue_to_purple, y_label=5, create_with=Chart)
-    mc = sm.root.new_widget(pos_hint=(.5, .5), size_hint=(.5, .5), create_with=Window).new_widget(1, 1, delay=.1, create_with=MovingClock)
+
+    lr = sm.root.new_widget(pos_hint=(.5, .0), size_hint=(.5, .5), create_with=Window)
+    chart = lr.new_widget(maxlen=200, gradient=blue_to_purple, y_label=5, size_hint=(1., 1.), create_with=Chart)
+
+    ll = sm.root.new_widget(pos_hint=(.5, .5), size_hint=(.5, .5), create_with=Window)
+    mc = ll.new_widget(1, 1, delay=.1, create_with=MovingClock)
     mc.schedule_bounce()
 
     sm.schedule(lambda: mc.update_color(next(rainbow)), delay=.1)
