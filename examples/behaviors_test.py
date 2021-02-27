@@ -29,10 +29,6 @@ class Window(ArrayWin, Movable, Selectable):
 
         super().refresh()
 
-    def on_press(self, key):
-        if key == self.select_key or self.is_selected:
-            return super().on_press(key)
-
 
 class Notepad(Window, TextPad):
     ...
