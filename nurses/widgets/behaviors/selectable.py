@@ -28,5 +28,7 @@ class Selectable:
 
             Selectable.__selected.parent.pull_to_front(Selectable.__selected)
             return True
+        elif self.is_selected:
+            return super().on_press(key)
 
-        return super().on_press(key)
+        return True  # Stop the dispatch because we aren't selected
