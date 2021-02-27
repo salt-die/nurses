@@ -1,7 +1,7 @@
 from itertools import cycle
 from random import random
 
-from nurses import colors, ScreenManager
+from nurses import colors, ScreenManager, CUP, CRIGHT, CDOWN, CLEFT
 from nurses.widgets import ArrayWin, DigitalClock, TextPad
 from nurses.widgets.behaviors import Selectable, Movable, Bouncing
 
@@ -12,10 +12,10 @@ class MovingClock(Bouncing, DigitalClock):
 
 class Window(ArrayWin, Movable, Selectable):
     select_key = 0  # Ctrl + `
-    move_up = move_up_alt = 480  # Ctrl + Up
-    move_left = move_left_alt = 443  # Ctrl + Right
-    move_down = move_down_alt = 481  # Ctrl + Down
-    move_right = move_right_alt = 444  # Ctrl + Left
+    move_up = move_up_alt = CUP
+    move_left = move_left_alt = CRIGHT
+    move_down = move_down_alt = CDOWN
+    move_right = move_right_alt = CLEFT
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, border_style="light", **kwargs)
