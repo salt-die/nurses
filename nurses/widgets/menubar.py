@@ -1,5 +1,4 @@
-from . import Widget
-from . import Menu
+from . import Widget, Menu
 from .. import LEFT, LEFT_2, RIGHT, RIGHT_2, DOWN, DOWN_2, TAB
 
 
@@ -22,18 +21,19 @@ class Menubar(Widget):
     selected_color = None
 
     def __init__(self, *menus, **kwargs):
-        kwargs.pop("border_style", None)  # TODO: Allow borders
+        border_style, border_color = kwargs.pop("border_style", None), kwargs.pop("border_color", None)
         super().__init__(0, 0, 1, None, size_hint=(None, 1.0), **kwargs)
 
         self.deactivate()
 
-        for kwarg in ("activate", "move_left", "move_right", "open_submenu"):
+        for kwarg in ("activate", "move_left", "move_right", "open_submenu", "parent"):
             kwargs.pop(kwarg, None)
 
         acc = 0
         for name, items in menus:
-            menu = self.new_widget(0, acc, name, items, create_with=Menu, **kwargs)
+            menu = Menu(0, acc, name, items, border_style=border_style, border_color=border_color, **kwargs)
             acc += menu.width + 1
+            self.children.append(menu)
 
     def deactivate(self):
         self.is_activated = False
@@ -99,6 +99,9 @@ class Menubar(Widget):
             self.selected_color = colors.BLACK_ON_WHITE
 
         super().update_geometry()
+        for menu in self.children:
+            menu.parent = self.parent
+            menu.update_geometry()
 
     def refresh(self):
         menus = self.children

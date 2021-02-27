@@ -29,13 +29,22 @@ class Menu(Widget):
             self.items.append(item)
             self._callbacks.append(callback)
 
-        border = 2 * bool(kwargs.get("border_style"))
-        super().__init__(top, left, 1 + border, len(self.name) + border, **kwargs)
+        border_style, border_color = kwargs.pop("border_style", None), kwargs.pop("border_color", None)
+        border = 2 * bool(border_style)
+        super().__init__(top, left, 1, len(self.name), **kwargs)
 
-        for kwarg in ("move_up", "move_down", "select_key", "open_close_key", "selected_color"):
+        for kwarg in ("move_up", "move_up_alt", "move_down", "move_down_alt", "select_key", "open_close_key", "selected_color"):
             kwargs.pop(kwarg, None)
 
-        self._menu_widget = Widget(top + 1 + border, left, len(self) + border, max(map(len, self.items)) + border, **kwargs)
+        self._menu_widget = Widget(
+            top + 1,
+            left,
+            len(self) + border,
+            max(map(len, self.items)) + border,
+            border_style=border_style,
+            border_color=border_color,
+            **kwargs,
+        )
 
     def __len__(self):
         return len(self.items)
@@ -47,11 +56,11 @@ class Menu(Widget):
     def open_menu(self):
         self.is_closed = False
         self._selected_entry = 0
-        self.root.add_widget(self._menu_widget)
+        self.parent.add_widget(self._menu_widget)
 
     def close_menu(self):
         self.is_closed = True
-        self.root.remove_widget(self._menu_widget)
+        self.parent.remove_widget(self._menu_widget)
 
     def update_geometry(self):
         if self.root is None:
@@ -62,25 +71,23 @@ class Menu(Widget):
             self.selected_color = colors.BLACK_ON_WHITE
 
         if self.window is None:
-            offset = int(self.has_border)
             self.window = curses.newwin(self.height, self.width + 1)
             self.update_color(self.color)
-            self.window.addstr(offset, offset, self.name)
+            self.window.addstr(0, 0, self.name)
 
-            self._menu_widget.window = curses.newwin(self._menu_widget.height, self._menu_widget.width + 1)
+            menu = self._menu_widget
+            menu.parent = self.parent
+            menu.update_geometry()
 
-            for i, item in enumerate(self.items, start=offset):
-                self._menu_widget.window.addstr(i, offset, item)
-
-            if self.has_border:
-                self.border(self.border_style, self.border_color)
-                self._menu_widget.border(self.border_style, self.border_color)
+            offset = int(menu.has_border)
+            for i, item in enumerate(self.items):
+                menu.window.addstr(i + offset, offset, item)
 
     def refresh(self):
         if self.is_closed:
             return
 
-        offset = int(self.has_border)
+        offset = int(self._menu_widget.has_border)
         for i, item in enumerate(self.items):
             self._menu_widget.window.chgat(i + offset, offset, len(item), self.color if i != self._selected_entry else self.selected_color)
 
