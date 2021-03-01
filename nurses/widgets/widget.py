@@ -214,6 +214,7 @@ class Widget(metaclass=Observer):
     def _resize(self):
         if self.window:
             self.window.resize(self.height, self.width + 1)
+            self.update_color(self.color)
 
     @property
     def bottom(self):
