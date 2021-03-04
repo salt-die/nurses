@@ -13,6 +13,8 @@ class FileExplorer(ArrayPad, Scrollable):
     select_key = ENTER
     page_up = PGUP
     page_down = PGDN
+    default_directory = Path.home()
+    selected_color = None
 
     def __init__(self, *args, **kwargs):
         raise NotImplementedError
@@ -20,31 +22,59 @@ class FileExplorer(ArrayPad, Scrollable):
         self.close_explorer()  # Should be before super call so that self.root is None and root.remove_widget doesn't error
         super().__init__(*args, **kwargs)
 
+        if isinstance(self.default_directory, str):
+            self.default_directory = Path(self.default_directory)
+
+        self.pad[0, :2] = ".."
+
     def open_explorer(self):
         if self.root is not None:
             self.root.add_widget(self)
 
+        self.current_directory = self._get_directory()
+        self.selection = 1
         self.is_open = True
 
     def close_explorer(self):
-        self._current_path = Path("")
-
         if self.root is not None:
             self.root.remove_widget(self)
 
+        self._current_path = self.default_directory
         self.is_open = False
+
+    def update_geometry(self):
+        if self.root is None:
+            return
+
+        if self.selected_color is None:
+            from .. import colors
+            self.selected_color = colors.BLACK_ON_WHITE
+
+        super().update_geometry()
 
     def refresh(self):
         if not self.is_open:
             return
 
-        border_offset = int(self.has_border)
-        current_directory = self._get_directory()
+        directory = self.current_directory
+        if (need_rows := len(directory) + 1 - self.rows) > 0:
+            self.rows += need_rows
+
+        if (need_cols := max(len(str(path)) for path in directory) - self.cols) > 0:
+            self.cols += need_cols
+
+        self[1:] = " "
+        for i, path in enumerate(directory, start=1):
+            self[i, :len(path.name)] = path.name
+
 
     def _get_directory(self):
         directories = []
         files = []
         for child in self._current_path.iterdir():
+            if child.name.startswith("."):  # Skip hidden files / folders
+                continue
+
             if child.is_dir():
                 directories.append(child)
             else:
