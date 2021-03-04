@@ -1,11 +1,10 @@
 from pathlib import Path
 
 from . import ArrayPad
-from .behaviors import Scrollable
 from .. import UP, UP_2, DOWN, DOWN_2, ENTER, PGUP, PGDN
 
 
-class FileExplorer(ArrayPad, Scrollable):
+class FileExplorer(ArrayPad):
     move_up = UP
     move_up_alt = UP_2
     move_down = DOWN
@@ -31,6 +30,7 @@ class FileExplorer(ArrayPad, Scrollable):
         if self.root is not None:
             self.root.add_widget(self)
 
+        self.file = None
         self.current_directory = self._get_directory()
         self.selection = 1
         self.is_open = True
@@ -67,6 +67,10 @@ class FileExplorer(ArrayPad, Scrollable):
         for i, path in enumerate(directory, start=1):
             self[i, :len(path.name)] = path.name
 
+        self.pad_colors[:] = self.color
+        self.pad_color[self.selection] = self.selected_color
+
+        super().refresh()
 
     def _get_directory(self):
         directories = []
@@ -86,7 +90,28 @@ class FileExplorer(ArrayPad, Scrollable):
         return directories + files
 
     def on_press(self, key):
-        if key == self.select_key:
-            ...
+        selection = self.selection
+        directory = self.current_directory
 
-        return super().on_press(key)
+        if key == self.select_key:
+            if selection == 0:
+                self._current_path = self._current_path.parent
+                self.current_directory = self._get_directory
+            elif directory[selection - 1].is_dir():
+                self._current_path = directory[selection - 1]
+                self.current_directory = self._get_directory
+            else:
+                self.file = directory[selection - 1]
+                self.close_explorer()
+
+        elif key == self.move_up or key == self.move_up_alt:
+            self.selection = max(0, selection - 1)
+
+        elif key == self.move_down or key == self.move_down_alt:
+            self.selection = min(len(self.current_directory), selection + 1)
+
+        else:
+            return super().on_press(key)
+
+        self.root.refresh()
+        return True
