@@ -7,9 +7,6 @@ TODO
     soon™.  In any case, color management is a ridiculous pain with curses, where palettes are limited to 256 colors and re-initing colors on windows-curses
     doesn't always seem to work.
 
-* Widgets
-    * File Explorer
-
 * Resizing Widget doesn't correct borders (ArrayWin does correct)
 
 * Docs
