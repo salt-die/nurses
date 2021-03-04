@@ -23,10 +23,10 @@ class FileExplorer(ArrayPad):
             self.default_directory = Path(self.default_directory)
 
     def open_explorer(self):
+        self.is_open = True
         self.file = None
         self.current_directory = self._get_directory()
         self.selection = 1
-        self.is_open = True
         self.min_row = 0
 
         if self.root is not None:
@@ -34,11 +34,12 @@ class FileExplorer(ArrayPad):
             self.root.refresh()
 
     def close_explorer(self):
+        self.is_open = False
+        self._current_path = self.default_directory
+
         if self.root is not None:
             self.root.remove_widget(self)
-
-        self._current_path = self.default_directory
-        self.is_open = False
+            self.root.refresh()
 
     def update_geometry(self):
         if self.root is None:
@@ -94,12 +95,11 @@ class FileExplorer(ArrayPad):
         selected_path = directory[selection - 1]
 
         if key == self.select_key:
-            if selection == 0:
-                self._current_path = self._current_path.parent
+            if selection == 0 or selected_path.is_dir():
+                self._current_path = self._current_path.parent if selection == 0 else selected_path
                 self.current_directory = self._get_directory()
-            elif selected_path.is_dir():
-                self._current_path = selected_path
-                self.current_directory = self._get_directory()
+                self.selection = 1
+                self.min_row = 0
             else:
                 self.file = selected_path
                 self.close_explorer()
