@@ -14,6 +14,7 @@ class FileExplorer(ArrayPad):
     page_down = PGDN
     default_directory = Path.home()
     selected_color = None
+    directories_only = False
 
     def __init__(self, *args, **kwargs):
         self.close_explorer()  # Should be before super call so that self.root is None and root.remove_widget doesn't error
@@ -81,7 +82,7 @@ class FileExplorer(ArrayPad):
 
             if child.is_dir():
                 directories.append(child)
-            else:
+            elif not self.directories_only:
                 files.append(child)
 
         directories.sort(key=lambda path: path.name)
