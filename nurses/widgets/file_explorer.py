@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from . import ArrayPad
-from .. import UP, UP_2, DOWN, DOWN_2, ENTER, PGUP, PGDN
+from .. import UP, UP_2, DOWN, DOWN_2, ENTER, PGUP, PGDN, CENTER
 
 
 class FileExplorer(ArrayPad):
@@ -14,7 +14,6 @@ class FileExplorer(ArrayPad):
     page_down = PGDN
     default_directory = Path.home()
     selected_color = None
-    directories_only = False
 
     def __init__(self, *args, **kwargs):
         self.close_explorer()  # Should be before super call so that self.root is None and root.remove_widget doesn't error
@@ -82,7 +81,7 @@ class FileExplorer(ArrayPad):
 
             if child.is_dir():
                 directories.append(child)
-            elif not self.directories_only:
+            else:
                 files.append(child)
 
         directories.sort(key=lambda path: path.name)
@@ -120,3 +119,20 @@ class FileExplorer(ArrayPad):
 
         self.root.refresh()
         return True
+
+
+class DirExplorer(FileExplorer):
+    dir_select = CENTER
+
+    def _get_directory(self):
+        directories = [child for child in self._current_path.iterdir() if not child.name.startswith(".") and child.is_dir()]
+        directories.sort(key=lambda path: path.name)
+        return directories
+
+    def on_press(self, key):
+        if key == self.dir_select:
+            self.dir = self._current_path
+            self.close_explorer()
+            return True
+
+        return super().on_press(key)
