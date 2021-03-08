@@ -78,6 +78,7 @@ class Menu(Widget):
             menu = self._menu_widget
             menu.parent = self.parent
             menu.update_geometry()
+            menu.window.bkgd(" ", self.color)
 
             offset = int(menu.has_border)
             for i, item in enumerate(self.items):
@@ -87,9 +88,10 @@ class Menu(Widget):
         if self.is_closed:
             return
 
-        offset = int(self._menu_widget.has_border)
+        menu = self._menu_widget
+        offset = int(menu.has_border)
         for i, item in enumerate(self.items):
-            self._menu_widget.window.chgat(i + offset, offset, len(item), self.color if i != self._selected_entry else self.selected_color)
+            self._menu_widget.window.chgat(i + offset, offset, menu.width - 2 * offset, self.color if i != self._selected_entry else self.selected_color)
 
     def on_press(self, key):
         if key == self.open_close_key:
