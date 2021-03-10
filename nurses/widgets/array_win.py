@@ -95,8 +95,16 @@ class ArrayWin(Widget):
         """
         it = np.nditer((self._buffer, self._colors), ["multi_index"])
         for char, color in it:
+
+            # I'm not quite sure why I get spurious errors when adding a newline character,
+            # so we'll replace them until I figure it out.
+            if (ch := str(char)) == "\n":
+                ch = " "
+            #
+            #
+
             y, x = it.multi_index
-            self.window.addstr(y, x, str(char), color)
+            self.window.addstr(y, x, ch, color)
 
     def refresh(self):
         self.push()
