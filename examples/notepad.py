@@ -11,7 +11,7 @@ with ScreenManager() as sm:
 
     tp = sm.root.new_widget(1, 0, size_hint=(None, 1.0), create_with="TextPad")
     tp.getter("height", lambda: sm.root.height - 1)
-    tp.update_geometry()
+    tp._resize()
 
     async def open_file():
         fe.open_explorer()
