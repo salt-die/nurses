@@ -212,9 +212,30 @@ class Widget(metaclass=Observer):
 
     @bind_to("height", "width")
     def _resize(self):
-        if self.window:
-            self.window.resize(self.height, self.width + 1)
-            self.update_color(self.color)
+        window = self.window
+
+        if not window:
+            return
+
+        if self.has_border:  # Erase the right-most, lower-most border in case widget expands
+            h, w = window.getmaxyx()
+            h, w = h - 1, w - 2
+            color = self.color
+            ch = self.default_character
+            window.addstr(0, w, ch, color)
+            window.addstr(h, w, ch, color)
+
+            for x in range(1, w):
+                window.addstr(h, x, ch, color)
+
+            for y in range(1, h):
+                window.addstr(y, w, ch, color)
+
+        window.resize(self.height, self.width + 1)
+        self.update_color(self.color)
+
+        if self.has_border:
+            self.border(self.border_style, self.border_color)
 
     @property
     def bottom(self):
