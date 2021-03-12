@@ -148,7 +148,7 @@ with ScreenManager() as sm:
             if char != " ":
                 sm.root.add_widget(Particle(y, x, character=char, color=c[y, x]))
 
-    cursor = sm.root.new_widget(0, 0, 3, 3, transparent=True, create_with=Cursor)
+    cursor = sm.root.new_widget(HEIGHT // 2, WIDTH // 2, 3, 3, transparent=True, create_with=Cursor)
     cursor.window.addstr(0, 0, " | \n-+-\n | ")
 
     sm.schedule(sm.root.refresh)
