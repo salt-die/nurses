@@ -11,52 +11,54 @@ BORDER_STYLES = {
     "curved": "╭╮│─╰╯",
 }
 
-_attr_to_callbacks = defaultdict(list)
-def bind_to(*attrs):
-    """Decorator that binds a method to attributes.  Attributes in `attrs` that aren't Observable will be redefined as Observables.
+
+class BindMagic:
     """
-    def decorator(func):
-        for attr in attrs:
-            _attr_to_callbacks[attr].append(func.__name__)
-        return func
-    return decorator
+    Decorator that binds a method to attributes.  Attributes in `attrs` that aren't Observable will be redefined as Observables.
+
+    Warning! This is a very abusive way to use the automatic calling of `__set_name__` in the descriptor protocol.
+    """
+    def __init__(self, *attrs):
+        self.attrs = attrs
+
+    def __set_name__(self, owner, name):
+        for attr in self.attrs:
+            for base in owner.__mro__:
+                if hasattr(base, attr):
+                    base_attr = base.__dict__[attr]
+
+                    if isinstance(base_attr, Observable):
+                        prop = base_attr
+                    else:
+                        setattr(owner, attr, Observable(base_attr))  # default value of Observable will come from base.__dict__
+                        prop = owner.__dict__[attr]
+                        prop.__set_name__(owner, attr)
+                    break
+            else:
+                setattr(owner, attr, Observable())
+                prop = owner.__dict__[attr]
+                prop.__set_name__(owner, attr)
+
+            prop.bind(owner.__name__, name)
+
+        setattr(owner, name, self.func)
+
+    def __call__(self, func):
+        self.func = func
+        return self
 
 
 class Observer(type):
     """
-    Warning: Experimental meta-programming ahead.
-
-    This metaclass will search for any attributes what were added to `_attr_to_callbacks` with the `bind_to`
-    decorator in a Widget class definition.  If those attributes aren't `Observable` they will be redefined as
-    Observable so that the decorated methods can be bound to the attributes.
+    This metaclass simply drops the `bind_to` decorator into the class dict.
+    `bind_to` allows one to quickly bind functions to attributes in the class body - these attributes
+    will be turned into Observables by the decorator.
     """
     def __prepare__(name, bases):
-        _attr_to_callbacks.clear()
-        return {"bind_to": bind_to}
+        return { "bind_to": BindMagic }
 
     def __new__(meta, name, bases, methods):
         del methods["bind_to"]
-        # Attributes bound to callbacks that aren't `Observable` are made so:
-        for attr, callbacks in _attr_to_callbacks.items():
-            if attr not in methods:
-                for base in bases:
-                    if attr in base.__dict__:
-                        if not isinstance(base.__dict__[attr], Observable):
-                            prop = methods[attr] = Observable(base.__dict__[attr])
-                        else:
-                            prop = base.__dict__[attr]
-                        break
-                else:
-                    prop = methods[attr] = Observable()
-            elif not isinstance(methods[attr], Observable):
-                prop = methods[attr] = Observable(methods[attr])
-            else:
-                prop = methods[attr]
-
-            for callback in callbacks:
-                prop.bind(name, callback)
-
-        _attr_to_callbacks.clear()
         return super().__new__(meta, name, bases, methods)
 
 
