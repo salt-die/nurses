@@ -35,7 +35,7 @@ j888888888888888888888888888888888888888'  8888888888888
                   `'"^^V888888888V^^'
 """
 HEIGHT, WIDTH = 28, 56  # Dimensions of LOGO
-CODE_RAIN_HEIGHT = 8    # The height of the trail of the code rain + 1,  this should be divisble by 2
+CODE_RAIN_HEIGHT = 8    # The height of the trail of the code rain + 1,  this should be divisible by 2
 LAST_RAINFALL = 25      # Number of seconds until the last rain drops.
 TIME_PER_ROW = .2       # Time rain spends on each row.
 MATRIX_KANJI = list('ﾆﾍ7ﾒﾜﾊﾑﾇｵ2ZI508')
