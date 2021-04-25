@@ -96,12 +96,10 @@ class ArrayWin(Widget):
         it = np.nditer((self._buffer, self._colors), ["multi_index"])
         for char, color in it:
 
-            # I'm not quite sure why I get spurious errors when adding a newline character,
-            # so we'll replace them until I figure it out.
+            # Newline character on the last corner of a window will advance the cursor out-of-bounds causing an error
+            # TODO: Implement a more perfomant solution, either check the index, catch the error, or add an extra row to the windows
             if (ch := str(char)) == "\n":
                 ch = " "
-            #
-            #
 
             y, x = it.multi_index
             self.window.addstr(y, x, ch, color)
