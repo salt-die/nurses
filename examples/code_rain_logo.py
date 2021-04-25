@@ -72,7 +72,7 @@ class CodeRain(ArrayWin):
             await sm.sleep(TIME_PER_ROW)
 
         sm.root.pull_to_front(self)
-        CodeRain.drops_falling-= 1
+        CodeRain.drops_falling -= 1
 
     async def new_char(self):
         while self.top != self.target_row - CODE_RAIN_HEIGHT + 1:
