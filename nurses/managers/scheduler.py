@@ -53,9 +53,10 @@ class Scheduler:
         self.current = None
 
     async def sleep(self, delay):
-        self.current.deadline = monotonic() + delay
-        heappush(self.sleeping, self.current)
-        self.current = None
+        if delay is not 0:
+            self.current.deadline = monotonic() + delay
+            heappush(self.sleeping, self.current)
+            self.current = None
         await self.next_task()
 
     def run_soon(self, *coros):
