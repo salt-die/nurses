@@ -35,11 +35,10 @@ j888888888888888888888888888888888888888'  8888888888888
                   `'"^^V888888888V^^'
 """
 HEIGHT, WIDTH = 28, 56  # Dimensions of LOGO
-CODE_RAIN_HEIGHT = 8
+CODE_RAIN_HEIGHT = 8    # The height of the trail of the code rain + 1,  this should be divisble by 2
 LAST_RAINFALL = 25      # Number of seconds until the last rain drops.
 TIME_PER_ROW = .2       # Time rain spends on each row.
 MATRIX_KANJI = list('ﾆﾍ7ﾒﾜﾊﾑﾇｵ2ZI508')
-FADE_DELAY = .01         # The delay between color changes when fading to python logo colors
 
 
 class CodeRain(ArrayWin):
@@ -53,36 +52,42 @@ class CodeRain(ArrayWin):
         self.target_row = y
         self.character = character
         self.gradient = gradient
-        CodeRain.drops_falling += 1
-        sm.run_soon(self.fall(delay), self.new_char())
+        self.delay = delay
 
-    async def fall(self, delay):
-        await sm.sleep(delay)
+        CodeRain.drops_falling += 1
+
+        self._char_task = sm.new_task(self.new_char())
+        sm.run_soon(self.fall())
+
+    async def fall(self):
+        await sm.sleep(self.delay)
+        sm.root.pull_to_front(self)
         for _ in range(self.target_row + 1):
             self.buffer[:-1] = self.buffer[1:]
             self.top += 1
             await sm.sleep(TIME_PER_ROW)
 
-        self.buffer[-1] = self.character
-
-        # Fade to black
+        # Fade to trail to black
         for i in range(CODE_RAIN_HEIGHT - 1):
             self.colors[1: -1] = self.colors[: -2]
             self.buffer[i] = " "
             await sm.sleep(TIME_PER_ROW)
 
-        sm.root.pull_to_front(self)
         CodeRain.drops_falling -= 1
 
     async def new_char(self):
-        while self.top != self.target_row - CODE_RAIN_HEIGHT + 1:
+        while True:
             self.buffer[-1] = np.random.choice(MATRIX_KANJI)
             await sm.next_task()
 
     async def fade(self):
         for color in self.gradient:
             self.colors[-1] = color
-            await sm.sleep(FADE_DELAY)
+            await sm.next_task()
+
+        await sm.sleep(self.delay / 9)
+        self._char_task.cancel()
+        self.buffer[-1] = self.character
 
 async def fade_when_done():
     while CodeRain.drops_falling:
@@ -104,7 +109,10 @@ with ScreenManager() as sm:
     c[-7:] = c[-13: -7, -41:] = c[-14, -17:] = c[-20: -14, -15:] = False
 
     # Exponential distribution of starting times for the rain drops.
-    start_times = (1 - (s := np.random.exponential(1, (HEIGHT, WIDTH))) / s.max()) * LAST_RAINFALL
+    random = np.random.exponential(1, (HEIGHT, WIDTH))
+    random = random - random.min()
+    random /= random.max()
+    start_times = np.sort((1 - random) * LAST_RAINFALL, axis=0)[::-1]
 
     # Create a CodeRain for each non-space character in the logo
     for y, row in enumerate(LOGO.splitlines()):
