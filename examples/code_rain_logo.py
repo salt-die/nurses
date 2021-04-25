@@ -67,7 +67,7 @@ class CodeRain(ArrayWin):
             self.top += 1
             await sm.sleep(TIME_PER_ROW)
 
-        # Fade to trail to black
+        # Fade trail to black
         for i in range(CODE_RAIN_HEIGHT - 1):
             self.colors[1: -1] = self.colors[: -2]
             self.buffer[i] = " "
