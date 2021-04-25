@@ -85,7 +85,7 @@ class CodeRain(ArrayWin):
             self.colors[-1] = color
             await sm.next_task()
 
-        await sm.sleep(self.delay / 9)
+        await sm.sleep(self.delay / 8)
         self._char_task.cancel()
         self.buffer[-1] = self.character
 
@@ -110,9 +110,10 @@ with ScreenManager() as sm:
 
     # Exponential distribution of starting times for the rain drops.
     random = np.random.exponential(1, (HEIGHT, WIDTH))
-    random = random - random.min()
-    random /= random.max()
-    start_times = np.sort((1 - random) * LAST_RAINFALL, axis=0)[::-1]
+    scale = random.max() - random.min()
+    random = 1 - (random - random.min()) / scale
+    random *= LAST_RAINFALL
+    start_times = np.sort(random, axis=0)[::-1]
 
     # Create a CodeRain for each non-space character in the logo
     for y, row in enumerate(LOGO.splitlines()):
