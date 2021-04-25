@@ -53,7 +53,7 @@ class CodeRain(ArrayWin):
         self.target_row = y
         self.character = character
         self.gradient = gradient
-        type(self).drops_falling+= 1
+        CodeRain.drops_falling += 1
         sm.run_soon(self.fall(delay), self.new_char())
 
     async def fall(self, delay):
@@ -72,7 +72,7 @@ class CodeRain(ArrayWin):
             await sm.sleep(TIME_PER_ROW)
 
         sm.root.pull_to_front(self)
-        type(self).drops_falling-= 1
+        CodeRain.drops_falling-= 1
 
     async def new_char(self):
         while self.top != self.target_row - CODE_RAIN_HEIGHT + 1:
