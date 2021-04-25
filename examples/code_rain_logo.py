@@ -103,7 +103,7 @@ with ScreenManager() as sm:
     # Exponential distribution of starting times for the rain drops.
     start_times = (1 - (s := np.random.exponential(1, (HEIGHT, WIDTH))) / s.max()) * LAST_RAINFALL
 
-    # Create a Particle for each non-space character in the logo
+    # Create a CodeRain for each non-space character in the logo
     for y, row in enumerate(LOGO.splitlines()):
         for x, char in enumerate(row):
             if char != " ":
