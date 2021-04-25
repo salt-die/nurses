@@ -37,20 +37,23 @@ j888888888888888888888888888888888888888'  8888888888888
 HEIGHT, WIDTH = 28, 56  # Dimensions of LOGO
 CODE_RAIN_HEIGHT = 8
 LAST_RAINFALL = 25      # Number of seconds until the last rain drops.
-TIME_PER_ROW = .2
+TIME_PER_ROW = .2       # Time rain spends on each row.
 MATRIX_KANJI = list('ﾆﾍ7ﾒﾜﾊﾑﾇｵ2ZI508')
-FADE_DELAY = .01         # Time between color change at end
+FADE_DELAY = .01         # The delay between color changes when fading to python logo colors
+
 
 class CodeRain(ArrayWin):
+    drops_falling= 0
+
     def __init__(self, y, x, character, gradient, delay):
         super().__init__(-CODE_RAIN_HEIGHT, x, CODE_RAIN_HEIGHT, 1, transparent=True)
         self._buffer = np.full((CODE_RAIN_HEIGHT, 1), " ")
-        self._colors = np.array(BLACK + GREEN)[:, None]
+        self._colors = np.array(BLACKGREEN)[:, np.newaxis]
 
         self.target_row = y
         self.character = character
         self.gradient = gradient
-        self.done = False
+        type(self).drops_falling+= 1
         sm.run_soon(self.fall(delay), self.new_char())
 
     async def fall(self, delay):
@@ -69,7 +72,7 @@ class CodeRain(ArrayWin):
             await sm.sleep(TIME_PER_ROW)
 
         sm.root.pull_to_front(self)
-        self.done = True
+        type(self).drops_falling-= 1
 
     async def new_char(self):
         while self.top != self.target_row - CODE_RAIN_HEIGHT + 1:
@@ -82,7 +85,7 @@ class CodeRain(ArrayWin):
             await sm.sleep(FADE_DELAY)
 
 async def fade_when_done():
-    while not all(drop.done for drop in sm.root.children):
+    while CodeRain.drops_falling:
         await sm.sleep(TIME_PER_ROW)
 
     for drop in sm.root.children:
@@ -92,6 +95,7 @@ async def fade_when_done():
 with ScreenManager() as sm:
     BLACK = colors.gradient(CODE_RAIN_HEIGHT // 2, (0, 0, 0), (0, 255, 0), 'black_to_green')
     GREEN = colors.gradient(CODE_RAIN_HEIGHT // 2, (0, 255, 0), (255, 255, 255), 'green_to_white')
+    BLACKGREEN = BLACK + GREEN
     BLUE = colors.gradient(25, (255, 255, 255), (48, 105, 152), 'white_to_blue')
     YELLOW = colors.gradient(25, (255, 255, 255), (255, 212, 59), 'white_to_yellow')
 
