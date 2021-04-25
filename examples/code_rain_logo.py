@@ -71,16 +71,15 @@ class CodeRain(ArrayWin):
         sm.root.pull_to_front(self)
         self.done = True
 
-    async def fade(self):
-        for color in self.gradient:
-            self.colors[-1] = color
-            await sm.sleep(FADE_DELAY)
-
     async def new_char(self):
         while self.top != self.target_row - CODE_RAIN_HEIGHT + 1:
             self.buffer[-1] = np.random.choice(MATRIX_KANJI)
             await sm.next_task()
 
+    async def fade(self):
+        for color in self.gradient:
+            self.colors[-1] = color
+            await sm.sleep(FADE_DELAY)
 
 async def fade_when_done():
     while not all(drop.done for drop in sm.root.children):
