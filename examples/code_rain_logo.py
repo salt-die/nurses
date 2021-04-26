@@ -40,6 +40,14 @@ LAST_RAINFALL = 25      # Number of seconds until the last rain drops.
 TIME_PER_ROW = .2       # Time rain spends on each row.
 MATRIX_KANJI = list('ﾆﾍ7ﾒﾜﾊﾑﾇｵ2ZI508')
 
+def generate_starting_times():
+    # Exponential distribution of starting times for the rain drops.
+    random = np.random.standard_exponential((HEIGHT, WIDTH))
+    scale = random.max() - random.min()
+    random = 1 - (random - random.min()) / scale
+    random *= LAST_RAINFALL
+    return np.sort(random, axis=0)[::-1]
+
 
 class CodeRain(ArrayWin):
     drops_falling= 0
@@ -98,22 +106,18 @@ async def fade_when_done():
 
 
 with ScreenManager() as sm:
-    BLACK = colors.gradient(CODE_RAIN_HEIGHT // 2, (0, 0, 0), (0, 255, 0), 'black_to_green')
-    GREEN = colors.gradient(CODE_RAIN_HEIGHT // 2, (0, 255, 0), (255, 255, 255), 'green_to_white')
-    BLACKGREEN = BLACK + GREEN
+    BLACKGREEN = (
+        colors.gradient(CODE_RAIN_HEIGHT // 2, (0, 0, 0), (0, 255, 0), 'black_to_green') +
+        colors.gradient(CODE_RAIN_HEIGHT // 2, (0, 255, 0), (255, 255, 255), 'green_to_white')
+    )
     BLUE = colors.gradient(25, (255, 255, 255), (48, 105, 152), 'white_to_blue')
     YELLOW = colors.gradient(25, (255, 255, 255), (255, 212, 59), 'white_to_yellow')
 
-    # Ending colors of logo:  Blue: True, Yellow: False
+    # Ending colors of logo:  True: Blue, False: Yellow
     c = np.ones((HEIGHT, WIDTH), dtype=bool)
     c[-7:] = c[-13: -7, -41:] = c[-14, -17:] = c[-20: -14, -15:] = False
 
-    # Exponential distribution of starting times for the rain drops.
-    random = np.random.exponential(1, (HEIGHT, WIDTH))
-    scale = random.max() - random.min()
-    random = 1 - (random - random.min()) / scale
-    random *= LAST_RAINFALL
-    start_times = np.sort(random, axis=0)[::-1]
+    start_times = generate_starting_times()
 
     # Create a CodeRain for each non-space character in the logo
     for y, row in enumerate(LOGO.splitlines()):
