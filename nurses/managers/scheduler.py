@@ -6,7 +6,7 @@ from types import coroutine
 
 
 class Task:
-    __slots__ = "scheduler", "coro", "is_canceled", "deadline", "is_rescheduled"
+    __slots__ = "scheduler", "coro", "is_canceled", "deadline", "is_rescheduled", "result"
 
     def __init__(self, scheduler, coro):
         self.scheduler = scheduler
@@ -95,11 +95,11 @@ class Scheduler:
 
             try:
                 self.current.coro.send(None)
-            except StopIteration:
-                continue
-
-            if self.current:
-                ready.append(self.current)
+            except StopIteration as e:
+                self.current.result = e.value
+            else:
+                if self.current:
+                    ready.append(self.current)
 
     def aiter(self, iterable, *args, delay=0, n=0, **kwargs):
         """Utility function: wraps a callable in a coroutine or creates an async iterator from an iterable.
