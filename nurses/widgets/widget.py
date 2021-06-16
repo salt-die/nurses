@@ -337,7 +337,7 @@ class Widget(metaclass=Observer):
             des_h = min(h - 1, des_t + widget.height)
             des_w = min(w - 1, des_l + widget.width - 1)  # -1 compensates for the extra width of widget's window
 
-            widget.overlay(self.window, src_t, src_l, des_t, des_l, des_h, des_w)
+            widget.overlay(self.window, src_t, src_l, des_t, des_l, des_h, des_w)  # FIXME: This is causing an error on WSL terminal.
 
     @staticmethod
     def convert(value, bounds):
