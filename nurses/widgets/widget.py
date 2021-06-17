@@ -70,6 +70,7 @@ class Widget(metaclass=Observer):
     ----------
     top, left, height, width: optional, positional only
         Upper and left-most coordinates of widget relative to parent, and dimensions of the widget.
+        (Need to provide zero, two, or four arguments.)
         (the defaults are 0, 0, parent's max height, parent's max width)
 
     Other Parameters
