@@ -1,6 +1,6 @@
 # Nurses
 
-> Nurses is currently being rewritten to be platform agnostic with a dependency on `prompt-toolkit` instead of `curses`.  With optimizations for "terminal graphics" rather than TUIs. Progress can be followed here: [www.github.com/salt-die/nurses_2](nurses_2)
+> Nurses is currently being rewritten to be platform agnostic with a dependency on `prompt-toolkit` instead of `curses`.  With optimizations for "terminal graphics" rather than TUIs. Progress can be followed here: [www.github.com/salt-die/nurses_2]
 
 A portmanteau of Numpy and Curses. This library aims to implement curses widgets that have similar api to both
 numpy arrays and typical GUI widgets.
