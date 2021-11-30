@@ -1,7 +1,7 @@
 # nurses
 
 >
-> nurses is dead. long live [nurses](www.github.com/salt-die/nurses_2).
+> nurses is dead. long live [nurses](http://www.github.com/salt-die/nurses_2).
 >
 
 A portmanteau of Numpy and Curses. This library aims to implement curses widgets that have similar api to both
